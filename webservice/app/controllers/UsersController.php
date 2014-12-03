@@ -23,10 +23,10 @@ class UsersController extends ControllerBase
     
     public function registrationAction()
     {
-        $os = $this->request->get("os");
-        $version = $this->request->get("version");
-        $mobile_no = $this->request->get("mobile_no");
-        $device_id = $this->request->get("device_id");
+        $os = $this->request->getPost("os");
+        $version = $this->request->getPost("version");
+        $mobile_no = $this->request->getPost("mobile_no");
+        $device_id = $this->request->getPost("device_id");
         
         if(!isset($os) || !isset($version) || !isset($mobile_no) || !isset($device_id)) {
             $this->outputAction(false, '0', ERROR_INPUT, null);
@@ -74,10 +74,10 @@ class UsersController extends ControllerBase
     
     public function generateTokenAction()
     {
-        $os = $this->request->get("os");
-        $version = $this->request->get("version");
-        $device_id = $this->request->get("device_id");
-        $user_id = $this->request->get("user_id");
+        $os = $this->request->getPost("os");
+        $version = $this->request->getPost("version");
+        $device_id = $this->request->getPost("device_id");
+        $user_id = $this->request->getPost("user_id");
         if(!isset($os) || !isset($version) || !isset($user_id) || !isset($device_id)) {
             $this->outputAction(false, '0', ERROR_INPUT, null);
         } else {
