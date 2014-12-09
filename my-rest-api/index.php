@@ -47,10 +47,28 @@ $app->post( '/setProfile', function () use ( $app ) {
     $user->setProfileAction($header_data,$app->request->getPost());
 });
 
+$app->put( '/setContextIndicator/{context}', function ($context) use ( $app ) {
+    $header_data = getallheaders();
+    $user = new UsersController();
+    $user->setContextIndicatorAction($header_data,$context);
+});
+
+$app->post( '/createPost', function () use ( $app ) {
+    $header_data = getallheaders();
+    $post = new PostsController();
+    $post->createPostAction($header_data,$app->request->getPost());
+});
+
+$app->post( '/postComment', function () use ( $app ) {
+    $header_data = getallheaders();
+    $comment = new CommentsController();
+    $comment->postCommentsAction($header_data,$app->request->getPost());
+});
+
 $app->notFound(
 	function () use ( $app ) {
             $app->response->setStatusCode( 404, "Not Found" )->sendHeaders();
-            echo 'This is crazy, but this page was not found!';
+             Library::output(false, '0', "This Api not exist", null);
 	}
 );
 $app->handle();

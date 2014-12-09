@@ -221,7 +221,7 @@ class UsersController
             $profile['mobile_no'] = $user->mobile_no;
             $profile['username'] = $user->username;
             $profile['context_indicator'] = $user->context_indicator;
-            $profile['birthday'] = '10-04-2014';
+            $profile['birthday'] = isset($user->birthday) ? $user->birthday : '';
             $profile['profile_pic'] = 'http://cgintelmob.cafegive.com/images/slide_banner.jpg';
             
             $my_mind[0]['post_id'] = 1;
@@ -231,9 +231,9 @@ class UsersController
             $my_mind[0]['post_dislike_count'] = 1;
             $my_mind[0]['post_comment_count'] = 1;
             
-            $about_me['gender'] = 'male';
-            $about_me['hobbies'] = 'cricket';
-            $about_me['description'] = 'hello';
+            $about_me['gender'] = isset($user->gender) ? $user->gender : '';
+            $about_me['hobbies'] = isset($user->hobbies) ? $user->hobbies : '';
+            $about_me['description'] = isset($user->about_me) ? $user->about_me : '';
             
             $result['profile'] = $profile;
             $result['my_mind'] = $my_mind;
@@ -263,7 +263,6 @@ class UsersController
         $indicator = Indicators :: find();
         $result['indicator'] = $indicator[0]->indicators;
         Library::output(true, '1', "No Error", $result);
-        
     }
     
     
@@ -279,27 +278,64 @@ class UsersController
     
      public function setProfileAction($header_data,$post_data)
      { 
-          if( !isset($post_data['username']) || !isset($post_data['birthday']) || !isset($post_data['gender']) || !isset($post_data['hobbies']) || !isset($post_data['about_me'])) {
+        if( !isset($post_data['username']) || !isset($post_data['birthday']) || !isset($post_data['gender']) || !isset($post_data['hobbies']) || !isset($post_data['about_me'])) {
             Library::logging('alert',"API : setProfile : ".ERROR_INPUT.": user_id : ".$header_data['user_id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
-            $user_id = $header_data['user_id'];
+            try {
+                $user_id = $header_data['user_id'];
+                $user = Users::findById($header_data['user_id']);
+                $user->username = $post_data['username'];
+                $user->birthday = $post_data['birthday'];
+                $user->gender = $post_data['gender'];
+                $user->hobbies = $post_data['hobbies'];
+                $user->about_me = $post_data['about_me'];
+                if ($user->save() == false) {
+                    foreach ($user->getMessages() as $message) {
+                        $errors[] = $message->getMessage();
+                    }
+                    Library::logging('error',"API : setProfile : ".$errors." : user_id : ".$header_data['user_id']);
+                    Library::output(false, '0', $errors, null);
+                } else {
+                    Library::output(true, '1', USER_PROFILE, null);
+                }
+            } catch (Exception $e) {
+                Library::logging('error',"API : setProfile : ".$e." ".": user_id : ".$header_data['user_id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }  
+        }
+     }
+     
+     
+    /**
+     * Method for set context indicator
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Shubham Agarwal <shubham.agarwal@kelltontech.com>
+     * @return json
+     */
+    
+     public function setContextIndicatorAction($header_data,$context)
+     {
+        try {
             $user = Users::findById($header_data['user_id']);
-            $user->username = $post_data['username'];
-            $user->birthday = $post_data['birthday'];
-            $user->gender = $post_data['gender'];
-            $user->hobbies = $post_data['hobbies'];
-            $user->about_me = $post_data['about_me'];
+            $user->context_indicator = $context;
             if ($user->save() == false) {
                 foreach ($user->getMessages() as $message) {
                     $errors[] = $message->getMessage();
                 }
-                Library::logging('error',"API : setProfile : ".$errors." : user_id : ".$user_id);
+                Library::logging('error',"API : setContextIndicator : ".$errors." : user_id : ".$header_data['user_id']);
                 Library::output(false, '0', $errors, null);
             } else {
-                Library::output(true, '1', USER_PROFILE, null);
+                Library::output(true, '1', CONTEXT_INDICATOR, null);
             }
-        }
+        } catch (Exception $e) {
+            Library::logging('error',"API : setContextIndicator : ".$e." ".": user_id : ".$header_data['user_id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }     
+           
      }
     
     

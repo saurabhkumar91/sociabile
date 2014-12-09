@@ -39,12 +39,12 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
                                 self::output(false, '0', TOKEN_WRONG, null);
                             }
                         } else {
-                            self::logging('error',"API : Middleware ".USER_NOT_REGISTERED);
+                            self::logging('error',"API : Middleware ".USER_NOT_REGISTERED." user_id : ".$param['user_id']);
                             self::output(false, '0', USER_NOT_REGISTERED, null);
                         }
 
                     } else {
-                        self::logging('error',"API : Middleware ".HEADER_INFO);
+                        self::logging('error',"API : Middleware ".HEADER_INFO." user_id : ".$param['user_id'] );
                         self::output(false, '0', HEADER_INFO, null);
                     }
 
@@ -54,7 +54,7 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
                 }
             }
         } else {
-            self::logging('error',"API : Middleware ".WRONG_OS_VERSION);
+            self::logging('error',"API : Middleware ".WRONG_OS_VERSION." user_id : ".$param['user_id']);
             self::output(false, '0', WRONG_OS_VERSION, null);
         }
         
