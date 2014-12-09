@@ -1,6 +1,8 @@
 <?php
 
 use Phalcon\Mvc\Controller;
+use Phalcon\Logger\Adapter\File as FileAdapter;
+
 
 class ControllerBase extends Controller
 {
@@ -22,6 +24,11 @@ class ControllerBase extends Controller
         define('ERROR_INPUT', 'Please provide all input values.');
         define('ERROR_REQUEST', 'Error in request. Please try again');
         define('USER_NOT_REGISTERED', 'Invalid User');
+        define('CONTACTS_SAVED', 'All The Contacts Has Been Saved Successfully.');
+        define('USER_NAME_SAVED', 'User Name Saved Successfully.');
+        
+        
+        // otp relaed messages
         define('OTP_SENT', 'OTP Sent Successfully');
         define('OTP_VERIFIED', 'OTP Verified.');
         define('OTP_WRONG', 'OTP Not Verified.');
@@ -34,26 +41,42 @@ class ControllerBase extends Controller
         
         
         // check for authentication using random token
-        $action = array('registration','generateToken','codeVerification');
+        $action = array('registration','generateToken');
         $os = array('1','2');
         $version = array('1.0');
         
         if(!in_array($this->dispatcher->getActionName(), $action)) {
             try{
                 $user_id = $this->request->get("user_id");
-                $token = $this->request->get("token");
-                if((in_array($this->request->get("os"), $os)) && (in_array($this->request->get("version"), $version))) {
-                    $user = Users::findById($user_id);
-                    if($user->hash == $token) {
-                        //echo "ok";die;    
+                //$token = $this->request->get("token");
+                $token = getallheaders();
+                if(isset($token['token'])) {
+                    $token = $token['token'];
+                    if((in_array($this->request->get("os"), $os)) && (in_array($this->request->get("version"), $version))) {
+                        $user = Users::findById($user_id);
+                        if($user) {
+                             if($user->hash == $token) {
+                            //echo "ok";die;    
+                            } else {
+                                $this->outputAction(false, '0', TOKEN_WRONG, null);
+                            }
+                        } else {
+                            $this->loggingAction('error',"API : Middleware ".USER_NOT_REGISTERED);
+                            $this->outputAction(false, '0', USER_NOT_REGISTERED, null);
+                        }
+
                     } else {
-                        $this->outputAction(false, '0', TOKEN_WRONG, null);
+                         $this->loggingAction('error',"API : Middleware ".WRONG_OS_VERSION." "."user_id : ".$user_id);
+                        $this->outputAction(false, '0', WRONG_OS_VERSION, null);
                     }
                 } else {
-                    $this->outputAction(false, '0', WRONG_OS_VERSION, null);
+                    $this->loggingAction('error',"API : Middleware ".TOKEN_WRONG." "."user_id : ".$user_id);
+                    $this->outputAction(false, '0', TOKEN_WRONG, null);
                 }
+              
             } catch(Exception $e) {
-                $this->outputAction(false, '0', "Invalid User Id Found.", null);
+                $this->loggingAction('error',"API : Middleware ".$e);
+                $this->outputAction(false, '0', "worng user id", null);
             }
         } 
     }
@@ -88,4 +111,20 @@ class ControllerBase extends Controller
     	//Send response to the client
     	$response->send();exit;
      }
+     
+   /**
+    * Method for logger
+    *
+    * @param object request params
+    * @param object reponse object
+    *
+    * @author Shubham Agarwal <shubham.agarwal@kelltontech.com>
+    * @return json
+    */
+	
+    public function loggingAction($type,$error)
+    {
+        $logger = new FileAdapter("../app/logs/error.log");
+        $logger->$type($error);
+    }
 }

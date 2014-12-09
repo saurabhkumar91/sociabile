@@ -1,10 +1,10 @@
 <?php
 
 
-class Robots extends \Phalcon\Mvc\Collection
+class Indicators extends \Phalcon\Mvc\Collection
 {
     public function getSource()
     {
-        return "robots";
+        return "indicators";
     }
 }
