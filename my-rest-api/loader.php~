@@ -1,0 +1,35 @@
+<?php
+
+use Phalcon\DI\FactoryDefault,
+	Phalcon\Mvc\Micro,
+	Phalcon\Http\Response,
+	Phalcon\Http\Request;
+
+$loader = new \Phalcon\Loader();
+
+$loader->registerDirs(array(
+    __DIR__ . '/models/'
+))->register();
+
+
+$di = new FactoryDefault();
+
+$di->set('mongo', function() {
+    $mongo = new MongoClient();
+    return $mongo->selectDB("Sociabile");
+}, true);
+
+$di->set('collectionManager', function(){
+    return new Phalcon\Mvc\Collection\Manager();
+}, true);
+
+
+//Using an anonymous function, the instance will be lazy loaded
+$di["response"] = function () {
+	return new Response();
+};
+$di["request"] = function () {
+	return new Request();
+};
+$app = new Micro();
+$app->setDI( $di );

@@ -1,0 +1,9 @@
+<?php
+  function __autoload($class_name) {
+	print_r($class_name);
+      require_once ('dummy/'.$class_name . '.php');
+  }
+   
+  $a = new Test();
+  $b = new Image();
+?>

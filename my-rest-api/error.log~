@@ -1,0 +1,21 @@
+[Fri, 05 Dec 14 12:26:09 +0530][ERROR] error
+[Fri, 05 Dec 14 12:26:36 +0530][ERROR] error
+[Fri, 05 Dec 14 12:49:03 +0530][ERROR] error
+[Fri, 05 Dec 14 12:52:19 +0530][ERROR] error
+[Fri, 05 Dec 14 12:52:27 +0530][ERROR] error
+[Fri, 05 Dec 14 12:55:47 +0530][ERROR] error
+[Fri, 05 Dec 14 13:22:05 +0530][ERROR] error
+[Fri, 05 Dec 14 15:51:35 +0530][ERROR] error
+[Fri, 05 Dec 14 15:55:54 +0530][ERROR] error
+[Fri, 05 Dec 14 15:58:34 +0530][ERROR] error
+[Fri, 05 Dec 14 15:59:23 +0530][ERROR] error
+[Fri, 05 Dec 14 16:18:13 +0530][ERROR] error
+[Fri, 05 Dec 14 16:18:34 +0530][ERROR] error
+[Fri, 05 Dec 14 16:19:54 +0530][ERROR] API : generateToken : exception 'MongoException' with message 'Invalid object ID' in /var/www/sociabile/my-rest-api/controllers/UsersController.php:78
+Stack trace:
+#0 [internal function]: MongoId->__construct('125789')
+#1 /var/www/sociabile/my-rest-api/controllers/UsersController.php(78): Phalcon\Mvc\Collection::findById('125789')
+#2 /var/www/sociabile/my-rest-api/index.php(14): UsersController->generateTokenAction(Array)
+#3 [internal function]: {closure}()
+#4 /var/www/sociabile/my-rest-api/index.php(29): Phalcon\Mvc\Micro->handle()
+#5 {main} : user_id : 125789

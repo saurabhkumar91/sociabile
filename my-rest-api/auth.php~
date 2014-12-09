@@ -1,0 +1,3 @@
+<?php
+require_once('loader.php');
+print_r($app->request->get('os'));
