@@ -16,7 +16,7 @@ $app->post( '/codeVerification', function () use ( $app ) {
     $header_data = getallheaders();
     $user = new UsersController();
     $user->codeVerificationAction($header_data,$app->request->getPost());
-});
+}); 
 
 $app->post( '/sendContacts', function () use ( $app ) {
     $header_data = getallheaders();
