@@ -30,12 +30,12 @@ class UsersController
                 $record = Users::find(array(array("mobile_no"=>$mobile_no)));
                 if(count($record) > 0) {
                     $result['user_id'] = $record[0]->_id;
-                    $result['otp'] = 123456;
+                    $result['otp'] = 1234;
                     Library::output(true, '1', OTP_SENT, $result);
                 } else {
                     $user  = new Users();
                     $user->mobile_no = $mobile_no;
-                    $user->otp = 123456;
+                    $user->otp = 1234;
                     $user->device_id = $device_id;
                     $user->date = time();
                     $user->is_active = 0;
@@ -47,7 +47,7 @@ class UsersController
                         Library::output(false, '0', $errors, null);
                     } else {
                         $result['user_id'] = $user->_id;
-                        $result['otp'] = 123456;
+                        $result['otp'] = 1234;
                         Library::output(true, '1', OTP_SENT, $result);
                     }
                 }
@@ -217,19 +217,25 @@ class UsersController
             $my_mind = array();
             $about_me = array();
             $user = Users::findById($user_id);
-            
+            $posts = Posts::find(array(array('user_id' => $user_id)));
+           
             $profile['mobile_no'] = $user->mobile_no;
             $profile['username'] = $user->username;
             $profile['context_indicator'] = $user->context_indicator;
             $profile['birthday'] = isset($user->birthday) ? $user->birthday : '';
             $profile['profile_pic'] = 'http://cgintelmob.cafegive.com/images/slide_banner.jpg';
             
-            $my_mind[0]['post_id'] = 1;
-            $my_mind[0]['post_text'] = 'watsapp';
-            $my_mind[0]['post_timestamp'] = 1417587673;
-            $my_mind[0]['post_like_count'] = 1;
-            $my_mind[0]['post_dislike_count'] = 1;
-            $my_mind[0]['post_comment_count'] = 1;
+            $i = 0;
+            foreach($posts as $post) {
+                $my_mind[$i]['post_id'] = (string)$post->_id;
+                $my_mind[$i]['post_text'] = $post->text;
+                $my_mind[$i]['post_timestamp'] = $post->date;
+                $my_mind[$i]['post_like_count'] = 0;
+                $my_mind[$i]['post_dislike_count'] = 0;
+                $my_mind[$i]['post_comment_count'] = $post->total_comment;
+                $i++;
+            }
+            
             
             $about_me['gender'] = isset($user->gender) ? $user->gender : '';
             $about_me['hobbies'] = isset($user->hobbies) ? $user->hobbies : '';
@@ -337,9 +343,33 @@ class UsersController
         }     
            
      }
+     
+     
+    /**
+     * Method for get registered numbers
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Shubham Agarwal <shubham.agarwal@kelltontech.com>
+     * @return json
+     */
     
-    
-
-    
-
+     public function getRegisteredNumbersAction($header_data)
+     {
+         try {
+            $user = Users::findById($header_data['user_id']);
+            print_r($user->contact_numbers[0]);die;
+            foreach($user->contact_numbers as $contacts) {
+              $numbers[] = preg_replace('/[^a-zA-Z0-9_ %\[\]\.\(\)%&-]/s', '', $contacts);
+              
+            }
+            //print_r($numbers);die;
+        } catch (Exception $e) {
+            Library::logging('error',"API : setContextIndicator : ".$e." ".": user_id : ".$header_data['user_id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+     }
+         
+  
 }

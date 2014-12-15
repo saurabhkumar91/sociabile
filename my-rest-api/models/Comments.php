@@ -12,5 +12,6 @@ class Comments extends \Phalcon\Mvc\Collection
         return "comments";
     }
     
+   
 }
 ?>

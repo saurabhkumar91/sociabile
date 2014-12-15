@@ -65,6 +65,29 @@ $app->post( '/postComment', function () use ( $app ) {
     $comment->postCommentsAction($header_data,$app->request->getPost());
 });
 
+$app->get( '/getComments/{post_id}', function ($post_id) use ( $app ) {
+    $header_data = getallheaders();
+    $comment = new CommentsController();
+    $comment->getCommentsAction($header_data,$post_id);
+});
+
+$app->get( '/getStatus/{user_id}', function ($user_id) use ( $app ) {
+    $amazon = new AmazonsController();
+    $amazon->getStatusAction($user_id);
+});
+
+$app->get( '/createsignature', function () use ( $app ) {
+    $header_data = getallheaders();
+    $amazon = new AmazonsController();
+    $amazon->createsignatureAction($header_data);
+});
+
+$app->get( '/getRegisteredNumbers', function () use ( $app ) {
+    $header_data = getallheaders();
+    $user = new UsersController();
+    $user->getRegisteredNumbersAction($header_data);
+});
+
 $app->notFound(
 	function () use ( $app ) {
             $app->response->setStatusCode( 404, "Not Found" )->sendHeaders();

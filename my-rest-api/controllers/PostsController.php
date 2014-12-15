@@ -41,7 +41,12 @@ class PostsController
                     Library::logging('error',"API : createPost : ".$errors." user_id : ".$header_data['user_id']);
                     Library::output(false, '0', $errors, null);
                 } else {
-                    $result['post_id'] = $post->_id;
+                    $result['post_id'] = (string)$post->_id;
+                    $result['post_text'] = $post->text;
+                    $result['post_comment_count'] = $post->total_comment;
+                    $result['post_like_count'] = 0;
+                    $result['post_dislike_count'] = 0;
+                    $result['post_timestamp'] = $post->date;
                     Library::output(true, '1', POST_SAVED, $result);
                 }
             } catch (Exception $e) {
