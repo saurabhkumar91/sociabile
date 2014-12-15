@@ -5,7 +5,9 @@ use Phalcon\DI\FactoryDefault,
 	Phalcon\Http\Response,
 	Phalcon\Http\Request;
 
-    print_r("shubham");die;
+ 
+    ini_set("display_errors",1);
+    error_reporting('E_ALL');
 $loader = new \Phalcon\Loader();
 
 $loader->registerDirs(array(
