@@ -5,6 +5,7 @@ use Phalcon\DI\FactoryDefault,
 	Phalcon\Http\Response,
 	Phalcon\Http\Request;
 
+    print_r("shubham");die;
 $loader = new \Phalcon\Loader();
 
 $loader->registerDirs(array(
