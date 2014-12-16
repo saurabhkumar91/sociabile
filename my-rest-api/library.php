@@ -16,13 +16,14 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
     */
      
      static function auth() {
-         
+        ini_set("display_errors",1);
+        error_reporting(E_ALL^ E_NOTICE);
+
         $action = array('registration','generateToken');
         $os = array('1','2');
         $version = array('1.0'); 
         
-        $param = getallheaders();
-        
+        $param = self::getallheaders();
         $api_name = explode('/', $_SERVER['QUERY_STRING']);
         $api_name = $api_name[1];
         
@@ -31,9 +32,9 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
         } elseif((in_array($param['os'], $os)) && (in_array($param['version'], $version))) {
             if(!in_array($api_name, $action)) {
                 try {
-                    if(isset($param['token']) && isset($param['user_id'])) {
+                    if(isset($param['token']) && isset($param['id'])) {
                         $token = $param['token'];
-                        $user = Users::findById($param['user_id']);
+                        $user = Users::findById($param['id']);
                         if($user) {
                              if($user->hash == $token) {
                             //echo "ok";die;    
@@ -41,11 +42,11 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
                                 self::output(false, '0', TOKEN_WRONG, null);
                             }
                         } else {
-                            self::logging('error',"API : Middleware: ".USER_NOT_REGISTERED." user_id : ".$param['user_id']);
+                            self::logging('error',"API : Middleware: ".USER_NOT_REGISTERED." user_id : ".$param['id']);
                             self::output(false, '0', USER_NOT_REGISTERED, null);
                         }
                     } else {
-                        self::logging('error',"API : Middleware: ".HEADER_INFO." user_id : ".$param['user_id'] );
+                        self::logging('error',"API : Middleware: ".HEADER_INFO." user_id : ".$param['id'] );
                         self::output(false, '0', HEADER_INFO, null);
                     }
 
@@ -55,7 +56,7 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
                 }
             }
         } else {
-            self::logging('error',"API : Middleware ".WRONG_OS_VERSION." user_id : ".$param['user_id']);
+            self::logging('error',"API : Middleware ".WRONG_OS_VERSION." user_id : ".$param['id']);
             self::output(false, '0', WRONG_OS_VERSION, null);
         }
         
@@ -104,6 +105,22 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
     	//Send response to the client
     	$response->send();exit;
     }
+    
+    
+     static function getallheaders()
+    {
+           $headers = '';
+       foreach ($_SERVER as $name => $value)
+       {
+           if (substr($name, 0, 5) == 'HTTP_')
+           {
+               $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+           }
+       }
+       $headers = array_change_key_case( $headers , CASE_LOWER);
+       return $headers;
+    }
+
 }
 
 Library::auth();

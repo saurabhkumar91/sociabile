@@ -72,11 +72,11 @@ class UsersController
     public function generateTokenAction($header_data,$data)
     {    
         if(!isset($data['device_id'])) {
-            Library::logging('alert',"API : generateToken : ".ERROR_INPUT.": user_id : ".$header_data['user_id']);
+            Library::logging('alert',"API : generateToken : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
              try {
-                $user_id = $header_data['user_id'];
+                $user_id = $header_data['id'];
                 $device_id = $data['device_id'];
                 $security = new \Phalcon\Security();
                 $user = Users::findById($user_id);
@@ -95,7 +95,7 @@ class UsersController
                     Library::output(false, '0', USER_NOT_REGISTERED, null);
                 }
              } catch (Exception $e) {
-                Library::logging('error',"API : generateToken : ".$e." ".": user_id : ".$header_data['user_id']);
+                Library::logging('error',"API : generateToken : ".$e." ".": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_REQUEST, null);
             }
         }
@@ -116,11 +116,11 @@ class UsersController
     public function codeVerificationAction($header_data,$data)
     {
        if( !isset($data['otp_no'])) {
-            Library::logging('alert',"API : codeVerification : ".ERROR_INPUT.": user_id : ".$header_data['user_id']);
+            Library::logging('alert',"API : codeVerification : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
-                $user_id = $header_data['user_id'];
+                $user_id = $header_data['id'];
                 $otp_no = $data['otp_no'];
                 $user = Users::findById($user_id);
                 if($user->otp == $otp_no) {
@@ -130,11 +130,11 @@ class UsersController
                     $user->save();
                     Library::output(true, '1', OTP_VERIFIED, null);
                 } else {
-                    Library::logging('alert',OTP_WRONG." ".": user_id : ".$header_data['user_id']);
+                    Library::logging('alert',OTP_WRONG." ".": user_id : ".$header_data['id']);
                     Library::output(false, '0', OTP_WRONG, null);
                 }
             } catch (Exception $e) {
-                Library::logging('error',"API : codeVerification : ".$e." ".": user_id : ".$header_data['user_id']);
+                Library::logging('error',"API : codeVerification : ".$e." ".": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_REQUEST, null);
             }
         }
@@ -154,16 +154,16 @@ class UsersController
     public function sendContactsAction($header_data,$post_data)
     {   
        if( !isset($post_data['contact_numbers'])) {
-            Library::logging('alert',"API : sendContacts : ".ERROR_INPUT.": user_id : ".$header_data['user_id']);
+            Library::logging('alert',"API : sendContacts : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
-                $user = Users::findById($header_data['user_id']);
+                $user = Users::findById($header_data['id']);
                 $user->contact_numbers = $post_data['contact_numbers'];
                 $user->save();
                 Library::output(true, '1', CONTACTS_SAVED, null);
             } catch(Exception $e) {
-                Library::logging('error',"API : sendContacts : ".$e." ".": user_id : ".$header_data['user_id']);
+                Library::logging('error',"API : sendContacts : ".$e." ".": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_REQUEST, null);
             }
         }
@@ -183,7 +183,7 @@ class UsersController
     public function setDisplayNameAction($header_data,$name)
     { 
         try {
-            $user = Users::findById($header_data['user_id']);
+            $user = Users::findById($header_data['id']);
             if(empty($name)) {
                 $user->username = '';
             } else {
@@ -192,7 +192,7 @@ class UsersController
             $user->save();
             Library::output(true, '1', USER_NAME_SAVED, null);
         } catch (Exception $e) {
-            Library::logging('error',"API : setDisplayName : ".$e." ".": user_id : ".$header_data['user_id']);
+            Library::logging('error',"API : setDisplayName : ".$e." ".": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_REQUEST, null);
         }
     }
@@ -210,7 +210,7 @@ class UsersController
     
     public function getProfileAction($header_data)
     { 
-        $user_id = $header_data['user_id'];
+        $user_id = $header_data['id'];
         try {
             $result = array();
             $profile = array();
@@ -285,12 +285,12 @@ class UsersController
      public function setProfileAction($header_data,$post_data)
      { 
         if( !isset($post_data['username']) || !isset($post_data['birthday']) || !isset($post_data['gender']) || !isset($post_data['hobbies']) || !isset($post_data['about_me'])) {
-            Library::logging('alert',"API : setProfile : ".ERROR_INPUT.": user_id : ".$header_data['user_id']);
+            Library::logging('alert',"API : setProfile : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
-                $user_id = $header_data['user_id'];
-                $user = Users::findById($header_data['user_id']);
+                $user_id = $header_data['id'];
+                $user = Users::findById($header_data['id']);
                 $user->username = $post_data['username'];
                 $user->birthday = $post_data['birthday'];
                 $user->gender = $post_data['gender'];
@@ -300,13 +300,13 @@ class UsersController
                     foreach ($user->getMessages() as $message) {
                         $errors[] = $message->getMessage();
                     }
-                    Library::logging('error',"API : setProfile : ".$errors." : user_id : ".$header_data['user_id']);
+                    Library::logging('error',"API : setProfile : ".$errors." : user_id : ".$header_data['id']);
                     Library::output(false, '0', $errors, null);
                 } else {
                     Library::output(true, '1', USER_PROFILE, null);
                 }
             } catch (Exception $e) {
-                Library::logging('error',"API : setProfile : ".$e." ".": user_id : ".$header_data['user_id']);
+                Library::logging('error',"API : setProfile : ".$e." ".": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_REQUEST, null);
             }  
         }
@@ -326,19 +326,19 @@ class UsersController
      public function setContextIndicatorAction($header_data,$context)
      {
         try {
-            $user = Users::findById($header_data['user_id']);
+            $user = Users::findById($header_data['id']);
             $user->context_indicator = $context;
             if ($user->save() == false) {
                 foreach ($user->getMessages() as $message) {
                     $errors[] = $message->getMessage();
                 }
-                Library::logging('error',"API : setContextIndicator : ".$errors." : user_id : ".$header_data['user_id']);
+                Library::logging('error',"API : setContextIndicator : ".$errors." : user_id : ".$header_data['id']);
                 Library::output(false, '0', $errors, null);
             } else {
                 Library::output(true, '1', CONTEXT_INDICATOR, null);
             }
         } catch (Exception $e) {
-            Library::logging('error',"API : setContextIndicator : ".$e." ".": user_id : ".$header_data['user_id']);
+            Library::logging('error',"API : setContextIndicator : ".$e." ".": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_REQUEST, null);
         }     
            
@@ -358,7 +358,7 @@ class UsersController
      public function getRegisteredNumbersAction($header_data)
      {
          try {
-            $user = Users::findById($header_data['user_id']);
+            $user = Users::findById($header_data['id']);
             print_r($user->contact_numbers[0]);die;
             foreach($user->contact_numbers as $contacts) {
               $numbers[] = preg_replace('/[^a-zA-Z0-9_ %\[\]\.\(\)%&-]/s', '', $contacts);
@@ -366,7 +366,7 @@ class UsersController
             }
             //print_r($numbers);die;
         } catch (Exception $e) {
-            Library::logging('error',"API : setContextIndicator : ".$e." ".": user_id : ".$header_data['user_id']);
+            Library::logging('error',"API : setContextIndicator : ".$e." ".": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_REQUEST, null);
         }
      }

@@ -1,13 +1,12 @@
 <?php
-
+date_default_timezone_set('Asia/Kolkata');
 use Phalcon\DI\FactoryDefault,
 	Phalcon\Mvc\Micro,
 	Phalcon\Http\Response,
 	Phalcon\Http\Request;
 
  
-    ini_set("display_errors",1);
-    error_reporting('E_ALL');
+
 $loader = new \Phalcon\Loader();
 
 $loader->registerDirs(array(
