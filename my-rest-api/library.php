@@ -27,7 +27,7 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
         print_r($param);die;
         $api_name = explode('/', $_SERVER['QUERY_STRING']);
         $api_name = $api_name[1];
-        
+        print_r($api_name);die;
         if($api_name == 'getStatus') {
             
         } elseif((in_array($param['os'], $os)) && (in_array($param['version'], $version))) {
