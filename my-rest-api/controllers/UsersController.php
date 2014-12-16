@@ -99,7 +99,6 @@ class UsersController
                 Library::output(false, '0', ERROR_REQUEST, null);
             }
         }
-       
     }
     
     
@@ -370,6 +369,5 @@ class UsersController
             Library::output(false, '0', ERROR_REQUEST, null);
         }
      }
-         
   
 }
