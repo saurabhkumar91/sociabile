@@ -24,6 +24,7 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
         $version = array('1.0'); 
         
         $param = self::getallheaders();
+        print_r($param);die;
         $api_name = explode('/', $_SERVER['QUERY_STRING']);
         $api_name = $api_name[1];
         
