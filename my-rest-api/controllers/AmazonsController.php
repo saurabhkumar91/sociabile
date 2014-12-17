@@ -21,7 +21,7 @@ class AmazonsController
             'bucket'                    => S3BUCKET,
         );
 
-        $redirect_url = $form['success_action_redirect'].'/'.$header_data['user_id'];
+        $redirect_url = $form['success_action_redirect'].'/'.$header_data['id'];
         $h =  date('H');
         $i =  date('i');
         $s =  date('s')+TOKEN_EXP_DURATION;
@@ -80,18 +80,18 @@ class AmazonsController
      * @return json
      */
     
-    public function getStatusAction($user_id)
+    public function getStatusAction($id)
     {
         try {
             $image_name = $_GET['key'];
-            $user = Users::findById($user_id);
+            $user = Users::findById($id);
             $user->profile_image = $image_name;
             $user->save();
             $result['profile_image'] = FORM_ACTION.$image_name;
             Library::output(true, '1', USER_PROFILE_IMAGE, $result);
             
         } catch(Exception $e) {
-            Library::logging('error',"API : getStatus : ".$e." ".": user_id : ".$user_id);
+            Library::logging('error',"API : getStatus : ".$e." ".":user_id : ".$id);
             Library::output(false, '0', ERROR_REQUEST, null);
         }
         
