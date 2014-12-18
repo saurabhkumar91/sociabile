@@ -152,8 +152,8 @@ class UsersController
     
     public function sendContactsAction($header_data,$post_data)
     {   
-       if( !isset($post_data['contact_numbers'])) {
-            Library::logging('alert',"API : sendContacts : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+       if(!isset($post_data['contact_numbers'])) {
+            Library::logging('alert',"API : sendContacts : ".ERROR_INPUT.": user_id : ".$header_data['id'].' '.$post_data['contact_numbers']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
@@ -222,7 +222,7 @@ class UsersController
             $profile['username'] = $user->username;
             $profile['context_indicator'] = $user->context_indicator;
             $profile['birthday'] = isset($user->birthday) ? $user->birthday : '';
-            $profile['profile_pic'] = 'http://cgintelmob.cafegive.com/images/slide_banner.jpg';
+            $profile['profile_pic'] = isset($user->profile_image) ? FORM_ACTION.$user->profile_image : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
             
             $i = 0;
             foreach($posts as $post) {
@@ -234,7 +234,6 @@ class UsersController
                 $my_mind[$i]['post_comment_count'] = $post->total_comment;
                 $i++;
             }
-            
             
             $about_me['gender'] = isset($user->gender) ? $user->gender : '';
             $about_me['hobbies'] = isset($user->hobbies) ? $user->hobbies : '';
@@ -357,13 +356,40 @@ class UsersController
      public function getRegisteredNumbersAction($header_data)
      {
          try {
+            $registered_numbers = array();
             $user = Users::findById($header_data['id']);
-            print_r($user->contact_numbers[0]);die;
-            foreach($user->contact_numbers as $contacts) {
-              $numbers[] = preg_replace('/[^a-zA-Z0-9_ %\[\]\.\(\)%&-]/s', '', $contacts);
-              
+            if($header_data['os'] == 1) {
+                $contact_numbers =  json_decode($user->contact_numbers);
+            } else {
+                $contact_numbers =  $user->contact_numbers;
             }
-            //print_r($numbers);die;
+            $i = 0;
+            foreach($contact_numbers as $contacts) {
+                $get_contacts = str_replace(' ', '', $contacts); 
+                $get_contacts = str_replace('+91', '', $contacts); 
+                if(substr($get_contacts, 0, 1) == 0) {
+                    $get_contacts = preg_replace('/0/', '', $get_contacts, 1); 
+                }
+                
+                $filter_contacts= preg_replace('/[^0-9\-]/', '', $get_contacts);
+                $filter_contacts = str_replace('-', '', $filter_contacts); 
+                
+                $record = Users::find(array(array("mobile_no"=>$filter_contacts)));
+                if(!empty($record)) {
+                    $register[$i]['mobile_no'] = $contacts;
+                    $register[$i]['user_id'] = (string)$record[0]->_id;
+                    $register[$i]['username'] = $record[0]->username;
+                    $register[$i]['profile_image'] = isset($record[0]->profile_image) ? FORM_ACTION.$record[0]->profile_image : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
+                    $i++;
+                } 
+            }
+            if(empty($register)) {
+                $result = array();
+                Library::output(true, '1', "No Error", $result);
+            } else {
+                Library::output(true, '1', "No Error", $register);
+            }
+            
         } catch (Exception $e) {
             Library::logging('error',"API : setContextIndicator : ".$e." ".": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_REQUEST, null);

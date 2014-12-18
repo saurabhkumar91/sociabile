@@ -88,6 +88,24 @@ $app->get( '/getRegisteredNumbers', function () use ( $app ) {
     $user->getRegisteredNumbersAction($header_data);
 });
 
+$app->get( '/getGroups', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $group = new GroupsController();
+    $group->getGroupsAction($header_data);
+});
+
+$app->post( '/sendRequest', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $friends = new FriendsController();
+    $friends->sendRequestAction($header_data,$app->request->getPost());
+});
+
+$app->get( '/pendingRequest', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $friends = new FriendsController();
+    $friends->pendingRequestAction($header_data);
+});
+
 $app->notFound(
 	function () use ( $app ) {
             $app->response->setStatusCode( 404, "Not Found" )->sendHeaders();

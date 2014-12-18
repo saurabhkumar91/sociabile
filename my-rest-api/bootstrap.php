@@ -11,6 +11,7 @@ define('HEADER_INFO', 'Missing Header Information.');
 define('USER_PROFILE', 'Profile Saved Successfully.');
 define('USER_PROFILE_IMAGE', 'Profile Image Saved Successfully.');
 define('CONTEXT_INDICATOR', 'Context Indicator Set Successfully.');
+define('USER_REQUEST_SENT', 'Request Sent Successfully.');
 
 
 // otp relaed messages

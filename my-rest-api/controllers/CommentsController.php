@@ -75,8 +75,7 @@ class CommentsController
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
-                $mongo = new MongoClient();
-                $db = $mongo->Sociabile;
+                $db = Library::getMongo();
                 $comments = $db->execute('var comments = [] ;
                 db.comments.find({"post_id":"'.$post_id.'","user_id":"'.$header_data['id'].'"}).forEach(
                 function (newComments) { 

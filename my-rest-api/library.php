@@ -24,15 +24,15 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
         $version = array('1.0'); 
         
         $param = self::getallheaders();
+        //print_r($_SERVER);die;
         
         $api_name = explode('/', $_SERVER['REQUEST_URI']);
         $api_name = $api_name[1];
-        //print_r($param);print_r($api_name);die;
+        
         if($api_name == 'getStatus') {
             
         } elseif((in_array($param['os'], $os)) && (in_array($param['version'], $version))) {
             if(!in_array($api_name, $action)) {
-		
                 try {
                     if(isset($param['token']) && isset($param['id'])) {
                         $token = $param['token'];
@@ -98,10 +98,10 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
     	$response->setRawHeader("HTTP/1.1 200 OK");
     	
     	//Set the content of the response
-    	if($result == null) {
-    		$response->setJsonContent(array("is_success" => $success,"error_code" => $error,"message" => $msg));
+    	if(!is_array($result)) {
+            $response->setJsonContent(array("is_success" => $success,"error_code" => $error,"message" => $msg));
     	} else {
-    		$response->setJsonContent(array("is_success" => $success,"error_code" => $error,"message" => $msg,"result" => $result));
+            $response->setJsonContent(array("is_success" => $success,"error_code" => $error,"message" => $msg,"result" => $result));
     	}
     	
     	//Send response to the client
@@ -111,7 +111,7 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
     
      static function getallheaders()
     {
-           $headers = '';
+        $headers = '';
        foreach ($_SERVER as $name => $value)
        {
            if (substr($name, 0, 5) == 'HTTP_')
@@ -121,6 +121,13 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
        }
        $headers = array_change_key_case( $headers , CASE_LOWER);
        return $headers;
+    }
+    
+    static function  getMongo() 
+    {
+        $mongo = new MongoClient();
+        $db = $mongo->Sociabile;
+        return $db;
     }
 
 }
