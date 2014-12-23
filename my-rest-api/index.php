@@ -106,6 +106,18 @@ $app->get( '/pendingRequest', function () use ( $app ) {
     $friends->pendingRequestAction($header_data);
 });
 
+$app->post( '/requestAccept', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $friends = new FriendsController();
+    $friends->requestAcceptAction($header_data,$app->request->getPost());
+});
+
+$app->get( '/getFriends', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $friends = new FriendsController();
+    $friends->getFriendsAction($header_data);
+});
+
 $app->notFound(
 	function () use ( $app ) {
             $app->response->setStatusCode( 404, "Not Found" )->sendHeaders();

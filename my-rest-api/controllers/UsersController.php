@@ -356,7 +356,6 @@ class UsersController
      public function getRegisteredNumbersAction($header_data)
      {
          try {
-            $registered_numbers = array();
             $user = Users::findById($header_data['id']);
             if($header_data['os'] == 1) {
                 $contact_numbers =  json_decode($user->contact_numbers);
@@ -370,7 +369,6 @@ class UsersController
                 if(substr($get_contacts, 0, 1) == 0) {
                     $get_contacts = preg_replace('/0/', '', $get_contacts, 1); 
                 }
-                
                 $filter_contacts= preg_replace('/[^0-9\-]/', '', $get_contacts);
                 $filter_contacts = str_replace('-', '', $filter_contacts); 
                 
@@ -380,6 +378,18 @@ class UsersController
                     $register[$i]['user_id'] = (string)$record[0]->_id;
                     $register[$i]['username'] = $record[0]->username;
                     $register[$i]['profile_image'] = isset($record[0]->profile_image) ? FORM_ACTION.$record[0]->profile_image : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
+                    if(isset($user->request_sent)) {
+                        foreach($user->request_sent as $request_sent) {
+                            if($request_sent['user_id'] == (string)$record[0]->_id) {
+                                $register[$i]['request_sent'] = 1;
+                                break;
+                            } else {
+                                $register[$i]['request_sent'] = 0;
+                            }
+                        }
+                    } else {
+                        $register[$i]['request_sent'] = 0;
+                    }
                     $i++;
                 } 
             }

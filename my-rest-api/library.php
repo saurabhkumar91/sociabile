@@ -24,8 +24,20 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
         $version = array('1.0'); 
         
         $param = self::getallheaders();
-        //print_r($_SERVER);die;
-        
+        $db = self::getMongo();
+        $request = 'db.requests.insert({ 
+                            api_name: "'.$_SERVER['REQUEST_URI'].'", 
+                            method: "'.$_SERVER['REQUEST_METHOD'].'",
+                            os: "'.$_SERVER['HTTP_OS'].'",
+                            version: "'.$_SERVER['HTTP_VERSION'].'",
+                            user_id: "'.$_SERVER['HTTP_ID'].'",
+                            user_agent: "'.$_SERVER['HTTP_USER_AGENT'].'",
+                            ip: "'.$_SERVER['REMOTE_ADDR'].'"
+                    })';
+        $result =  $db->execute($request);
+        if($result['ok'] == 0) {
+            Library::logging('error',"API : request log mongodb error: ".$result['errmsg']." ".": user_id : ".$param['id']);
+        }
         $api_name = explode('/', $_SERVER['REQUEST_URI']);
         $api_name = $api_name[1];
         

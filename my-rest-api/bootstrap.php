@@ -12,6 +12,8 @@ define('USER_PROFILE', 'Profile Saved Successfully.');
 define('USER_PROFILE_IMAGE', 'Profile Image Saved Successfully.');
 define('CONTEXT_INDICATOR', 'Context Indicator Set Successfully.');
 define('USER_REQUEST_SENT', 'Request Sent Successfully.');
+define('USER_ACCEPT', 'Request Accept Successfully.');
+define('WRONG_USER_ID', 'Wrong User Id To Accept.');
 
 
 // otp relaed messages
