@@ -118,6 +118,18 @@ $app->get( '/getFriends', function () use ( $app ) {
     $friends->getFriendsAction($header_data);
 });
 
+$app->post( '/changeNumber', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $settings = new SettingsController();
+    $settings->changeNumberAction($header_data,$app->request->getPost());
+});
+
+$app->post( '/addGroup', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $group = new GroupsController();
+    $group->addGroupAction($header_data,$app->request->getPost());
+});
+
 $app->notFound(
 	function () use ( $app ) {
             $app->response->setStatusCode( 404, "Not Found" )->sendHeaders();

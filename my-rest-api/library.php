@@ -25,6 +25,7 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
         
         $param = self::getallheaders();
         $db = self::getMongo();
+        //print_r(json_encode($_POST));die;
         $request = 'db.requests.insert({ 
                             api_name: "'.$_SERVER['REQUEST_URI'].'", 
                             method: "'.$_SERVER['REQUEST_METHOD'].'",
@@ -35,9 +36,11 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
                             ip: "'.$_SERVER['REMOTE_ADDR'].'"
                     })';
         $result =  $db->execute($request);
+        
         if($result['ok'] == 0) {
             Library::logging('error',"API : request log mongodb error: ".$result['errmsg']." ".": user_id : ".$param['id']);
         }
+        //die;
         $api_name = explode('/', $_SERVER['REQUEST_URI']);
         $api_name = $api_name[1];
         

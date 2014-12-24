@@ -152,14 +152,26 @@ class FriendsController
                 }
                 
                 // qeury for adding running group whom request is accept
-                $grp_ids = json_encode($grp_ids);
+                 $grp_ids = json_encode($grp_ids);
                  $request_sync = $db->execute('db.users.update({"_id" :ObjectId("'.$post_data['accept_user_id'].'") },{$push : {running_groups:{$each:[{user_id:"'.$header_data['id'].'",group_id:'.$grp_ids.',date:"'.time().'"}]}}})');
                  if($request_sync['ok'] == 0) {
                     Library::logging('error',"API : requestAccept (request sync query) mongodb error: ".$request_sync['errmsg']." ".": user_id : ".$header_data['id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
                     
                 }
-
+                
+                // query for updating request sent array (is_active = 1) 
+                $request_update = $db->execute('db.users.update(
+                                        {"_id" : ObjectId("'.$post_data['accept_user_id'].'"),"request_sent.user_id": "'.$header_data['id'].'"}, 
+                                        {$set: {
+                                            "request_sent.$.is_active": 1
+                                        }}
+                                        )');
+                 if($request_update['ok'] == 0) {
+                    Library::logging('error',"API : requestAccept (updating request sent array) mongodb error: ".$request_update['errmsg']." ".": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                    
+                }
                 // query for delete pending request after accepting
                 $delete = 'db.users.update(
                             {_id:ObjectId("'.$header_data['id'].'") },
@@ -198,21 +210,24 @@ class FriendsController
             $user = Users::findById($header_data['id']);
             
             $i=0;
-            foreach($user->running_groups as $user_ids) {
-                $friends_info = Users::findById($user_ids['user_id']);
-                
-                $friends_list[$i]['friends_id'] = (string)$friends_info->_id;
-                $friends_list[$i]['username'] = $friends_info->username;
-                $friends_list[$i]['group_id'] = $user_ids['group_id'];
-                $friends_list[$i]['profile_image'] = isset($friends_info->profile_image) ? FORM_ACTION.$friends_info->profile_image : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
-                $i++;
+            if(isset($user->running_groups)) {
+                foreach($user->running_groups as $user_ids) {
+                    $friends_info = Users::findById($user_ids['user_id']);
+                    $friends_list[$i]['friends_id'] = (string)$friends_info->_id;
+                    $friends_list[$i]['username'] = $friends_info->username;
+                    $friends_list[$i]['group_id'] = $user_ids['group_id'];
+                    $friends_list[$i]['profile_image'] = isset($friends_info->profile_image) ? FORM_ACTION.$friends_info->profile_image : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
+                    $i++;
+                }
+                Library::output(true, '1', "No Error", $friends_list);
+            } else {
+                Library::output(true, '1', "No Error", $friends_list);
             }
-            Library::output(true, '1', "No Error", $friends_list);
+            
         } catch (Exception $e) {
             Library::logging('error',"API : getFriends : ".$e->getMessage()." ".": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_REQUEST, null);
         }
-        
     }
 }
 

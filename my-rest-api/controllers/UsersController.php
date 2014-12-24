@@ -372,7 +372,8 @@ class UsersController
                 $filter_contacts= preg_replace('/[^0-9\-]/', '', $get_contacts);
                 $filter_contacts = str_replace('-', '', $filter_contacts); 
                 
-                $record = Users::find(array(array("mobile_no"=>$filter_contacts)));
+                $j = 0;
+                $record = Users::find(array("conditions" =>array("mobile_no"=>$filter_contacts,"is_active"=>1)));
                 if(!empty($record)) {
                     $register[$i]['mobile_no'] = $contacts;
                     $register[$i]['user_id'] = (string)$record[0]->_id;
@@ -380,6 +381,10 @@ class UsersController
                     $register[$i]['profile_image'] = isset($record[0]->profile_image) ? FORM_ACTION.$record[0]->profile_image : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
                     if(isset($user->request_sent)) {
                         foreach($user->request_sent as $request_sent) {
+                            $register[$i]['is_active'] = $request_sent['is_active'];
+//                            if($request_sent['is_active'] == 1) {
+//                                $j = 1;
+//                            }
                             if($request_sent['user_id'] == (string)$record[0]->_id) {
                                 $register[$i]['request_sent'] = 1;
                                 break;
@@ -391,7 +396,7 @@ class UsersController
                         $register[$i]['request_sent'] = 0;
                     }
                     $i++;
-                } 
+                }
             }
             if(empty($register)) {
                 $result = array();
@@ -399,7 +404,6 @@ class UsersController
             } else {
                 Library::output(true, '1', "No Error", $register);
             }
-            
         } catch (Exception $e) {
             Library::logging('error',"API : setContextIndicator : ".$e." ".": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_REQUEST, null);
