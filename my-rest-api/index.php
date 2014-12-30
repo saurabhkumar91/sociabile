@@ -157,6 +157,12 @@ $app->post('/contactUs', function () use ( $app ) {
     $settings->contactUsAction($header_data,$app->request->getPost());
 });
 
+$app->post('/setPassword', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $settings = new SettingsController();
+    $settings->setPasswordAction($header_data,$app->request->getPost());
+});
+
 
 $app->notFound(
 	function () use ( $app ) {

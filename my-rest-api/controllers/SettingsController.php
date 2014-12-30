@@ -62,14 +62,14 @@ class SettingsController
     
     public function changeNumberAction($header_data,$post_data)
     {   
-        if( !isset($post_data['otp'])) {
+        if( !isset($post_data['otp_no'])) {
             Library::logging('alert',"API : changeNumber : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
              try {
                  
                  $user = Users::findById($header_data['id']);
-                 if($user->otp == $post_data['otp']) {
+                 if($user->otp == $post_data['otp_no']) {
                     $old_mobile_no = $user->mobile_no;
                     $new_mobile_no = $user->change_mobile_no;
                     $user->mobile_no = $new_mobile_no;
@@ -213,6 +213,62 @@ class SettingsController
                 Library::output(false, '0', ERROR_REQUEST, null);
             }
         }
+    }
+    
+    /**
+     * Method for set password
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Shubham Agarwal <shubham.agarwal@kelltontech.com>
+     * @return json
+     */
+    
+    public function setPasswordAction($header_data,$post_data)
+    {
+        if( !isset($post_data['email_id']) || !isset($post_data['password'])) {
+            Library::logging('alert',"API : setPassword : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                $emails = array();
+                $security = new \Phalcon\Security();
+                $user = Users::findById($header_data['id']);
+                 array_push($emails,$post_data['email_id']);
+                $user->email_id = $emails;
+                $user->password = $security->hash($post_data['email_id']);
+                if ($user->save() == false) {
+                    foreach ($user->getMessages() as $message) {
+                        $errors[] = $message->getMessage();
+                    }
+                    Library::logging('error',"API : setPassword, error_msg : ".$errors." : user_id : ".$header_data['id']);
+                    Library::output(false, '0', $errors, null);
+                } else {
+                    Library::output(true, '1', SET_PASSWORD, null);
+                }
+            } catch(Exception $e) {
+                Library::logging('error',"API : setPassword, error_msg : ".$e." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        }
+    }
+    
+    
+    /**
+     * Method for forgot password
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Shubham Agarwal <shubham.agarwal@kelltontech.com>
+     * @return json
+     */
+    
+    public function forgotPasswordAction($header_data,$post_data)
+    {
+        
+        
     }
     
     

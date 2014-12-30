@@ -16,6 +16,7 @@ define('USER_ACCEPT', 'Request Accept Successfully.');
 define('WRONG_USER_ID', 'Wrong User Id To Accept.');
 define('CHANGE_NUMBER', 'Phone Number Change Successfully.');
 define('GROUP_ADDED', 'Group Added Successfully.');
+define('SET_PASSWORD', 'Password set successfully.');
 
 
 // otp relaed messages
