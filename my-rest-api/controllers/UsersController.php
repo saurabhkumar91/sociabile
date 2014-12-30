@@ -223,6 +223,8 @@ class UsersController
             $profile['context_indicator'] = $user->context_indicator;
             $profile['birthday'] = isset($user->birthday) ? $user->birthday : '';
             $profile['profile_pic'] = isset($user->profile_image) ? FORM_ACTION.$user->profile_image : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
+            $profile['email_id'] = isset($user->email_id) ? $user->email_id : '';
+            $profile['password'] = isset($user->password) ? $user->password : '';
             
             $i = 0;
             foreach($posts as $post) {
@@ -406,6 +408,40 @@ class UsersController
             }
         } catch (Exception $e) {
             Library::logging('error',"API : setContextIndicator : ".$e." ".": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+     }
+     
+     
+    /**
+     * Method for get email
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Shubham Agarwal <shubham.agarwal@kelltontech.com>
+     * @return json
+     */
+    
+     public function getEmailAction($header_data)
+     {
+        try {
+             $db = Library::getMongo();
+             $email = $db->execute('return db.users.find({_id:ObjectId("'.$header_data['id'].'")},{email_id:1}).toArray()');
+             if($email['ok'] == 0) {
+                    Library::logging('error',"API : getEmail , mongodb error: ".$request_sent['errmsg']." ".": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+                if(isset($email['retval'][0]['email_id'])) {
+                    $result['email'] = $email['retval'][0]['email_id'];
+                    Library::output(true, '1', "No Error", $result);
+                } else {
+                    $result['email'] = '';
+                    Library::output(true, '1', "No Error", $result);
+                }
+                
+        } catch (Exception $e) {
+            Library::logging('error',"API : getEmail : ".$e." ".": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_REQUEST, null);
         }
      }

@@ -20,33 +20,81 @@ class SettingsController
     
     public function generateOTPAction($header_data,$post_data)
     { 
-        if( !isset($post_data['mobile_no'])) {
-            Library::logging('alert',"API : changeNumber : ".ERROR_INPUT.": user_id : ".$header_data['id']);
-            Library::output(false, '0', ERROR_INPUT, null);
-        } else {
-            try {
+        try {
+            if( !isset($post_data['type'])) {
+                Library::logging('alert',"API : generateOTP : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_INPUT, null);
+            } else {
                 $user = Users::findById($header_data['id']);
-                if($user) {
-                    $user->change_mobile_no = $post_data['mobile_no'];
-
-                    if ($user->save() == false) {
-                        foreach ($user->getMessages() as $message) {
-                            $errors[] = $message->getMessage();
-                        }
-                        Library::logging('error',"API : generateOTP, error_msg : ".$errors." : user_id : ".$header_data['id']);
-                        Library::output(false, '0', $errors, null);
+                if($post_data['type'] == 1) { // for change mobile no
+                    if( !isset($post_data['mobile_no'])) {
+                        Library::logging('alert',"API : generateOTP : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+                        Library::output(false, '0', ERROR_INPUT, null);
                     } else {
-                        $result['otp'] = 1234;
-                        Library::output(true, '1', "OTP Sent Successfully", $result);
+                        if($user) {
+                            $user->change_mobile_no = $post_data['mobile_no'];
+                            $user->otp = 1234;
+
+                            if ($user->save() == false) {
+                                foreach ($user->getMessages() as $message) {
+                                    $errors[] = $message->getMessage();
+                                }
+                                Library::logging('error',"API : generateOTP, error_msg : ".$errors." : user_id : ".$header_data['id']);
+                                Library::output(false, '0', $errors, null);
+                            } else {
+                                $result['otp'] = 1234;
+                                Library::output(true, '1', "OTP Sent Successfully", $result);
+                            }
+                        } else {
+                             Library::output(false, '0', USER_NOT_REGISTERED, null);
+                        }
+                    }
+                } elseif ($post_data['type'] == 2) { // for change password
+                     if( !isset($post_data['email_id'])) {
+                        Library::logging('alert',"API : generateOTP : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+                        Library::output(false, '0', ERROR_INPUT, null);
+                    } else {
+                        if($user) {
+                            $emails = array();
+                            array_push($emails,$post_data['email_id']);
+                            $user->otp = 1234;
+                            $user->email_id = $emails;
+
+                            if ($user->save() == false) {
+                                foreach ($user->getMessages() as $message) {
+                                    $errors[] = $message->getMessage();
+                                }
+                                Library::logging('error',"API : generateOTP, error_msg : ".$errors." : user_id : ".$header_data['id']);
+                                Library::output(false, '0', $errors, null);
+                            } else {
+                                ini_set("SMTP", "smtp.gmail.com");            
+                                ini_set("smtp_port", 465);
+                                ini_set("auth_username", "shubham150@gmail.com");
+                                ini_set("sendmail_from", "shubham150@gmail.com");
+                                ini_set("auth_password", "");
+
+                                $headers = "MIME-Version: 1.0" . "\r\n";
+                                $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+                                //$headers .= 'From: <support@cafegive.com>' . "\r\n";
+
+                                $message = "Your OTP is : 1234";
+
+                                mail($post_data['email_id'], "Forgot Password | Sociabile", $message,$headers);
+                                Library::output(true, '1', "OTP Sent Successfully", null);
+                            }
+                        } else {
+                             Library::output(false, '0', USER_NOT_REGISTERED, null);
+                        }
                     }
                 } else {
-                     Library::output(false, '0', USER_NOT_REGISTERED, null);
+                    Library::logging('error',"API : changeNumber :, error_msg : wrong type, user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
                 }
-            } catch(Exception $e) {
-                Library::logging('error',"API : changeNumber : ".$e." user_id : ".$header_data['id']);
-                Library::output(false, '0', ERROR_REQUEST, null);
             }
             
+        } catch(Exception $e) {
+            Library::logging('error',"API : changeNumber : ".$e." user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
         }
     }
     
@@ -237,7 +285,7 @@ class SettingsController
                 $user = Users::findById($header_data['id']);
                  array_push($emails,$post_data['email_id']);
                 $user->email_id = $emails;
-                $user->password = $security->hash($post_data['email_id']);
+                $user->password = $security->hash($post_data['password']);
                 if ($user->save() == false) {
                     foreach ($user->getMessages() as $message) {
                         $errors[] = $message->getMessage();
@@ -256,7 +304,7 @@ class SettingsController
     
     
     /**
-     * Method for forgot password
+     * Method for reset password
      *
      * @param object request params
      * @param object reponse object
@@ -265,9 +313,40 @@ class SettingsController
      * @return json
      */
     
-    public function forgotPasswordAction($header_data,$post_data)
+    public function resetPasswordAction($header_data,$post_data)
     {
-        
+         if( !isset($post_data['otp_no']) || !isset($post_data['password'])) {
+            Library::logging('alert',"API : resetPassword : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                $security = new \Phalcon\Security();
+                $user = Users::findById($header_data['id']);
+                if($user) {
+                    if($user->otp == $post_data['otp_no']) {
+                        $user->password = $security->hash($post_data['password']);
+
+                        if ($user->save() == false) {
+                            foreach ($user->getMessages() as $message) {
+                                $errors[] = $message->getMessage();
+                            }
+                            Library::logging('error',"API : resetPassword, error_msg : ".$errors." : user_id : ".$header_data['id']);
+                            Library::output(false, '0', $errors, null);
+                        } else {
+                           Library::output(true, '1', SET_PASSWORD, null);
+                        }
+                    } else {
+                        Library::logging('alert',OTP_WRONG." ".": user_id : ".$header_data['id']);
+                        Library::output(false, '0', OTP_WRONG, null);
+                    }
+                } else {
+                     Library::output(false, '0', USER_NOT_REGISTERED, null);
+                }
+            } catch(Exception $e) {
+                Library::logging('error',"API : resetPassword, error_msg : ".$e." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        }
         
     }
     

@@ -163,6 +163,17 @@ $app->post('/setPassword', function () use ( $app ) {
     $settings->setPasswordAction($header_data,$app->request->getPost());
 });
 
+$app->post('/resetPassword', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $settings = new SettingsController();
+    $settings->resetPasswordAction($header_data,$app->request->getPost());
+});
+
+$app->get('/getEmail', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $user = new UsersController();
+    $user->getEmailAction($header_data);
+});
 
 $app->notFound(
 	function () use ( $app ) {
