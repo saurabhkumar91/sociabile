@@ -315,7 +315,7 @@ class SettingsController
     
     public function resetPasswordAction($header_data,$post_data)
     {
-         if( !isset($post_data['otp_no']) || !isset($post_data['password'])) {
+        if( !isset($post_data['otp_no']) || !isset($post_data['password'])) {
             Library::logging('alert',"API : resetPassword : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
@@ -348,6 +348,81 @@ class SettingsController
             }
         }
         
+    }
+    
+    
+    /**
+     * Method for delete password
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Shubham Agarwal <shubham.agarwal@kelltontech.com>
+     * @return json
+     */
+    
+    public function deletePasswordAction($header_data)
+    {
+        try {
+            $user = Users::findById($header_data['id']);
+            $user->password = '';
+            if ($user->save() == false) {
+                foreach ($user->getMessages() as $message) {
+                    $errors[] = $message->getMessage();
+                }
+                Library::logging('error',"API : deletePassword, error_msg : ".$errors." : user_id : ".$header_data['id']);
+                Library::output(false, '0', $errors, null);
+            } else {
+                Library::output(true, '1', DELETE_PASSWORD, null);
+            }
+        } catch(Exception $e) {
+            Library::logging('error',"API : deletePassword, error_msg : ".$e." ".": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+    }
+    
+    
+    /**
+     * Method for change password
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Shubham Agarwal <shubham.agarwal@kelltontech.com>
+     * @return json
+     */
+    
+    public function changePasswordAction($header_data,$post_data)
+    {
+        if( !isset($post_data['old_password']) || !isset($post_data['new_password'])) {
+            Library::logging('alert',"API : changePassword : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                $security = new \Phalcon\Security();
+                $user = Users::findById($header_data['id']);
+                if ($security->checkHash($post_data['old_password'], $user->password)) {
+                    $new_password = $security->hash($post_data['new_password']);
+                    $user->password = $new_password;
+                    if ($user->save() == false) {
+                        foreach ($user->getMessages() as $message) {
+                            $errors[] = $message->getMessage();
+                        }
+                            Library::logging('error',"API : changePassword, error_msg : ".$errors." : user_id : ".$header_data['id']);
+                            Library::output(false, '0', $errors, null);
+                    } else {
+                        Library::output(true, '1', SET_PASSWORD, null);
+                    }
+
+                } else {
+                    Library::output(false, '0', "Wrong Password", null);
+                }
+            } catch (Exception $e) {
+                Library::logging('error',"API : changePassword, error_msg : ".$e." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+            
+        }
     }
     
     

@@ -175,6 +175,18 @@ $app->get('/getEmail', function () use ( $app ) {
     $user->getEmailAction($header_data);
 });
 
+$app->get('/deletePassword', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $settings = new SettingsController();
+    $settings->deletePasswordAction($header_data);
+});
+
+$app->post('/changePassword', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $settings = new SettingsController();
+    $settings->changePasswordAction($header_data,$app->request->getPost());
+});
+
 $app->notFound(
 	function () use ( $app ) {
             $app->response->setStatusCode( 404, "Not Found" )->sendHeaders();
