@@ -187,6 +187,11 @@ $app->post('/changePassword', function () use ( $app ) {
     $settings->changePasswordAction($header_data,$app->request->getPost());
 });
 
+$app->get('/aboutSoicabile/{type}', function ($type) use ( $app ) {
+    $settings = new SettingsController();
+    $settings->aboutSoicabileAction($header_data,$type);
+});
+
 $app->notFound(
 	function () use ( $app ) {
             $app->response->setStatusCode( 404, "Not Found" )->sendHeaders();

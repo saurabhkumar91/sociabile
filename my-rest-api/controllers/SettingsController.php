@@ -426,5 +426,34 @@ class SettingsController
     }
     
     
+    /**
+     * Method for change password
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Shubham Agarwal <shubham.agarwal@kelltontech.com>
+     * @return json
+     */
+    
+    public function aboutSoicabileAction($header_data,$type)
+    {
+        try {
+            if($type == 1) {
+                $message['terms'] = "These Terms of Service apply to all users of the WhatsApp Service. Information provided by our users through the WhatsApp Service may contain links to third party websites that are not owned or controlled by WhatsApp. WhatsApp has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third party websites. ";
+                Library::output(true, '1', "No Error", $message);
+            } elseif ($type == 2) {
+                $message['privacy'] = "In order to access and use the features of the Service, you acknowledge and agree that you will have to provide WhatsApp with your mobile phone number";
+                Library::output(true, '1', "No Error", $message);
+            } else {
+                Library::output(false, '0', "Wrong Type", null);
+            }
+        } catch(Exception $e) {
+            Library::logging('error',"API : aboutSoicabile, error_msg : ".$e." ".": user_id : ".$header_data['id']."type :".$type);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+    }
+    
+    
 }
 ?>
