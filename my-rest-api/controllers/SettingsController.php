@@ -427,7 +427,7 @@ class SettingsController
     
     
     /**
-     * Method for change password
+     * Method for about sociabile
      *
      * @param object request params
      * @param object reponse object
@@ -445,6 +445,86 @@ class SettingsController
             } elseif ($type == 2) {
                 $message['privacy'] = "In order to access and use the features of the Service, you acknowledge and agree that you will have to provide WhatsApp with your mobile phone number";
                 Library::output(true, '1', "No Error", $message);
+            } else {
+                Library::output(false, '0', "Wrong Type", null);
+            }
+        } catch(Exception $e) {
+            Library::logging('error',"API : aboutSoicabile, error_msg : ".$e." ".": user_id : ".$header_data['id']."type :".$type);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+    }
+    
+    
+    
+    /**
+     * Method for set privacy settings
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Shubham Agarwal <shubham.agarwal@kelltontech.com>
+     * @return json
+     */
+    
+    public function setPrivacySettingsAction($header_data,$post_data)
+    {
+        if( !isset($post_data['group_ids']) || !isset($post_data['type'])) {
+            Library::logging('alert',"API : changePassword : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                $user = Users::findById($header_data['id']);
+                if($post_data['type'] == 1) {
+                    $user->my_mind_groups = $post_data['group_ids'];
+                } elseif ($post_data['type'] == 2) {
+                    $user->about_me_groups = $post_data['group_ids'];
+                } elseif ($post_data['type'] == 3) {
+                    $user->my_pictures_groups = $post_data['group_ids'];
+                } else {
+                    Library::output(false, '0', "Wrong Type", null);
+                }
+                if ($user->save() == false) {
+                    foreach ($user->getMessages() as $message) {
+                        $errors[] = $message->getMessage();
+                    }
+                        Library::logging('error',"API : privacySettings, error_msg : ".$errors." : user_id : ".$header_data['id']);
+                        Library::output(false, '0', $errors, null);
+                } else {
+                    Library::output(true, '1', PRIVACY_SETTINGS, null);
+                }
+            } catch(Exception $e) {
+                Library::logging('error',"API : changePassword, error_msg : ".$e." ".": user_id : ".$header_data['id']."type :".$type);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+            
+        }
+    }
+    
+    
+    /**
+     * Method for get privacy settings
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Shubham Agarwal <shubham.agarwal@kelltontech.com>
+     * @return json
+     */
+    
+    public function getPrivacySettingsAction($header_data,$type)
+    {
+        try {
+            $result = array();
+            $user = Users::findById($header_data['id']);
+            if($type == 1) {
+                $result['my_mind'] = $user->my_mind_groups;
+                Library::output(true, '1', "No Error", $result);
+            } elseif ($type == 2) {
+                $result['my_mind'] = $user->about_me_groups;
+                Library::output(true, '1', "No Error", $result);
+            } elseif($type == 3) {
+               $result['my_mind'] = $user->my_pictures_groups;
+                Library::output(true, '1', "No Error", $result);
             } else {
                 Library::output(false, '0', "Wrong Type", null);
             }

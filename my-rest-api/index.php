@@ -192,6 +192,18 @@ $app->get('/aboutSoicabile/{type}', function ($type) use ( $app ) {
     $settings->aboutSoicabileAction($header_data,$type);
 });
 
+$app->post('/setPrivacySettings', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $settings = new SettingsController();
+    $settings->setPrivacySettingsAction($header_data,$app->request->getPost());
+});
+
+$app->get('/getPrivacySettings/{type}', function ($type) use ( $app ) {
+    $header_data = Library::getallheaders();
+    $settings = new SettingsController();
+    $settings->getPrivacySettingsAction($header_data,$type);
+});
+
 $app->notFound(
 	function () use ( $app ) {
             $app->response->setStatusCode( 404, "Not Found" )->sendHeaders();

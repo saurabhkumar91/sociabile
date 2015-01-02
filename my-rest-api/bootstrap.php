@@ -18,6 +18,7 @@ define('CHANGE_NUMBER', 'Phone Number Change Successfully.');
 define('GROUP_ADDED', 'Group Added Successfully.');
 define('SET_PASSWORD', 'Password set successfully.');
 define('DELETE_PASSWORD', 'Password deleted successfully.');
+define('PRIVACY_SETTINGS', 'Settings Saved successfully.');
 
 
 // otp relaed messages

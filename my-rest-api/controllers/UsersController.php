@@ -122,11 +122,28 @@ class UsersController
                 $user_id = $header_data['id'];
                 $otp_no = $data['otp_no'];
                 $user = Users::findById($user_id);
+                
+                $group = array();
+                $db = Library::getMongo();
+                $groups = $db->execute('return db.groups.find( { $and: [ { is_active: 1 }, { group_name: "Friends" } ] } ).toArray()');
+                
+                if($groups['ok'] == 0) {
+                    Library::logging('error',"API : codeVerification (get groups) mongodb error: ".$groups['errmsg']." ".": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+                array_push($group,(string)$groups['retval'][0][_id]);
                 if($user->otp == $otp_no) {
-                    $user->is_active = 1;
-                    $user->username = "user";
-                    $user->context_indicator = "Available";
-                    $user->save();
+                    if($user->is_active == 1) {
+                        // user already exist
+                    } else {
+                        $user->is_active = 1;
+                        $user->username = "user";
+                        $user->context_indicator = "Available";
+                        $user->my_mind_groups = $group;
+                        $user->about_me_groups = $group;
+                        $user->my_pictures_groups = $group;
+                        $user->save();
+                    }
                     Library::output(true, '1', OTP_VERIFIED, null);
                 } else {
                     Library::logging('alert',OTP_WRONG." ".": user_id : ".$header_data['id']);
@@ -217,13 +234,13 @@ class UsersController
             $about_me = array();
             $user = Users::findById($user_id);
             $posts = Posts::find(array(array('user_id' => $user_id)));
-           
+            $email_id = array();
             $profile['mobile_no'] = $user->mobile_no;
             $profile['username'] = $user->username;
             $profile['context_indicator'] = $user->context_indicator;
             $profile['birthday'] = isset($user->birthday) ? $user->birthday : '';
             $profile['profile_pic'] = isset($user->profile_image) ? FORM_ACTION.$user->profile_image : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
-            $profile['email_id'] = isset($user->email_id) ? $user->email_id : '';
+            $profile['email_id'] = isset($user->email_id) ? $user->email_id : $email_id;
             $profile['password'] = isset($user->password) ? $user->password : '';
             
             $i = 0;
@@ -429,7 +446,7 @@ class UsersController
              $db = Library::getMongo();
              $email = $db->execute('return db.users.find({_id:ObjectId("'.$header_data['id'].'")},{email_id:1}).toArray()');
              if($email['ok'] == 0) {
-                    Library::logging('error',"API : getEmail , mongodb error: ".$request_sent['errmsg']." ".": user_id : ".$header_data['id']);
+                    Library::logging('error',"API : getEmail , mongodb error: ".$email['errmsg']." ".": user_id : ".$header_data['id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
                 if(isset($email['retval'][0]['email_id'])) {
