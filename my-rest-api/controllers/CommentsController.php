@@ -46,7 +46,7 @@ class CommentsController
                         $result['comment_text'] = $post_data['comment'];
                         $result['post_id'] = $comment->post_id;
                         $result['comment_timestamp'] = $comment->date;
-                        $result['profile_pic'] = 'http://cgintelmob.cafegive.com/images/slide_banner.jpg';
+                        $result['profile_pic'] = isset($user->profile_image) ? FORM_ACTION.$user->profile_image : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
                         Library::output(true, '1', COMMENT_SAVED, $result);
                     }
                 }
@@ -94,7 +94,7 @@ class CommentsController
                         $listing[$i]['comment_id'] = (string)$comment['_id'];
                         $listing[$i]['comment_text'] = $comment['comment_text'];
                         $listing[$i]['comment_timestamp'] = $comment['date'];
-                        $listing[$i]['profile_pic'] = 'http://cgintelmob.cafegive.com/images/slide_banner.jpg';
+                        $listing[$i]['profile_pic'] = isset($comment['user']['profile_image']) ? $comment['user']['profile_image'] : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
                         $i++;
                     }
                     $result['comments'] = $listing;
