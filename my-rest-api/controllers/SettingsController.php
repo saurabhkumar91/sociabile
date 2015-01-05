@@ -473,13 +473,18 @@ class SettingsController
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
+                if($header_data['os'] == 1) {
+                    $group_ids = json_decode($post_data['group_ids']);
+                } else {
+                    $group_ids = $post_data['group_ids'];
+                }
                 $user = Users::findById($header_data['id']);
                 if($post_data['type'] == 1) {
-                    $user->my_mind_groups = $post_data['group_ids'];
+                    $user->my_mind_groups = $group_ids;
                 } elseif ($post_data['type'] == 2) {
-                    $user->about_me_groups = $post_data['group_ids'];
+                    $user->about_me_groups = $group_ids;
                 } elseif ($post_data['type'] == 3) {
-                    $user->my_pictures_groups = $post_data['group_ids'];
+                    $user->my_pictures_groups = $group_ids;
                 } else {
                     Library::output(false, '0', "Wrong Type", null);
                 }
