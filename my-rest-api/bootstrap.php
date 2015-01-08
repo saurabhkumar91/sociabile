@@ -19,6 +19,10 @@ define('GROUP_ADDED', 'Group Added Successfully.');
 define('SET_PASSWORD', 'Password set successfully.');
 define('DELETE_PASSWORD', 'Password deleted successfully.');
 define('PRIVACY_SETTINGS', 'Settings Saved successfully.');
+define('SHARE_IMAGE', 'Image Share successfully.');
+define('INVALID_ID', 'Invalid User Id.');
+define('IMAGE_UPLOAD', 'Image Uploaded Sucessfully.');
+define('WRONG_TYPE', 'Wrong Type.');
 
 
 // otp relaed messages
@@ -42,7 +46,7 @@ define('COMMENT_SAVED', 'Comment Saved Successfully.');
 define('AUTHKEY','AKIAJXUZE7L54DA6Y3NA');
 define('SECRETKEY','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');
 define('S3BUCKET','newchatejabberd');
-define('SUCCESS_ACTION_REDIRECT','http://54.164.91.58/getStatus');
+define('SUCCESS_ACTION_REDIRECT','http://192.168.13.35/getStatus');
 define('FORM_ACTION','http://newchatejabberd.s3.amazonaws.com/'); 
 define('ACL','public-read');
 //define('CDN_URL','cgintelmob.cafegive.com');

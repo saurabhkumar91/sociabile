@@ -71,15 +71,15 @@ $app->get('/getComments/{post_id}', function ($post_id) use ( $app ) {
     $comment->getCommentsAction($header_data,$post_id);
 });
 
-$app->get('/getStatus/{user_id}', function ($user_id) use ( $app ) {
+$app->get('/getStatus/{user_id}/{type}', function ($user_id,$type) use ( $app ) {
     $amazon = new AmazonsController();
-    $amazon->getStatusAction($user_id);
+    $amazon->getStatusAction($user_id,$type);
 });
 
-$app->get('/createsignature', function () use ( $app ) {
+$app->get('/createsignature/{type}', function ($type) use ( $app ) {
     $header_data = Library::getallheaders();
     $amazon = new AmazonsController();
-    $amazon->createsignatureAction($header_data);
+    $amazon->createsignatureAction($header_data,$type);
 });
 
 $app->get('/getRegisteredNumbers', function () use ( $app ) {
@@ -202,6 +202,25 @@ $app->get('/getPrivacySettings/{type}', function ($type) use ( $app ) {
     $header_data = Library::getallheaders();
     $settings = new SettingsController();
     $settings->getPrivacySettingsAction($header_data,$type);
+});
+
+$app->post('/sharePhotos', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $settings = new SettingsController();
+    $settings->sharePhotosAction($header_data,$app->request->getPost());
+});
+
+$app->get('/getFriendsInfo/{user_id}', function ($user_id) use ( $app ) {
+    $header_data = Library::getallheaders();
+    $settings = new SettingsController();
+    $settings->getFriendsInfoAction($header_data,$user_id);
+});
+
+
+$app->get('/getImages/{type}', function ($type) use ( $app ) {
+    $header_data = Library::getallheaders();
+    $settings = new SettingsController();
+    $settings->getImagesAction($header_data,$type);
 });
 
 $app->notFound(
