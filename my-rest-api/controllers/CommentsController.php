@@ -77,7 +77,7 @@ class CommentsController
             try {
                 $db = Library::getMongo();
                 $comments = $db->execute('var comments = [] ;
-                db.comments.find({"post_id":"'.$post_id.'","user_id":"'.$header_data['id'].'"}).forEach(
+                db.comments.find({"post_id":"'.$post_id.'"}).forEach(
                 function (newComments) { 
                     newComments.user = db.users.findOne({"_id":ObjectId(newComments.user_id)},{username:1,});
                     comments.push(newComments);

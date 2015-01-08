@@ -608,9 +608,9 @@ class SettingsController
                             break;
                         } 
                     }
-
+                    
                     if(is_array($groups)) {
-
+                        
                         // loop for checking whether user can see my mind section
                         foreach($groups as $friends_group) {
                             foreach($user->my_mind_groups as $my_minds_groups) {
@@ -621,8 +621,11 @@ class SettingsController
                                     $my_mind = 0;
                                 }
                             }
+                            if($my_mind == 1) {
+                                break;
+                            }
                         }
-
+                        
                         // loop for checking whether user can see about me section
                         foreach($groups as $friends_group) {
                             foreach($user->about_me_groups as $about_me_groups) {
@@ -633,8 +636,12 @@ class SettingsController
                                     $about_me = 0;
                                 }
                             }
+                            if($about_me == 1) {
+                                break;
+                            }
                         }
-
+                        
+                        
                         // loop for checking whether user can see my pictures section
                         foreach($groups as $friends_group) {
                             foreach($user->my_pictures_groups as $my_pictures_groups) {
@@ -645,6 +652,9 @@ class SettingsController
                                     $my_pictures = 0;
                                 }
                             }
+                            if($my_pictures == 1) {
+                                break;
+                            }
                         }
 
                         if($my_mind == 1) {
@@ -652,16 +662,18 @@ class SettingsController
                             if(is_array($posts)) {
                                 foreach($posts as $post) {
                                     $user_post[$i]['post_id'] = (string)$post->_id;
-                                    $user_post[$i]['text'] = $post->text;
-                                    $user_post[$i]['total_comment'] = $post->total_comment;
-                                    $user_post[$i]['date'] = $post->date;
+                                    $user_post[$i]['post_text'] = $post->text;
+                                    $user_post[$i]['post_comment_count'] = $post->total_comment;
+                                    $user_post[$i]['post_like_count'] = 0;
+                                    $user_post[$i]['post_dislike_count'] = 0;
+                                    $user_post[$i]['post_timestamp'] = $post->date;
                                     $i++;
                                 }
                             } else {
                                 $user_post = array();
                             }
                         }
-
+                        
                         if($about_me == 1) {
                             $about_me_info['gender'] = isset($user->gender) ? $user->gender : '';
                             $about_me_info['hobbies'] = isset($user->hobbies) ? $user->hobbies : '';
@@ -745,7 +757,6 @@ class SettingsController
                          $i++;
                      }
                  }
-                 
                  if(isset($user['retval'][0]['running_groups'])) {
                      foreach ($user['retval'][0]['running_groups'] as $groups) {
                          $friends_info = $db->execute('return db.users.find({"_id":ObjectId("'.$groups['user_id'].'")}).toArray()');
@@ -774,8 +785,8 @@ class SettingsController
                         }
                      }
                  } 
-                 
-                 $shared_images = array_merge($user_share_image,$share_images);
+                 $unique_share_images = array_unique ($share_images);
+                 $shared_images = array_merge($user_share_image,$unique_share_images);
                  $result['image_url'] = FORM_ACTION;
                  $result['share_images'] = $shared_images;
                  Library::output(true, '1', "No Error", $result);

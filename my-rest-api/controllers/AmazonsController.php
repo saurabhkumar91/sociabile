@@ -109,7 +109,12 @@ class AmazonsController
                 
                 // for  image uploading
                 case 2 :
-                    $upload_images = array();
+                    if(isset($user->upload_image)) {
+                        $upload_images = $user->upload_image;
+                    } else {
+                        $upload_images = array();
+                    }
+                    
                     array_push($upload_images,$image_name);
                     $user->upload_image = $upload_images;
                     if ($user->save() == false) {
