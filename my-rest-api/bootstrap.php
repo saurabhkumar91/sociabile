@@ -53,7 +53,7 @@ define('COMMENT_SAVED', 'Comment Saved Successfully.');
 define('AUTHKEY','AKIAJXUZE7L54DA6Y3NA');
 define('SECRETKEY','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');
 define('S3BUCKET','newchatejabberd');
-define('SUCCESS_ACTION_REDIRECT','http://192.168.13.35/getStatus');
+define('SUCCESS_ACTION_REDIRECT','http://54.164.91.58/getStatus');
 define('FORM_ACTION','http://newchatejabberd.s3.amazonaws.com/'); 
 define('ACL','public-read');
 //define('CDN_URL','cgintelmob.cafegive.com');
