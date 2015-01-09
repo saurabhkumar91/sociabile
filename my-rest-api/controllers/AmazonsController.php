@@ -124,6 +124,7 @@ class AmazonsController
                         Library::logging('error',"API : getStatus amazon controller : ".$errors." : user_id : ".$id);
                         Library::output(false, '0', $errors, null);
                     } else {
+                        $result['image_name'] = $image_name;
                         $result['upload_image'] = FORM_ACTION.$image_name;
                         Library::output(true, '1', IMAGE_UPLOAD, $result);
                     }

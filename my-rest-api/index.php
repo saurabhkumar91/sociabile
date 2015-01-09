@@ -223,6 +223,31 @@ $app->get('/getImages/{type}', function ($type) use ( $app ) {
     $settings->getImagesAction($header_data,$type);
 });
 
+$app->post('/editUniqueId', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $users = new UsersController();
+    $users->editUniqueIdAction($header_data,$app->request->getPost());
+});
+
+$app->get('/isSearchable/{type}', function ($type) use ( $app ) {
+    $header_data = Library::getallheaders();
+    $users = new UsersController();
+    $users->isSearchableAction($header_data,$type);
+});
+
+$app->get('/searchUser/{unique_id}', function ($unique_id) use ( $app ) {
+    $header_data = Library::getallheaders();
+    $users = new UsersController();
+    $users->searchUserAction($header_data,$unique_id);
+});
+
+
+$app->post('/userLogin', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $settings = new SettingsController();
+    $settings->userLoginAction($header_data,$app->request->getPost());
+});
+
 $app->notFound(
 	function () use ( $app ) {
             $app->response->setStatusCode( 404, "Not Found" )->sendHeaders();

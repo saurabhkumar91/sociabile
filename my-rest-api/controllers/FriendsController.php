@@ -32,9 +32,11 @@ class FriendsController
                 
                 $result = array();
                 $user = Users::findById($header_data['id']);
-                foreach($user->request_sent as $request_sent) {
-                    if($post_data['request_user_id'] == $request_sent['user_id']) {
-                         Library::output(false, '0', "Request Already Sent To This User.", null);
+                if(isset($user->request_sent)) {
+                    foreach($user->request_sent as $request_sent) {
+                        if($post_data['request_user_id'] == $request_sent['user_id']) {
+                             Library::output(false, '0', "Request Already Sent To This User.", null);
+                        }
                     }
                 }
                 

@@ -115,7 +115,6 @@ class SettingsController
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
              try {
-                 
                  $user = Users::findById($header_data['id']);
                  if($user->otp == $post_data['otp_no']) {
                     $old_mobile_no = $user->mobile_no;
@@ -253,7 +252,7 @@ class SettingsController
                                 
                 $email_id = "shubham150@gmail.com";
                 
-                var_dump(mail($email_id, "Contact Us", $post_data['message'],$headers));
+                mail($email_id, "Contact Us", $post_data['message'],$headers);
                 
                 Library::output(true, '1', "Post Sent Successfully.",null);
             } catch(Exception $e) {
@@ -304,7 +303,7 @@ class SettingsController
     
     
     /**
-     * Method for reset password
+     * Method for reset password (forgot pass)
      *
      * @param object request params
      * @param object reponse object
@@ -347,7 +346,6 @@ class SettingsController
                 Library::output(false, '0', ERROR_REQUEST, null);
             }
         }
-        
     }
     
     
@@ -801,6 +799,32 @@ class SettingsController
         
     }
     
+    
+    /**
+     * Method for user login
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Shubham Agarwal <shubham.agarwal@kelltontech.com>
+     * @return json
+     */
+    
+    public function userLoginAction($header_data,$post_data)
+    {
+        if(!isset($post_data['password'])) {
+            Library::logging('alert',"API : userLogin : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            $security = new \Phalcon\Security();
+            $user = Users::findById($header_data['id']);
+            if ($security->checkHash($post_data['password'], $user->password)) {
+                Library::output(true, '1', USER_LOGIN, null);
+            } else {
+                Library::output(false, '0', "Wrong Password", null);
+            }
+        }
+    }
     
 }
 ?>

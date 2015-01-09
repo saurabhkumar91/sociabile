@@ -142,6 +142,9 @@ class UsersController
                         $user->my_mind_groups = $group;
                         $user->about_me_groups = $group;
                         $user->my_pictures_groups = $group;
+                        $user->unique_id = uniqid();
+                        $user->is_edit = 0;
+                        $user->is_searchable = 0;
                         $user->save();
                     }
                     Library::output(true, '1', OTP_VERIFIED, null);
@@ -239,9 +242,12 @@ class UsersController
             $profile['username'] = $user->username;
             $profile['context_indicator'] = $user->context_indicator;
             $profile['birthday'] = isset($user->birthday) ? $user->birthday : '';
-            $profile['profile_pic'] = isset($user->profile_image) ? FORM_ACTION.$user->profile_image : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
+            $profile['profile_pic'] = isset($user->profile_image) ? FORM_ACTION.$user->profile_image : DEFAULT_IMAGE;
             $profile['email_id'] = isset($user->email_id) ? $user->email_id : $email_id;
             $profile['password'] = isset($user->password) ? $user->password : '';
+            $profile['unique_id'] = isset($user->unique_id) ? $user->unique_id : '';
+            $profile['is_edit'] = isset($user->is_edit) ? $user->is_edit : '';
+            $profile['is_searchable'] = isset($user->is_searchable) ? $user->is_searchable : '';
             
             $i = 0;
             foreach($posts as $post) {
@@ -446,21 +452,158 @@ class UsersController
              $db = Library::getMongo();
              $email = $db->execute('return db.users.find({_id:ObjectId("'.$header_data['id'].'")},{email_id:1}).toArray()');
              if($email['ok'] == 0) {
-                    Library::logging('error',"API : getEmail , mongodb error: ".$email['errmsg']." ".": user_id : ".$header_data['id']);
-                    Library::output(false, '0', ERROR_REQUEST, null);
-                }
-                if(isset($email['retval'][0]['email_id'])) {
-                    $result['email'] = $email['retval'][0]['email_id'];
-                    Library::output(true, '1', "No Error", $result);
-                } else {
-                    $result['email'] = '';
-                    Library::output(true, '1', "No Error", $result);
-                }
-                
+                Library::logging('error',"API : getEmail , mongodb error: ".$email['errmsg']." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+             }
+            if(isset($email['retval'][0]['email_id'])) {
+                $result['email'] = $email['retval'][0]['email_id'];
+                Library::output(true, '1', "No Error", $result);
+            } else {
+                $result['email'] = '';
+                Library::output(true, '1', "No Error", $result);
+            }
         } catch (Exception $e) {
             Library::logging('error',"API : getEmail : ".$e." ".": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_REQUEST, null);
         }
      }
+     
+     
+    /**
+     * Method for edit unique user id
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Shubham Agarwal <shubham.agarwal@kelltontech.com>
+     * @return json
+     */
+    
+     public function editUniqueIdAction($header_data,$post_data)
+     {
+         if(!isset($post_data['unique_id'])) {
+            Library::logging('alert',"API : editUniqueId : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                $db = Library::getMongo();
+                
+                $user_info = $db->execute('return db.users.find({"_id" :ObjectId("'.$header_data['id'].'") }).toArray()');
+                if($user_info['ok'] == 0) {
+                    Library::logging('error',"API : editUniqueId (user info) , mongodb error: ".$user_info['errmsg']." ".": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+                
+                if($user_info['retval'][0]['is_edit'] == 0) {
+                    
+                     $user_unique_id = $post_data['unique_id'];
+                    $ids = $db->execute('return db.users.find({},{unique_id:1,_id:0}).toArray()');
+                    if($ids['ok'] == 0) {
+                        Library::logging('error',"API : editUniqueId (get ids) , mongodb error: ".$ids['errmsg']." ".": user_id : ".$header_data['id']);
+                        Library::output(false, '0', ERROR_REQUEST, null);
+                    }
+
+                    foreach($ids['retval'] as $unique_id) {
+                        if($user_unique_id == $unique_id['unique_id']) {
+                            Library::output(false, '0', UNIQUE_USER_ID, null);
+                        }
+                    }
+
+                    $update_id = $db->execute('return db.users.update({"_id" :ObjectId("'.$header_data['id'].'") },{$set:{unique_id : "'.$user_unique_id.'",is_edit:1}})');
+                    if($update_id['ok'] == 0) {
+                        Library::logging('error',"API : editUniqueId (update id), mongodb error: ".$update_id['errmsg']." ".": user_id : ".$header_data['id']);
+                        Library::output(false, '0', ERROR_REQUEST, null);
+                    }
+
+                    Library::output(true, '1', UNIQUE_USER_UPDATED, null);
+                } else {
+                    Library::output(false, '0', UNIQUE_USER_ALREADY_SET, null);
+                }
+                   
+            } catch(Exception $e) {
+                Library::logging('error',"API : editUniqueId : ".$e." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        }
+     }
+     
+     
+    /**
+     * Method for set searchable unique id
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Shubham Agarwal <shubham.agarwal@kelltontech.com>
+     * @return json
+     */
+    
+     public function isSearchableAction($header_data,$type)
+     {
+         try {
+             $db = Library::getMongo();
+             if($type == 1) { // is searchable true
+                $update_id = $db->execute('return db.users.update({"_id" :ObjectId("'.$header_data['id'].'") },{$set:{is_searchable : 1}})');
+                if($update_id['ok'] == 0) {
+                    Library::logging('error',"API : isSearchable (type 1), mongodb error: ".$update_id['errmsg']." ".": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+                Library::output(true, '1', "Updated Successfully", null);
+                
+             } elseif($type == 0) { // is searchable false
+                $update_id = $db->execute('return db.users.update({"_id" :ObjectId("'.$header_data['id'].'") },{$set:{is_searchable : 0}})');
+                if($update_id['ok'] == 0) {
+                    Library::logging('error',"API : editUniqueId (type 0), mongodb error: ".$update_id['errmsg']." ".": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+                Library::output(true, '1', "Updated Successfully", null);
+                
+             } else {
+                 Library::output(false, '0', WRONG_TYPE, null);
+             }
+        } catch(Exception $e) {
+            Library::logging('error',"API : isSearchable : ".$e." ".": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+     }
+     
+     
+    /**
+     * Method for searching user based on unique id
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Shubham Agarwal <shubham.agarwal@kelltontech.com>
+     * @return json
+     */
+    
+     public function searchUserAction($header_data,$unique_id)
+     {
+         try {
+             if(empty($unique_id)) {
+                 Library::output(false, '0', WRONG_UNIQUE_ID, null);
+             } else {
+                $db = Library::getMongo();
+                
+                $user_info = $db->execute('return db.users.find({"unique_id" : "'.$unique_id.'" }).toArray()');
+                if($user_info['ok'] == 0) {
+                    Library::logging('error',"API : searchUser (user info) , mongodb error: ".$user_info['errmsg']." ".": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+                if(isset($user_info['retval'][0])) {
+                    $result['id'] = (string)$user_info['retval'][0]['_id'];
+                    $result['username'] = $user_info['retval'][0]['username'];
+                    $result['profile_pic'] = isset($user_info->profile_image) ? FORM_ACTION.$user_info->profile_image : DEFAULT_IMAGE;
+                } else {
+                     Library::output(false, '0', NO_USER_FOUND, null);
+                }
+             }
+        } catch(Exception $e) {
+            Library::logging('error',"API : searchUser : ".$e." ".": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+     }
+         
   
 }
