@@ -16,8 +16,8 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
     */
      
      static function auth() {
-        //ini_set("display_errors",1);
-        //error_reporting(E_ALL^ E_NOTICE);
+        ini_set("display_errors",1);
+        error_reporting(E_ALL^ E_NOTICE);
         
         $action = array('registration','generateToken');
         $os = array('1','2');
