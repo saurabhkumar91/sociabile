@@ -784,10 +784,10 @@ class SettingsController
                      }
                  } 
                  $unique_share_images = array_unique ($share_images);
-                 $shared_images = array();
+                 $sh_images = array();
                  $shared_images = array_merge($user_share_image,$unique_share_images);
                  $result['image_url'] = FORM_ACTION;
-                 $result['share_images'] = $shared_images;
+                 $result['share_images'] = isset($shared_images) ? $shared_images : $sh_images;
                  Library::output(true, '1', "No Error", $result);
              } else {
                  Library::output(false, '0', WRONG_TYPE, null);
