@@ -813,17 +813,23 @@ class SettingsController
     
     public function userLoginAction($header_data,$post_data)
     {
-        if(!isset($post_data['password'])) {
+        if(!isset($post_data['password']) || !isset($post_data['unique_id'])) {
             Library::logging('alert',"API : userLogin : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
-            $security = new \Phalcon\Security();
-            $user = Users::findById($header_data['id']);
-            if ($security->checkHash($post_data['password'], $user->password)) {
-                Library::output(true, '1', USER_LOGIN, null);
-            } else {
-                Library::output(false, '0', "Wrong Password", null);
+            try {
+                $security = new \Phalcon\Security();
+                $user = Users::findById($header_data['id']);
+                if ($security->checkHash($post_data['password'], $user->password) && $user->unique_id == $post_data['unique_id']) {
+                    Library::output(true, '1', USER_LOGIN, null);
+                } else {
+                    Library::output(false, '0', "Wrong Password", null);
+                }
+            } catch(Exception $e) {
+                Library::logging('error',"API : userLogin, error_msg : ".$e." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
             }
+            
         }
     }
     
