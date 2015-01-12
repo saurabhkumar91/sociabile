@@ -595,6 +595,7 @@ class UsersController
                     $result['id'] = (string)$user_info['retval'][0]['_id'];
                     $result['username'] = $user_info['retval'][0]['username'];
                     $result['profile_pic'] = isset($user_info->profile_image) ? FORM_ACTION.$user_info->profile_image : DEFAULT_IMAGE;
+                    Library::output(true, '1', "No Error", $result);
                 } else {
                      Library::output(false, '0', NO_USER_FOUND, null);
                 }
