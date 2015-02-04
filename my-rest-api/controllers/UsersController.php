@@ -46,6 +46,55 @@ class UsersController
                         Library::logging('error',"API : registration : ".$errors." ".$mobile_no);
                         Library::output(false, '0', $errors, null);
                     } else {
+                        
+                        /**************** code to register user on ejabber server ********************************/
+                        require 'JAXL-3.x/jaxl.php';
+                        require 'JAXL-3.x/register.php';
+                        $client = new JAXL(array(
+                                'jid' => JAXL_HOST_NAME,
+                                'log_level' => JAXL_DEBUG
+                        ));
+
+                        $client->require_xep(array(
+                                '0077'	// InBand Registration	
+                        ));
+                        $jaxlPassword   = "12345";
+                        $form=array( "username"=>$mobile_no, "password"=>$jaxlPassword );
+                        $client->add_cb('on_stream_features', function($stanza) {
+                                $client = $_SESSION["client"];
+                                $client->xeps['0077']->get_form(JAXL_HOST_NAME);
+                                return "wait_for_register_form";
+                        });
+
+                        $client->add_cb('on_disconnect', function() {
+                                $form = $_SESSION["form"];
+                                _info("registration " . ($form['type'] == 'result' ? 'succeeded' : 'failed'));
+                        });
+                        $_SESSION["client"]  = $client;
+                        $_SESSION["form"]  = $form;
+                        // finally start configured xmpp stream
+                        $client->start();
+                        $form = $_SESSION["form"];
+                        if( isset($form['type']) ) {
+                            if($form['type'] == 'result') { //if registered successfully
+                                $user->jaxl_id  = $form["username"].'@'.JAXL_HOST_NAME;
+                                $user->save();
+                                $result["jaxl_id"]          = $form["username"].'@'.JAXL_HOST_NAME;
+                                $result["jaxl_password"]    = $jaxlPassword;
+                                
+                            }else{ //if not registered successfully with an error
+                                Library::logging('error',"API : registration : JAXL registration failed with error ".$form['type'].". ".$mobile_no);
+                                Library::output(false, '0', JAXL_REG_FAILED, null); 
+                            }
+                        }else{ //if not registered successfully with unknown error
+                            Library::logging('error',"API : registration : JAXL registration failed ".$mobile_no);
+                            Library::output(false, '0', JAXL_REG_FAILED, null);
+                        }
+                        unset($_SESSION["client"]);
+                        unset($_SESSION["form"]);
+                        
+                        /************* register code end ********************************/
+                        
                         $result['user_id'] = $user->_id;
                         $result['otp'] = 1234;
                         Library::output(true, '1', OTP_SENT, $result);

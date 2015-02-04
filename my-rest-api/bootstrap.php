@@ -58,3 +58,7 @@ define('FORM_ACTION','http://newchatejabberd.s3.amazonaws.com/');
 define('ACL','public-read');
 //define('CDN_URL','cgintelmob.cafegive.com');
 define('TOKEN_EXP_DURATION','58');  //seconds
+
+// jaxl constants
+define('JAXL_HOST_NAME','localhost');  //seconds
+define('JAXL_REG_FAILED', "User's Registration On Chat Server Failed");  //seconds

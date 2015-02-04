@@ -18,7 +18,6 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
      static function auth() {
         //ini_set("display_errors",1);
         //error_reporting(E_ALL^ E_NOTICE);
-        
         $action = array('registration','generateToken');
         $os = array('1','2');
         $version = array('1.0'); 
@@ -42,7 +41,8 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
         }
         //die;
         $api_name = explode('/', $_SERVER['REQUEST_URI']);
-        $api_name = $api_name[1];
+        $api_name = end($api_name);
+        //$api_name = $api_name[1];
         
         if($api_name == 'getStatus') {
             
@@ -108,9 +108,8 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
     
     static function output($success,$error,$msg,$result) {
         $response = new \Phalcon\Http\Response();
-    	
     	//Set status code
-    	$response->setRawHeader("HTTP/1.1 200 OK");
+    	//$response->setRawHeader("HTTP/1.1 200 OK");
     	
     	//Set the content of the response
     	if(!is_array($result)) {
