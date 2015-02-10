@@ -30,8 +30,9 @@ class FriendsController
                     $group_ids =  $post_data['group_id'];
                 }
                 
-                $result = array();
-                $user = Users::findById($header_data['id']);
+                $result         = array();
+                $user           = Users::findById($header_data['id']);
+                $requestedUser  = Users::findById($post_data['request_user_id']);
                 if(isset($user->request_sent)) {
                     foreach($user->request_sent as $request_sent) {
                         if($post_data['request_user_id'] == $request_sent['user_id']) {
@@ -58,7 +59,42 @@ class FriendsController
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
                 
-                Library::output(true, '1', USER_REQUEST_SENT, null);
+                
+                /******* code for subscribe(add) user on jabber server **************************************/
+                require 'JAXL-3.x/jaxl.php';
+                $client = new JAXL(array(
+                    'jid' => $user->jaxl_id,
+                    'pass' => "12345",//$user->jaxl_password,
+                    'log_level' => JAXL_DEBUG
+                ));
+                $client->add_cb('on_auth_success', function() {
+                    $client         = $_SESSION["client"];
+                    $requestedId    = $_SESSION["requestedId"];
+                    //$client->set_status("available!");  // set your status
+                    $client->subscribe( $requestedId);
+                    $client->send_end_stream();
+                    
+                });
+                $client->add_cb('on_auth_failure', function() {
+                    $userId = $_SESSION["userId"];
+                    Library::logging('error',"API : sendRequest : ".JAXL_AUTH_FAILURE." : user_id : ".$userId);
+                    Library::output(false, '0', JAXL_AUTH_FAILURE, null);
+                });
+                
+                $client->add_cb('on_disconnect', function() {
+                    Library::output(true, '1', USER_REQUEST_SENT, null);
+                });                    
+
+//                $client->add_cb('on_presence_stanza', function($stanza) {
+//                });
+//
+                $_SESSION["client"] = $client;
+                $_SESSION["requestedId"] = $requestedUser->jaxl_id;
+                $_SESSION["userId"]     = $header_data['id'];
+                $client->start();
+                /******* code for subscribe(add) user end **************************************/
+                    
+                
             } catch(Exception $e) {
                 Library::logging('error',"API : sendRequest : ".$e." ".": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_REQUEST, null);
@@ -91,8 +127,9 @@ class FriendsController
                  if(is_array($get_users['retval'])) {
                     foreach($get_users['retval'] as $info) {
                         $user = Users::findById($info['_id']);
-                        $result[$i]['user_id'] = (string)$user->_id;
+                        $result[$i]['user_id']  = (string)$user->_id;
                         $result[$i]['username'] = $user->username;
+                        $result[$i]['jaxl_id']  = $user->jaxl_id;
                         $result[$i]['profile_image'] = isset($user->profile_image) ? FORM_ACTION.$user->profile_image : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
                         $i++;
                     }
@@ -136,10 +173,11 @@ class FriendsController
                 } else {
                     $group_ids =  $post_data['group_id'];
                 }
-                $user = Users::findById($header_data['id']);
+                $user       = Users::findById($header_data['id']);
+                $acceptUser = Users::findById($post_data['accept_user_id']);
                 $request_pending_ids = $user->request_pending;
-                
                 // query to accepting pending friend request & add running group
+                $requestFound   = false;
                 foreach($request_pending_ids as $request_ids) {
                     if($request_ids['user_id'] == $post_data['accept_user_id']) {
                         $grp_ids = $request_ids['group_id'];  // group ids of requested user
@@ -151,11 +189,13 @@ class FriendsController
                                 Library::logging('error',"API : requestAccept (request accept query) mongodb error: ".$request_accept['errmsg']." ".": user_id : ".$header_data['id']);
                                 Library::output(false, '0', ERROR_REQUEST, null);
                             }
+                            $requestFound= true;
                             break;
                         //}
-                    } else {
-                        Library::output(false, '0', WRONG_USER_ID, null);
-                    }
+                    } 
+                }
+                if( !$requestFound ) {
+                    Library::output(false, '0', WRONG_USER_ID, null);
                 }
                 
                 // qeury for adding running group whom request is accept
@@ -191,7 +231,38 @@ class FriendsController
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
                 
-                Library::output(true, '1', USER_ACCEPT, null);
+                
+                /******* code for subscribe(add) user on jabber server **************************************/
+                require 'JAXL-3.x/jaxl.php';
+                $client = new JAXL(array(
+                    'jid' => $user->jaxl_id,
+                    'pass' => "12345",//$user->jaxl_password,
+                    'log_level' => JAXL_DEBUG
+                ));
+                $client->add_cb('on_auth_success', function() {
+                    $client         = $_SESSION["client"];
+                    $acceptId    = $_SESSION["acceptId"];
+                    //$client->set_status("available!");  // set your status
+                    $client->subscribed( $acceptId);
+                    $client->send_end_stream();
+                });
+                $client->add_cb('on_auth_failure', function() {
+                    $userId = $_SESSION["userId"];
+                    Library::logging('error',"API : sendRequest : ".JAXL_AUTH_FAILURE." : user_id : ".$userId);
+                    Library::output(false, '0', JAXL_AUTH_FAILURE, null);
+                });
+                
+                $client->add_cb('on_disconnect', function() {
+                    Library::output(true, '1', USER_ACCEPT, null);
+                });                    
+
+                $_SESSION["client"]     = $client;
+                $_SESSION["acceptId"]   = $acceptUser->jaxl_id;
+                $_SESSION["userId"]     = $header_data['id'];
+                $client->start();
+                /******* code for subscribe(add) user end **************************************/
+                    
+//                Library::output(true, '1', USER_ACCEPT, null);
             }
         } catch (Exception $e) {
             Library::logging('error',"API : requestAccept : ".$e->getMessage()." ".": user_id : ".$header_data['id']);
@@ -215,7 +286,6 @@ class FriendsController
         try {
             $friends_list = array();
             $user = Users::findById($header_data['id']);
-            
             $i=0;
             if(isset($user->running_groups)) {
                 foreach($user->running_groups as $user_ids) {
@@ -223,6 +293,7 @@ class FriendsController
                     $friends_list[$i]['friends_id'] = (string)$friends_info->_id;
                     $friends_list[$i]['username'] = $friends_info->username;
                     $friends_list[$i]['group_id'] = $user_ids['group_id'];
+                    $friends_list[$i]['jaxl_id'] = $friends_info->jaxl_id;
                     $friends_list[$i]['profile_image'] = isset($friends_info->profile_image) ? FORM_ACTION.$friends_info->profile_image : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
                     $i++;
                 }

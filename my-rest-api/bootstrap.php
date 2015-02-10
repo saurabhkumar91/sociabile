@@ -60,5 +60,7 @@ define('ACL','public-read');
 define('TOKEN_EXP_DURATION','58');  //seconds
 
 // jaxl constants
-define('JAXL_HOST_NAME','localhost');  //seconds
-define('JAXL_REG_FAILED', "User's Registration On Chat Server Failed");  //seconds
+define('JAXL_HOST_NAME','192.168.0.60');  
+define('JAXL_REG_FAILED', "User's Registration On Chat Server Failed"); 
+define('JAXL_DISCONNECTED', "Chat Server Connection Interrupted"); 
+define('JAXL_AUTH_FAILURE', "Invalid User Credentials For Chat Server"); 
