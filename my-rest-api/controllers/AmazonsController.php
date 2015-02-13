@@ -15,7 +15,7 @@ class AmazonsController
 
     public function createsignatureAction($header_data,$type)
     {
-        if($type == 1 || $type == 2 || $type == 3) {
+        if($type == 1 || $type == 2 || $type == 3  || $type == 4 || $type == 10) {
             $form = array(
                 'acl'                       => ACL,
                 'success_action_redirect'   => SUCCESS_ACTION_REDIRECT,
@@ -67,6 +67,9 @@ class AmazonsController
             $amazonsign['success_action_redirect'] = $redirect_url;
             $amazonsign['form_action'] = FORM_ACTION;
             $amazonsign['key'] = '${filename}';
+            if( $type == 10 ){
+                return $amazonsign;
+            }
             Library::output(true,'0',"No Error",$amazonsign);
         } else {
             Library::output(false, '0', "Wrong Type", null);
@@ -135,7 +138,53 @@ class AmazonsController
                     $result['image_name'] = $image_name;
                     $result['share_image'] = FORM_ACTION.$image_name;
                     Library::output(true, '1', IMAGE_UPLOAD, $result);
+                    break;
+                case 4 :
+                    $amazonSign = $this->createsignatureAction( array("id"=>$id), 10 );
+                    $url        = $amazonSign['form_action'];
+                    $headers    = array("Content-Type:multipart/form-data"); // cURL headers for file uploading
+                    $img        = explode("/", $image_name);
+                    $imgName    = end($img);
+                    $ext        = explode(".", $imgName);
+                    $extension  = trim(end($ext));
+                    if( !in_array($extension, array("jpeg", "png", "gif"))){
+                        $extension  = "jpeg";
+                    }
+                    $postfields = array(
+                        "key"                       =>  "thumbnail_".$imgName,//$amazonSign["key"],
+                        "AWSAccessKeyId"            => $amazonSign["AWSAccessKeyId"],
+                        "acl"                       => $amazonSign["acl"],
+                        "success_action_redirect"   => $amazonSign["success_action_redirect"],
+                        "policy"                    => $amazonSign["policy"],
+                        "signature"                 => $amazonSign["signature"],
+                        "Content-Type"              => "image/$extension",
+                        "file"                      => $this->createThumbnail($image_name)
+                    );
                     
+                    $ch = curl_init();
+                    $options = array(
+                        CURLOPT_URL         => $url,
+                        //CURLOPT_HEADER      => true,
+                        CURLOPT_POST        => 1,
+                        CURLOPT_HTTPHEADER  => $headers,
+                        CURLOPT_POSTFIELDS  => $postfields,
+                        CURLOPT_FOLLOWLOCATION => true,
+                        CURLOPT_RETURNTRANSFER => true
+                    ); // cURL options
+                    curl_setopt_array($ch, $options);
+                    $data                   = curl_exec($ch);
+                    curl_close($ch);
+                    $result['image']        = FORM_ACTION.$image_name;
+                    if(is_string ( $data )){
+                        $result['thumbnail']    = FORM_ACTION.$data;
+                    }else{
+                        Library::output(false, '0', "Thumbnail Not Created.", null);
+                    }
+                    Library::output(true, '1', IMAGE_UPLOAD, $result);
+                    break;
+                    
+                case 10 :
+                    exit($image_name);
                 default:
 			Library::output(false, '0', WRONG_TYPE, null);
             }
@@ -146,7 +195,15 @@ class AmazonsController
         }
         
     }
-		
+
+    function createThumbnail($image_name){
+        require("components/Image.php");
+        $imageComponent = new Image();
+        $thumbnail  = $imageComponent->resize($image_name, null, 100, 100, 20);
+        return $thumbnail;
+        //exit( var_dump($thumbnail) );
+
+    }
+    
 }
-	
 	

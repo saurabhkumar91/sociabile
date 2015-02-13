@@ -80,5 +80,9 @@ class GroupsController
         }
     }
     
+    
+    public function joinGroupChatAction($header_data)
+    {
+    }
 }
 ?>

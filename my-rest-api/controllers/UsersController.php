@@ -452,7 +452,7 @@ class UsersController
             foreach($contact_numbers as $contacts) {
                 $get_contacts = str_replace(' ', '', $contacts); 
                 $get_contacts = str_replace('+91', '', $contacts); 
-                if(substr($get_contacts, 0, 1) == 0) {
+                if(substr($get_contacts, 0, 1) == "0") {
                     $get_contacts   = substr($get_contacts, 1);
                     //$get_contacts = preg_replace('/0/', '', $get_contacts, 1); 
                 }
@@ -464,26 +464,37 @@ class UsersController
                 }
                 $record = Users::find(array("conditions" =>array("mobile_no"=>$filter_contacts,"is_active"=>1)));
                 if(!empty($record)) {
+                    
+                    if(isset($user->running_groups)) {
+                        $isFriend   = false;
+                        foreach($user->running_groups as $user_ids) {
+                            if($user_ids['user_id'] == (string)$record[0]->_id) {
+                                $isFriend   = true; 
+                                break;
+                            }
+                        }
+                        if( $isFriend ){
+                            continue;
+                        }
+                    }
+                    
                     $register[$i]['mobile_no'] = $contacts;
                     $register[$i]['user_id'] = (string)$record[0]->_id;
                     $register[$i]['username'] = $record[0]->username;
                     $register[$i]['jaxl_id'] = $record[0]->jaxl_id;
                     $register[$i]['profile_image'] = isset($record[0]->profile_image) ? FORM_ACTION.$record[0]->profile_image : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
+                    $register[$i]['request_sent'] = 0;
                     if(isset($user->request_sent)) {
                         foreach($user->request_sent as $request_sent) {
-                            $register[$i]['is_active'] = $request_sent['is_active'];
 //                            if($request_sent['is_active'] == 1) {
 //                                $j = 1;
 //                            }
                             if($request_sent['user_id'] == (string)$record[0]->_id) {
                                 $register[$i]['request_sent'] = 1;
+                                $register[$i]['is_active'] = $request_sent['is_active'];
                                 break;
-                            } else {
-                                $register[$i]['request_sent'] = 0;
                             }
                         }
-                    } else {
-                        $register[$i]['request_sent'] = 0;
                     }
                     $i++;
                 }
