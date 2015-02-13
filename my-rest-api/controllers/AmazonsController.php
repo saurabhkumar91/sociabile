@@ -91,7 +91,6 @@ class AmazonsController
     {
         try {
             $image_name = $_GET['key'];
-            
             switch ($type) {
                 
                 // for profile image uploading
@@ -159,7 +158,7 @@ class AmazonsController
                         "policy"                    => $amazonSign["policy"],
                         "signature"                 => $amazonSign["signature"],
                         "Content-Type"              => "image/$extension",
-                        "file"                      => $this->createThumbnail($image_name)
+                        "file"                      => $this->createThumbnail(FORM_ACTION.$imgName)
                     );
                     
                     $ch = curl_init();
