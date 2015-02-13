@@ -91,12 +91,12 @@ class AmazonsController
     {
         try {
             $image_name = $_GET['key'];
-            $user = Users::findById($id);
             
             switch ($type) {
                 
                 // for profile image uploading
                 case 1 :
+                    $user = Users::findById($id);
                     $user->profile_image = $image_name;
                     if ($user->save() == false) {
                         foreach ($user->getMessages() as $message) {
@@ -112,6 +112,7 @@ class AmazonsController
                 
                 // for  image uploading
                 case 2 :
+                    $user = Users::findById($id);
                     if(isset($user->upload_image)) {
                         $upload_images = $user->upload_image;
                     } else {
