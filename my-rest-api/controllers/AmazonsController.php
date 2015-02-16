@@ -67,6 +67,12 @@ class AmazonsController
             $amazonsign['success_action_redirect'] = $redirect_url;
             $amazonsign['form_action'] = FORM_ACTION;
             $amazonsign['key'] = '${filename}';
+//            if( $type == 4 ){
+//                $amazonsign['key'] = 'chat/${filename}';
+//            }
+//            if( $type == 5 ){
+//                $amazonsign['key'] = 'emoticons/${filename}';
+//            }
             if( $type == 10 ){
                 return $amazonsign;
             }
@@ -139,6 +145,8 @@ class AmazonsController
                     $result['share_image'] = FORM_ACTION.$image_name;
                     Library::output(true, '1', IMAGE_UPLOAD, $result);
                     break;
+                
+                // for uploading chat image and creating thumbnail for it
                 case 4 :
                     $amazonSign = $this->createsignatureAction( array("id"=>$id), 10 );
                     $url        = $amazonSign['form_action'];
@@ -151,7 +159,7 @@ class AmazonsController
                         $extension  = "jpeg";
                     }
                     $postfields = array(
-                        "key"                       =>  "thumbnail_".$imgName,//$amazonSign["key"],
+                        "key"                       =>  "thumbnail/".$imgName,//$amazonSign["key"],
                         "AWSAccessKeyId"            => $amazonSign["AWSAccessKeyId"],
                         "acl"                       => $amazonSign["acl"],
                         "success_action_redirect"   => $amazonSign["success_action_redirect"],
@@ -172,14 +180,19 @@ class AmazonsController
                         CURLOPT_RETURNTRANSFER => true
                     ); // cURL options
                     curl_setopt_array($ch, $options);
-                    $data                   = curl_exec($ch);
+                    $thumbnailName      = curl_exec($ch);
+                    $result['image']    = FORM_ACTION.$image_name;
                     curl_close($ch);
-                    $result['image']        = FORM_ACTION.$image_name;
-                    if(is_string ( $data )){
-                        $result['thumbnail']    = FORM_ACTION.$data;
+                    if(is_string ( $thumbnailName )){
+                        $result['thumbnail']    = FORM_ACTION.$thumbnailName;
                     }else{
                         Library::output(false, '0', "Thumbnail Not Created.", null);
                     }
+                    Library::output(true, '1', IMAGE_UPLOAD, $result);
+                    break;
+                // for emoticons image uploading
+                case 5 :
+                    $result['emoticon_image'] = FORM_ACTION.$image_name;
                     Library::output(true, '1', IMAGE_UPLOAD, $result);
                     break;
                     
@@ -199,10 +212,14 @@ class AmazonsController
     function createThumbnail($image_name){
         require("components/Image.php");
         $imageComponent = new Image();
-        $thumbnail  = $imageComponent->resize($image_name, null, 100, 100, 20);
+        $quality    = 20;
+        $img        = get_headers($image_name, 1);
+        if( !empty($img["Content-Length"]) ){
+            $quality    = ceil( 2048*100/($img["Content-Length"]) );
+            $quality    = ($quality>100) ? 100 : $quality;
+        }
+        $thumbnail  = $imageComponent->resize($image_name, null, 100, 100, $quality);
         return $thumbnail;
-        //exit( var_dump($thumbnail) );
-
     }
     
 }
