@@ -59,6 +59,12 @@ $app->post('/createPost', function () use ( $app ) {
     $post->createPostAction($header_data,$app->request->getPost());
 });
 
+$app->post('/getPosts', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $post = new PostsController();
+    $post->getPostsAction($header_data,$app->request->getPost());
+});
+
 $app->post('/postComment', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $comment = new CommentsController();
@@ -92,6 +98,23 @@ $app->get('/getGroups', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $group = new GroupsController();
     $group->getGroupsAction($header_data);
+});
+
+$app->post('/addGroup', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $group = new GroupsController();
+    $group->addGroupAction($header_data,$app->request->getPost());
+});
+
+$app->get('/createChatGroup/{groupName}', function ($groupName) use ( $app ) {
+    $header_data = Library::getallheaders();
+    $group = new GroupsController();
+    $group->createChatGroupAction( $header_data, $groupName );
+});
+$app->post('/joinChatGroup', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $group = new GroupsController();
+    $group->joinChatGroupAction( $header_data, $app->request->getPost() );
 });
 
 $app->post('/sendRequest', function () use ( $app ) {
@@ -130,13 +153,6 @@ $app->post('/changeNumber', function () use ( $app ) {
     $settings = new SettingsController();
     $settings->changeNumberAction($header_data,$app->request->getPost());
 });
-
-$app->post('/addGroup', function () use ( $app ) {
-    $header_data = Library::getallheaders();
-    $group = new GroupsController();
-    $group->addGroupAction($header_data,$app->request->getPost());
-});
-
 
 $app->get('/aboutChat', function () use ( $app ) {
     $header_data = Library::getallheaders();
@@ -247,6 +263,24 @@ $app->post('/userLogin', function () use ( $app ) {
     $settings = new SettingsController();
     $settings->userLoginAction($header_data,$app->request->getPost());
 });
+
+$app->post( "/createTimeCapsule", function() use ($app) {
+    $header_data    = Library::getallheaders();
+    $timeCapsule    = new TimeCapsuleController();
+    $timeCapsule->createTimeCapsuleAction( $header_data, $app->request->getPost() );
+} );
+
+$app->get( "/getTimeCapsule", function() {
+    $header_data    = Library::getallheaders();
+    $timeCapsule    = new TimeCapsuleController();
+    $timeCapsule->getTimeCapsuleAction($header_data);
+} );
+
+$app->post( "/openTimeCapsule", function() use ($app) {
+    $header_data    = Library::getallheaders();
+    $timeCapsule    = new TimeCapsuleController();
+    $timeCapsule->openTimeCapsuleAction( $header_data, $app->request->getPost() );
+} );
 
 $app->notFound(
 	function () use ( $app ) {

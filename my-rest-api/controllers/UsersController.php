@@ -36,8 +36,6 @@ class UsersController
         });
 
         $client->add_cb('on_disconnect', function() {
-                $form = $_SESSION["form"];
-                _info("registration " . ($form['type'] == 'result' ? 'succeeded' : 'failed'));
         });
         $_SESSION["client"]  = $client;
         $_SESSION["form"]  = $form;

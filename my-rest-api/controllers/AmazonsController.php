@@ -13,16 +13,20 @@ class AmazonsController
      * @return json
      */
 
-    public function createsignatureAction($header_data,$type)
+    public function createsignatureAction($header_data,$type, $param='')
     {
-        if($type == 1 || $type == 2 || $type == 3  || $type == 4 || $type == 10) {
+        if($type == 1 || $type == 2 || $type == 3  || $type == 4 || $type == 5 || $type == 6 || $type == 10) {
             $form = array(
                 'acl'                       => ACL,
                 'success_action_redirect'   => SUCCESS_ACTION_REDIRECT,
                 'bucket'                    => S3BUCKET,
             );
 
-            $redirect_url = $form['success_action_redirect'].'/'.$header_data['id'].'/'.$type;
+            if( $type== 6 ){
+                $redirect_url = $form['success_action_redirect'].'/'.$header_data['id'].'/'.$type.'/'.$param;
+            }else{
+                $redirect_url = $form['success_action_redirect'].'/'.$header_data['id'].'/'.$type;
+            }
             $h =  date('H');
             $i =  date('i');
             $s =  date('s')+TOKEN_EXP_DURATION;
@@ -67,12 +71,12 @@ class AmazonsController
             $amazonsign['success_action_redirect'] = $redirect_url;
             $amazonsign['form_action'] = FORM_ACTION;
             $amazonsign['key'] = '${filename}';
-//            if( $type == 4 ){
-//                $amazonsign['key'] = 'chat/${filename}';
-//            }
-//            if( $type == 5 ){
-//                $amazonsign['key'] = 'emoticons/${filename}';
-//            }
+            if( $type == 4 ){
+                $amazonsign['key'] = 'chat/${filename}';
+            }
+            if( $type == 5 ){
+                $amazonsign['key'] = 'emoticons/${filename}';
+            }
             if( $type == 10 ){
                 return $amazonsign;
             }
@@ -93,7 +97,7 @@ class AmazonsController
      * @return json
      */
     
-    public function getStatusAction($id,$type)
+    public function getStatusAction( $id, $type, $param='' )
     {
         try {
             $image_name = $_GET['key'];
@@ -166,7 +170,7 @@ class AmazonsController
                         "policy"                    => $amazonSign["policy"],
                         "signature"                 => $amazonSign["signature"],
                         "Content-Type"              => "image/$extension",
-                        "file"                      => $this->createThumbnail(FORM_ACTION.$imgName)
+                        "file"                      => $this->createThumbnail(FORM_ACTION."chat/".$imgName)
                     );
                     
                     $ch = curl_init();
@@ -192,9 +196,29 @@ class AmazonsController
                     break;
                 // for emoticons image uploading
                 case 5 :
-                    $result['emoticon_image'] = FORM_ACTION.$image_name;
+                    $result['emoticonImage'] = FORM_ACTION.$image_name;
                     Library::output(true, '1', IMAGE_UPLOAD, $result);
                     break;
+                // for time capsule image
+                case 6 :
+                    $timeCapsules   = TimeCapsules::findById($param);
+                    if( !$timeCapsules ){
+                        Library::logging('error',"API : getStatus amazon controller : ".INVALID_CAPSULE." : user_id : ".$id);
+                        Library::output(false, '0', INVALID_CAPSULE, null);
+                    }
+                    $timeCapsules->capsule_image[]  = $image_name;
+                    if ( $timeCapsules->save() == false ) {
+                        foreach ($user->getMessages() as $message) {
+                            $errors[] = $message->getMessage();
+                        }
+                        Library::logging('error',"API : getStatus amazon controller : ".$errors." : user_id : ".$id);
+                        Library::output(false, '0', $errors, null);
+                    } else {
+                        Library::output(true, '1', TIME_CAPSULE_IMAGE, null);
+                    }
+                    break;
+                
+                // for  image uploading
                     
                 case 10 :
                     exit($image_name);

@@ -21,7 +21,6 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
         $action = array('registration','generateToken');
         $os = array('1','2');
         $version = array('1.0'); 
-        
         $param = self::getallheaders();
         $db = self::getMongo();
         //print_r(json_encode($_POST));die;

@@ -64,7 +64,7 @@ class FriendsController
                 require 'JAXL-3.x/jaxl.php';
                 $client = new JAXL(array(
                     'jid' => $user->jaxl_id,
-                    'pass' => "12345",//$user->jaxl_password,
+                    'pass' => $user->jaxl_password,
                     'log_level' => JAXL_DEBUG
                 ));
                 $client->add_cb('on_auth_success', function() {
@@ -236,7 +236,7 @@ class FriendsController
                 require 'JAXL-3.x/jaxl.php';
                 $client = new JAXL(array(
                     'jid' => $user->jaxl_id,
-                    'pass' => "12345",//$user->jaxl_password,
+                    'pass' => $user->jaxl_password,
                     'log_level' => JAXL_DEBUG
                 ));
                 $client->add_cb('on_auth_success', function() {
