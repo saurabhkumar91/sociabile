@@ -55,6 +55,20 @@ class TimeCapsuleController {
                 $result[$capsuleCount]['capsule_recipients']    = $timeCapsule->capsule_recipients;
                 $result[$capsuleCount]['capsule_time']          = $timeCapsule->capsule_time;
                 $result[$capsuleCount]['capsule_opened_by']     = $timeCapsule->capsule_opened_by;
+                $result[$capsuleCount]['creation_time']         = $timeCapsule->date;
+                $result[$capsuleCount]['capsule_type']          = "sent";
+                $capsuleCount++;
+            }
+            $timeCapsules   = TimeCapsules::find( array("conditions"=>array( "capsule_recipients"=>$header_data["id"]))  );
+            foreach( $timeCapsules AS $timeCapsule ){
+                $result[$capsuleCount]['capsule_id']            = (string)$timeCapsule->_id;
+                $result[$capsuleCount]['capsule_text']          = $timeCapsule->capsule_text;
+                $result[$capsuleCount]['capsule_image']         = $timeCapsule->capsule_image;
+                $result[$capsuleCount]['capsule_recipients']    = $timeCapsule->capsule_recipients;
+                $result[$capsuleCount]['capsule_time']          = $timeCapsule->capsule_time;
+                $result[$capsuleCount]['capsule_opened_by']     = $timeCapsule->capsule_opened_by;
+                $result[$capsuleCount]['creation_time']         = $timeCapsule->date;
+                $result[$capsuleCount]['capsule_type']          = "received";
                 $capsuleCount++;
             }
             Library::output(true, '1', "No Error", $result);
