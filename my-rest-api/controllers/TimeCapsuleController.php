@@ -5,7 +5,15 @@ use Phalcon\Paginator\Adapter\Model as Paginator;
 use Phalcon\Logger\Adapter\File as FileAdapter;
 
 class TimeCapsuleController {
-    //put your code here
+    
+    /**
+     * Method for creating time capsule 
+     * @param $header_data array of header data
+     * @param $post_data array of post data(capsule_text,capsule_recipients,capsule_time) 
+     * @author Saurabh Kumar
+     * @return json
+     */
+    
     function createTimeCapsuleAction( $header_data, $post_data ){
         if( !isset($post_data["capsule_text"]) || !isset($post_data["capsule_recipients"]) || !isset($post_data["capsule_time"]) ){
             Library::logging('alert',"API : createTimeCapsule : ".ERROR_INPUT.": user_id : ".$header_data['id']);
@@ -13,6 +21,9 @@ class TimeCapsuleController {
             return;
         }
         try{
+            if($header_data['os'] == 2) {
+                $post_data["capsule_recipients"] =  json_encode($post_data["capsule_recipients"]);
+            }
             $timeCapsule                        = new TimeCapsules();
             $timeCapsule->user_id               = $header_data["id"];
             $timeCapsule->capsule_text          = $post_data["capsule_text"];
@@ -23,10 +34,6 @@ class TimeCapsuleController {
             $timeCapsule->date                  = time();
             if ( $timeCapsule->save() ) {
                     $result['capsule_id']           = (string)$timeCapsule->_id;
-//                    $result['capsule_text']         = $timeCapsule->capsule_text;
-//                    $result['capsule_recipients']   = $timeCapsule->capsule_recipients;
-//                    $result['capsule_time']         = $timeCapsule->capsule_time;
-//                    $result['capsule_opened_by']       = $timeCapsule->capsule_opened_by;
                     Library::output(true, '1', TIME_CAPSULE_SAVED, $result);
             } else {
                 $errors = array();
@@ -42,6 +49,13 @@ class TimeCapsuleController {
             Library::output(false, '0', ERROR_INPUT, null);
         }
     }
+    
+    /**
+     * Method to get list of time capsules for logged in user
+     * @param $header_data array of header data
+     * @author Saurabh Kumar
+     * @return json
+     */
     
     function getTimeCapsuleAction( $header_data ){
         try{
@@ -77,6 +91,14 @@ class TimeCapsuleController {
             Library::output(false, '0', ERROR_INPUT, null);
         }
     }
+    
+    /**
+     * Method for opening time capsule 
+     * @param $header_data array of header data
+     * @param $post_data array of post data(capsule_id) 
+     * @author Saurabh Kumar
+     * @return json
+     */
     
     function openTimeCapsuleAction( $header_data, $post_data ){
         if( !isset($post_data["capsule_id"]) ){
