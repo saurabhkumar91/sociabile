@@ -25,7 +25,7 @@ class FriendsController
         } else {
             try {
                 if($header_data['os'] == 2) {
-                    $group_ids =  json_encodez($post_data['group_id']);
+                    $group_ids =  json_encode($post_data['group_id']);
                 } else {
                     $group_ids =  $post_data['group_id'];
                 }
