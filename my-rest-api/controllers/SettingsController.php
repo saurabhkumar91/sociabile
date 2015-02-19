@@ -662,8 +662,8 @@ class SettingsController
                                     $user_post[$i]['post_id'] = (string)$post->_id;
                                     $user_post[$i]['post_text'] = $post->text;
                                     $user_post[$i]['post_comment_count'] = $post->total_comment;
-                                    $user_post[$i]['post_like_count'] = 0;
-                                    $user_post[$i]['post_dislike_count'] = 0;
+                                    $user_post[$i]['post_like_count'] = $postDetail->likes;
+                                    $user_post[$i]['post_dislike_count'] = $postDetail->dislikes;
                                     $user_post[$i]['post_timestamp'] = $post->date;
                                     $i++;
                                 }

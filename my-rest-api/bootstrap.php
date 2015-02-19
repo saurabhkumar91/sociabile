@@ -46,10 +46,12 @@ define('WRONG_OS_VERSION','Wrong Os OR Version');
 // post & comment related messagess
 define('POST_SAVED', 'Post Saved Successfully.');
 define('COMMENT_SAVED', 'Comment Saved Successfully.');
+define('POST_LIKED', 'Post Liked Successfully.');
+define('POST_DISLIKED', 'Post Disliked Successfully.');
 
 
 
-// post & comment related messagess
+// time capsule related messagess
 define('TIME_CAPSULE_SAVED', 'Time Capsule Saved Successfully.');
 define('TIME_CAPSULE_OPENED', 'Time Capsule Opened Successfully.');
 define('TIME_CAPSULE_IMAGE', 'Time Capsule Image Saved Successfully.');

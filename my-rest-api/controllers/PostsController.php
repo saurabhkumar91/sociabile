@@ -65,6 +65,9 @@ class PostsController
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
+                if($header_data['os'] == 1) {
+                    $post_data["groups"] =  json_decode($post_data["groups"]);
+                }
                 $friends    = array();
                 $user = Users::findById($header_data['id']);
                 $i=0;
@@ -73,20 +76,33 @@ class PostsController
                 }
                 if(isset($user->running_groups)) {
                     foreach($user->running_groups as $user_ids) {
-                        if( count(array_intersect($user_ids['group_id'], $post_data['groups'])) > 0 ) {
+                        // get groups in which user has added friend and are selected
+                        $groupsToSearch = array_intersect($user_ids['group_id'], $post_data['groups']);
+                        if( count($groupsToSearch) > 0 ) {
                             
                             $friend         = Users::findById( $user_ids['user_id'] );
                             
-                            if( !isset($friend->username) ){
-                                $friend->username   = "";
+                            // $friendsGroup will contain the groups in which friend has put the user
+                            $friendsGroup   = array();
+                            foreach($friend->running_groups as $grps) {
+                                    if( $grps["user_id"] == $header_data['id'] ){
+                                        $friendsGroup   = $grps["group_id"];
+                                    }
+                                            
                             }
-                            if( !isset($friend->profile_image) ){
-                                $friend->profile_image  = "";
+                            // check if user lies in the my mind groups of friend
+                            if( !empty($friend->my_mind_groups) && count(array_intersect($friendsGroup, $friend->my_mind_groups)) ){
+                                if( !isset($friend->username) ){
+                                    $friend->username   = "";
+                                }
+                                if( !isset($friend->profile_image) ){
+                                    $friend->profile_image  = "";
+                                }
+                                $friends[$i]["id"]              = (string)$friend->_id;
+                                $friends[$i]["name"]            = $friend->username;
+                                $friends[$i]["profile_image"]   = $friend->profile_image;
+                                $i++;
                             }
-                            $friends[$i]["id"]              = (string)$friend->_id;
-                            $friends[$i]["name"]            = $friend->username;
-                            $friends[$i]["profile_image"]   = $friend->profile_image;
-                            $i++;
                         }
                     }
                 }
@@ -116,6 +132,68 @@ class PostsController
 
             } catch (Exception $e) {
                 Library::logging('error',"API : createPost : ".$e." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        }
+    }
+    
+    public function likePostAction( $header_data, $post_data ){
+        if(!isset($post_data['post_id'])) {
+            Library::logging('alert',"API : likePost : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                $post   = Posts::findById( $post_data['post_id'] );
+                if($post){
+                    $post->likes    += 1;
+                    if($post->save()){
+                        
+                        Library::output(true, '1', POST_LIKED, null);
+                        
+                    }else{
+                        foreach ($post->getMessages() as $message) {
+                            $errors[] = $message->getMessage();
+                        }
+                        Library::logging('error',"API : likePost : ".$errors." user_id : ".$header_data['id']);
+                        Library::output(false, '0', $errors, null);
+                    }
+                }else{
+                    Library::logging('error',"API : likePost : Invalid Post Id : user_id : ".$header_data['id'].", post_id: ".(string)$post->_id);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+            } catch (Exception $ex) {
+                Library::logging('error',"API : likePost : ".$e." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        }
+    }
+    
+    public function dislikePostAction( $header_data, $post_data ){
+        if(!isset($post_data['post_id'])) {
+            Library::logging('alert',"API : dislikePost : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                $post   = Posts::findById( $post_data['post_id'] );
+                if($post){
+                    $post->dislikes    += 1;
+                    if($post->save()){
+                        
+                        Library::output(true, '1', POST_DISLIKED, null);
+                        
+                    }else{
+                        foreach ($post->getMessages() as $message) {
+                            $errors[] = $message->getMessage();
+                        }
+                        Library::logging('error',"API : dislikePost : ".$errors." user_id : ".$header_data['id']);
+                        Library::output(false, '0', $errors, null);
+                    }
+                }else{
+                    Library::logging('error',"API : dislikePost : Invalid Post Id : user_id : ".$header_data['id'].", post_id: ".(string)$post->_id);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+            } catch (Exception $ex) {
+                Library::logging('error',"API : dislikePost : ".$e." ".": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_REQUEST, null);
             }
         }
