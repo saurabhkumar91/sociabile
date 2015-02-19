@@ -21,8 +21,8 @@ class TimeCapsuleController {
             return;
         }
         try{
-            if($header_data['os'] == 2) {
-                $post_data["capsule_recipients"] =  json_encode($post_data["capsule_recipients"]);
+            if($header_data['os'] == 1) {
+                $post_data["capsule_recipients"] =  json_decode($post_data["capsule_recipients"]);
             }
             $timeCapsule                        = new TimeCapsules();
             $timeCapsule->user_id               = $header_data["id"];
