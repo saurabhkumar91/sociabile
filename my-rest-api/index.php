@@ -82,10 +82,21 @@ $app->get('/getStatus/{user_id}/{type}', function ($user_id,$type) use ( $app ) 
     $amazon->getStatusAction($user_id,$type);
 });
 
+$app->get('/getStatus/{user_id}/{type}/{param}', function ($user_id,$type, $param) use ( $app ) {
+    $amazon = new AmazonsController();
+    $amazon->getStatusAction($user_id,$type, $param);
+});
+
 $app->get('/createsignature/{type}', function ($type) use ( $app ) {
     $header_data = Library::getallheaders();
     $amazon = new AmazonsController();
     $amazon->createsignatureAction($header_data,$type);
+});
+
+$app->get('/createsignature/{type}/{param}', function ($type,$param) use ( $app ) {
+    $header_data = Library::getallheaders();
+    $amazon = new AmazonsController();
+    $amazon->createsignatureAction($header_data,$type,$param);
 });
 
 $app->get('/getRegisteredNumbers', function () use ( $app ) {
