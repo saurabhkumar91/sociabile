@@ -79,18 +79,18 @@ class TimeCapsuleController {
     }
     
     function openTimeCapsuleAction( $header_data, $post_data ){
-        if( !isset($post_data["capsule_id"]) || !isset($post_data["opened_by"]) ){
+        if( !isset($post_data["capsule_id"]) ){
             Library::logging('alert',"API : capsuleOpened : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
             return;
         }
         try{
-            $timeCapsule                    = TimeCapsules::findById( $post_data["capsule_id"] );
+            $timeCapsule    = TimeCapsules::findById( $post_data["capsule_id"] );
             if( !$timeCapsule ){
                 Library::logging('alert',"API : capsuleOpened : ".ERROR_INPUT.": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_INPUT, null);
             }
-            $timeCapsule->capsule_opened_by[]  = array( "user_id"=>$post_data["opened_by"], "time"=>time() );
+            $timeCapsule->capsule_opened_by[]  = array( "user_id"=>$header_data['id'], "time"=>time() );
             if ( $timeCapsule->save() ) {
                     Library::output(true, '1', TIME_CAPSULE_OPENED, null);
             } else {
