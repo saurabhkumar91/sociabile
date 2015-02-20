@@ -79,7 +79,7 @@ class CommentsController
                 $comments = $db->execute('var comments = [] ;
                 db.comments.find({"post_id":"'.$post_id.'"}).forEach(
                 function (newComments) { 
-                    newComments.user = db.users.findOne({"_id":ObjectId(newComments.user_id)},{username:1,});
+                    newComments.user = db.users.findOne({"_id":ObjectId(newComments.user_id)},{username:1,profile_image:1});
                     comments.push(newComments);
                     }
                     ); 
@@ -94,7 +94,7 @@ class CommentsController
                         $listing[$i]['comment_id'] = (string)$comment['_id'];
                         $listing[$i]['comment_text'] = $comment['comment_text'];
                         $listing[$i]['comment_timestamp'] = $comment['date'];
-                        $listing[$i]['profile_pic'] = isset($comment['user']['profile_image']) ? $comment['user']['profile_image'] : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
+                        $listing[$i]['profile_pic'] = $comment['user']['profile_image'];
                         $i++;
                     }
                     $result['comments'] = $listing;
