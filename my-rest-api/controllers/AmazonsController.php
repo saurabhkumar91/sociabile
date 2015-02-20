@@ -77,6 +77,9 @@ class AmazonsController
             if( $type == 5 ){
                 $amazonsign['key'] = 'emoticons/${filename}';
             }
+            if( $type == 6 ){
+                $amazonsign['key'] = 'timeCapsules/${filename}';
+            }
             if( $type == 10 ){
                 return $amazonsign;
             }

@@ -1,5 +1,6 @@
 <?php
 
+define("TESTING", true);
 
  // user related messages
 define('ERROR_INPUT', 'Please provide all input values.');
