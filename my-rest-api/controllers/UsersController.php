@@ -671,7 +671,7 @@ class UsersController
                 if(isset($user_info['retval'][0])) {
                     $result['id'] = (string)$user_info['retval'][0]['_id'];
                     $result['username'] = $user_info['retval'][0]['username'];
-                    $result['profile_pic'] = FORM_ACTION.$user_info->profile_image;
+                    $result['profile_pic'] = FORM_ACTION.$user_info['retval'][0]["profile_image"];
                     Library::output(true, '1', "No Error", $result);
                 } else {
                      Library::output(false, '0', NO_USER_FOUND, null);
