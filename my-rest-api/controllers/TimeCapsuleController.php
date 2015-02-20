@@ -62,7 +62,15 @@ class TimeCapsuleController {
             $timeCapsules   = TimeCapsules::find( array("conditions"=>array( "user_id"=>$header_data["id"]))  );
             $result         = array();
             $capsuleCount   = 0;
+            $users          = Users::findById( $header_data["id"] );
+            if( !isset($users->username) ){
+                $users->username   = "";
+            }
             foreach( $timeCapsules AS $timeCapsule ){
+                foreach ($timeCapsule->capsule_image as &$value){
+                    $value  = FORM_ACTION.$value;                
+                }
+                $result[$capsuleCount]['username']              = $users->username;
                 $result[$capsuleCount]['capsule_id']            = (string)$timeCapsule->_id;
                 $result[$capsuleCount]['capsule_text']          = $timeCapsule->capsule_text;
                 $result[$capsuleCount]['capsule_image']         = $timeCapsule->capsule_image;
@@ -75,6 +83,10 @@ class TimeCapsuleController {
             }
             $timeCapsules   = TimeCapsules::find( array("conditions"=>array( "capsule_recipients"=>$header_data["id"]))  );
             foreach( $timeCapsules AS $timeCapsule ){
+                foreach ($timeCapsule->capsule_image as &$value){
+                    $value  = FORM_ACTION.$value;                
+                }
+                $result[$capsuleCount]['username']              = $users->username;
                 $result[$capsuleCount]['capsule_id']            = (string)$timeCapsule->_id;
                 $result[$capsuleCount]['capsule_text']          = $timeCapsule->capsule_text;
                 $result[$capsuleCount]['capsule_image']         = $timeCapsule->capsule_image;
