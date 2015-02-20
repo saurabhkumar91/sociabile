@@ -747,47 +747,69 @@ class SettingsController
              
                  
             } elseif($type == 2) { // type 2 for share images
-                $i=0;
-                $share_images = array();
-                 if(isset($user['retval'][0]['share_image'])) {
-                     foreach($user['retval'][0]['share_image'] as $images) {
-                         $user_share_image[$i] = $images['image_name'];
+                $i                      = 0;
+                $friendsSharedImages    = array();
+                $mySharedImages         = array();
+                $user                   = $user['retval'][0];
+                 if(isset($user['share_image'])) {
+                     foreach($user['share_image'] as $images) {
+                         $mySharedImages[$i] = $images['image_name'];
                          $i++;
                      }
                  }
-                 if(isset($user['retval'][0]['running_groups'])) {
-                     foreach ($user['retval'][0]['running_groups'] as $groups) {
+                 if(isset($user['running_groups'])) {
+                     foreach ($user['running_groups'] as $groups) {
                          $friends_info = $db->execute('return db.users.find({"_id":ObjectId("'.$groups['user_id'].'")}).toArray()');
                          if($friends_info['ok'] == 0) {
-                            Library::logging('error',"API : getImages (get friends info) , mongodb error: ".$user['errmsg']." ".": user_id : ".$header_data['id']);
+                            Library::logging('error',"API : getImages (get friends info) , mongodb error: ".$friends_info['errmsg']." ".": user_id : ".$header_data['id']);
                             Library::output(false, '0', ERROR_REQUEST, null);
                         } 
-                        if($friends_info['retval'][0]['share_image']) {
-                            if($friends_info['retval'][0]['running_groups']) {
-                                foreach($friends_info['retval'][0]['running_groups'] as $groups) {
-                                    if($groups['user_id'] == $header_data['id']) {
-                                        foreach($groups['group_id'] as $ids) {
-                                            foreach($friends_info['retval'][0]['share_image'] as $share_image_groups) {
-                                                foreach($share_image_groups['group_id'] as $share_image_ids) {
-                                                    if($ids == $share_image_ids) {
-                                                        array_push($share_images,$share_image_groups['image_name']);
-                                                        //print_r($share_image_groups['image_name']);echo "sdf";die;
-                                                    }
-                                                    //print_r($ids. " ".$share_image_ids . "\n");
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                        $friends_info   = $friends_info['retval'][0];
+                            
+                        if( empty($friends_info['share_image']) || empty($friends_info['running_groups']) ){
+                            continue;
+                        }
+                        
+                        // $friendsGroup will contain the groups in which friend has put the user
+                        $friendsGroup   = array();
+                        foreach($friends_info['running_groups'] as $grps) {
+                            if( $grps["user_id"] == $header_data['id'] ){
+                                $friendsGroup   = $grps["group_id"];
+                                break;
                             }
                         }
+                        foreach($friends_info['share_image'] as $share_image) {
+                            if( count(array_intersect($friendsGroup, $share_image["group_id"])) ){
+                                array_push( $friendsSharedImages, $share_image['image_name'] );
+                            }
+                        }
+                            
+//                        if($friends_info['share_image']) {
+//                            if($friends_info['running_groups']) {
+//                                foreach($friends_info['running_groups'] as $groups) {
+//                                    if($groups['user_id'] == $header_data['id']) {
+//                                        foreach($groups['group_id'] as $ids) {
+//                                            foreach($friends_info['share_image'] as $share_image_groups) {
+//                                                foreach($share_image_groups['group_id'] as $share_image_ids) {
+//                                                    if($ids == $share_image_ids) {
+//                                                        array_push($friendsSharedImages,$share_image_groups['image_name']);
+//                                                        //print_r($share_image_groups['image_name']);echo "sdf";die;
+//                                                    }
+//                                                    //print_r($ids. " ".$share_image_ids . "\n");
+//                                                }
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+                        
                      }
                  } 
-                 $unique_share_images = array_unique ($share_images);
-                 $sh_images = array();
-                 $shared_images = array_merge($user_share_image,$unique_share_images);
-                 $result['image_url'] = FORM_ACTION;
-                 $result['share_images'] = isset($shared_images) ? $shared_images : $sh_images;
+                 $sh_images                 = array();
+                 $shared_images             = array_merge($mySharedImages,array_unique ($friendsSharedImages));
+                 $result['image_url']       = FORM_ACTION;
+                 $result['share_images']    = isset($shared_images) ? $shared_images : $sh_images;
                  Library::output(true, '1', "No Error", $result);
              } else {
                  Library::output(false, '0', WRONG_TYPE, null);

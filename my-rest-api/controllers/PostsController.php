@@ -87,6 +87,7 @@ class PostsController
                             foreach($friend->running_groups as $grps) {
                                     if( $grps["user_id"] == $header_data['id'] ){
                                         $friendsGroup   = $grps["group_id"];
+                                        break;
                                     }
                                             
                             }
