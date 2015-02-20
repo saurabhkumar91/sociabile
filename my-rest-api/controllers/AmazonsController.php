@@ -71,6 +71,15 @@ class AmazonsController
             $amazonsign['success_action_redirect'] = $redirect_url;
             $amazonsign['form_action'] = FORM_ACTION;
             $amazonsign['key'] = '${filename}';
+            if( $type == 1 ){
+                $amazonsign['key'] = 'profiles/${filename}';
+            }
+            if( $type == 2 ){
+                $amazonsign['key'] = 'uploaded/${filename}';
+            }
+            if( $type == 3 ){
+                $amazonsign['key'] = 'shared/${filename}';
+            }
             if( $type == 4 ){
                 $amazonsign['key'] = 'chat/${filename}';
             }
@@ -173,7 +182,7 @@ class AmazonsController
                         "policy"                    => $amazonSign["policy"],
                         "signature"                 => $amazonSign["signature"],
                         "Content-Type"              => "image/$extension",
-                        "file"                      => $this->createThumbnail(FORM_ACTION."chat/".$imgName)
+                        "file"                      => $this->createThumbnail(FORM_ACTION.$image_name)
                     );
                     
                     $ch = curl_init();

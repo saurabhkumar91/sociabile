@@ -30,6 +30,7 @@ define('UNIQUE_USER_ALREADY_SET', 'Unique User Id already updated.');
 define('WRONG_UNIQUE_ID', 'Unique User is not valid.');
 define('NO_USER_FOUND', 'User not found.');
 define('DEFAULT_IMAGE', 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg');
+define('DEFAULT_PROFILE_IMAGE', 'profiles/default.png');
 define('USER_LOGIN', 'User Successfully Login.');
 
 

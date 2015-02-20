@@ -83,12 +83,15 @@ class UsersController
                     }
                     Library::output(true, '1', OTP_SENT, $result);
                 } else {
-                    $user  = new Users();
-                    $user->mobile_no = $mobile_no;
-                    $user->otp = 1234;
-                    $user->device_id = $device_id;
-                    $user->date = time();
-                    $user->is_active = 0;
+                    $user   = new Users();
+                    
+                    $user->mobile_no        = $mobile_no;
+                    $user->otp              = 1234;
+                    $user->device_id        = $device_id;
+                    $user->date             = time();
+                    $user->is_active        = 0;
+                    $user->profile_image    = DEFAULT_PROFILE_IMAGE;
+                    
                     if ($user->save() == false) {
                         foreach ($user->getMessages() as $message) {
                             $errors[] = $message->getMessage();
@@ -301,7 +304,7 @@ class UsersController
             $profile['username'] = $user->username;
             $profile['context_indicator'] = $user->context_indicator;
             $profile['birthday'] = isset($user->birthday) ? $user->birthday : '';
-            $profile['profile_pic'] = isset($user->profile_image) ? FORM_ACTION.$user->profile_image : DEFAULT_IMAGE;
+            $profile['profile_pic'] = FORM_ACTION.$user->profile_image;
             $profile['email_id'] = isset($user->email_id) ? $user->email_id : $email_id;
             $profile['password'] = isset($user->password) ? $user->password : '';
             $profile['unique_id'] = isset($user->unique_id) ? $user->unique_id : '';
@@ -668,7 +671,7 @@ class UsersController
                 if(isset($user_info['retval'][0])) {
                     $result['id'] = (string)$user_info['retval'][0]['_id'];
                     $result['username'] = $user_info['retval'][0]['username'];
-                    $result['profile_pic'] = isset($user_info->profile_image) ? FORM_ACTION.$user_info->profile_image : DEFAULT_IMAGE;
+                    $result['profile_pic'] = FORM_ACTION.$user_info->profile_image;
                     Library::output(true, '1', "No Error", $result);
                 } else {
                      Library::output(false, '0', NO_USER_FOUND, null);
