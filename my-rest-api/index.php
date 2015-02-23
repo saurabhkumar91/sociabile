@@ -214,9 +214,9 @@ $app->post('/changePassword', function () use ( $app ) {
     $settings->changePasswordAction($header_data,$app->request->getPost());
 });
 
-$app->get('/aboutSoicabile/{type}', function ($type) use ( $app ) {
+$app->get('/aboutSociabile/{type}', function ($type) use ( $app ) {
     $settings = new SettingsController();
-    $settings->aboutSoicabileAction($header_data,$type);
+    $settings->aboutSociabileAction($header_data,$type);
 });
 
 $app->post('/setPrivacySettings', function () use ( $app ) {

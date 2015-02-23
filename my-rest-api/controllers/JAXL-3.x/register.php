@@ -17,7 +17,7 @@ function wait_for_register_response($event, $args) {
                                 $form['type'] = "registration failed with error code: ".$error->attrs['code']." and type: ".$error->attrs['type'].PHP_EOL;
                                 if( TESTING ){
                                     if($error->attrs['code']=="409") //if registration cancelled may be due to user wxists already
-                                        $form['type'] == 'result';
+                                        $form['type'] = 'result';
                                 }
                                 
 				$client->send_end_stream();

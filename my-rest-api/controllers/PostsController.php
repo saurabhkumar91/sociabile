@@ -21,8 +21,7 @@ class PostsController
      * @return json
      */
     
-    public function createPostAction($header_data,$post_data)
-    { 
+    public function createPostAction($header_data,$post_data){ 
         if(!isset($post_data['post'])) {
             Library::logging('alert',"API : createPost : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
@@ -58,8 +57,16 @@ class PostsController
         }
     }
     
-    public function getPostsAction($header_data,$post_data)
-    { 
+    /**
+     * Method posts listing
+     * @param $header_data user and device details
+     * @param $post_data post request data containing:
+     * - groups: for which posts would be serched
+     * @author Saurabh Kumar
+     * @return json
+     */
+    
+    public function getPostsAction($header_data,$post_data){ 
         if(!isset($post_data['groups'])) {
             Library::logging('alert',"API : createPost : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
@@ -138,6 +145,15 @@ class PostsController
         }
     }
     
+    /**
+     * Method to like a post
+     * @param $header_data user and device details
+     * @param $post_data post request data containing:
+     * - post_id: which is being liked
+     * @author Saurabh Kumar
+     * @return json
+     */
+    
     public function likePostAction( $header_data, $post_data ){
         if(!isset($post_data['post_id'])) {
             Library::logging('alert',"API : likePost : ".ERROR_INPUT.": user_id : ".$header_data['id']);
@@ -163,11 +179,20 @@ class PostsController
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
             } catch (Exception $ex) {
-                Library::logging('error',"API : likePost : ".$e." ".": user_id : ".$header_data['id']);
+                Library::logging('error',"API : likePost : ".$ex." ".": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_REQUEST, null);
             }
         }
     }
+    
+    /**
+     * Method to dislike a post
+     * @param $header_data user and device details
+     * @param $post_data post request data containing:
+     * - post_id: which is being liked
+     * @author Saurabh Kumar
+     * @return json
+     */
     
     public function dislikePostAction( $header_data, $post_data ){
         if(!isset($post_data['post_id'])) {
@@ -194,7 +219,7 @@ class PostsController
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
             } catch (Exception $ex) {
-                Library::logging('error',"API : dislikePost : ".$e." ".": user_id : ".$header_data['id']);
+                Library::logging('error',"API : dislikePost : ".$ex." ".": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_REQUEST, null);
             }
         }
