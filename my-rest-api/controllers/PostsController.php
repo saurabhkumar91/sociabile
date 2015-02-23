@@ -35,6 +35,7 @@ class PostsController
                 $post->likes            = 0;
                 $post->dislikes         = 0;
                 $post->date             = time();
+                $post->type             = "text";
                 if ($post->save() == false) {
                     foreach ($post->getMessages() as $message) {
                         $errors[] = $message->getMessage();

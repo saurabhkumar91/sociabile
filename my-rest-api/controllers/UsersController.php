@@ -663,7 +663,7 @@ class UsersController
              } else {
                 $db = Library::getMongo();
                 
-                $user_info = $db->execute('return db.users.find({"unique_id" : "'.$unique_id.'" }).toArray()');
+                $user_info = $db->execute('return db.users.find({"unique_id" : "'.$unique_id.'", is_searchable : 1 }).toArray()');
                 if($user_info['ok'] == 0) {
                     Library::logging('error',"API : searchUser (user info) , mongodb error: ".$user_info['errmsg']." ".": user_id : ".$header_data['id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
