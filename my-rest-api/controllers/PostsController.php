@@ -162,7 +162,6 @@ class PostsController
                         $postCount++;
                     }
                 }
-                print_r($result);
                 Library::output(true, '1', "No Error", $result);
 
             } catch (Exception $e) {

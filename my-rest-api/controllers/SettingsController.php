@@ -594,8 +594,6 @@ class SettingsController
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
-                $i=0;
-                $user_post = array();
                 $user = Users::findById($user_id);
                 if($user->running_groups) {
 
@@ -655,6 +653,8 @@ class SettingsController
                             }
                         }
 
+                        $i          = 0;
+                        $user_post  = array();
                         if($my_mind == 1) {
                             $posts = Posts::find(array(array("user_id" => $user_id)));
                             if(is_array($posts)) {
@@ -667,11 +667,8 @@ class SettingsController
                                     $user_post[$i]['post_timestamp'] = $post->date;
                                     $i++;
                                 }
-                            } else {
-                                $user_post = array();
                             }
                         }
-                        
                         if($about_me == 1) {
                             $about_me_info['gender'] = isset($user->gender) ? $user->gender : '';
                             $about_me_info['hobbies'] = isset($user->hobbies) ? $user->hobbies : '';
@@ -682,6 +679,8 @@ class SettingsController
                             $about_me_info['description'] = '';
                         }
 
+                        $i                  = 0;
+                        $my_pictures_info   = array();
                         if($my_pictures == 1) {
                             $posts = Posts::find(array(array("user_id" => $user_id, "type"=>2)));
                             if(is_array($posts)) {
@@ -694,8 +693,6 @@ class SettingsController
                                     $my_pictures_info[$i]['post_timestamp'] = $post->date;
                                     $i++;
                                 }
-                            } else {
-                                $my_pictures_info = array();
                             }
                         }
                         
@@ -813,9 +810,7 @@ class SettingsController
 //                                                foreach($share_image_groups['group_id'] as $share_image_ids) {
 //                                                    if($ids == $share_image_ids) {
 //                                                        array_push($friendsSharedImages,$share_image_groups['image_name']);
-//                                                        //print_r($share_image_groups['image_name']);echo "sdf";die;
 //                                                    }
-//                                                    //print_r($ids. " ".$share_image_ids . "\n");
 //                                                }
 //                                            }
 //                                        }

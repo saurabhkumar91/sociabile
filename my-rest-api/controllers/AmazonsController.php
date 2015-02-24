@@ -34,7 +34,6 @@ class AmazonsController
             $m =  date('m');
             $d =  date('d');
             $expiration = $y."-".$m."-".$d."T".$h.":".$i.":".$s."Z";
-            //print_r($expiration);
 
             $form['policy'] = '{
             "expiration": "'.$expiration.'",
