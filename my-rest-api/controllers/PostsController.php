@@ -68,7 +68,7 @@ class PostsController
      */
     
     public function getPostsAction($header_data,$post_data){
-        if( !isset($post_data['groups']) ) {
+        if( !isset($post_data['groups'])  ) {
             Library::logging('alert',"API : createPost : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
@@ -192,7 +192,15 @@ class PostsController
             try {
                 $post   = Posts::findById( $post_data['post_id'] );
                 if($post){
-                    $post->likes    += 1;
+                    $post->likes        += 1;
+                    if( empty($post->liked_by) ){
+                        $post->liked_by = array();
+                    }
+                    if( in_array( $header_data['id'], $post->liked_by) ){
+                        Library::logging('error',"API : likePost : ".POST_ALREADY_LIKED." ".": user_id : ".$header_data['id']);
+                        Library::output(false, '0', POST_ALREADY_LIKED, null);
+                    }
+                    $post->liked_by[]   = $header_data['id'];
                     if($post->save()){
                         
                         Library::output(true, '1', POST_LIKED, null);
@@ -205,7 +213,7 @@ class PostsController
                         Library::output(false, '0', $errors, null);
                     }
                 }else{
-                    Library::logging('error',"API : likePost : Invalid Post Id : user_id : ".$header_data['id'].", post_id: ".(string)$post->_id);
+                    Library::logging('error',"API : likePost : Invalid Post Id : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
             } catch (Exception $ex) {
@@ -233,6 +241,15 @@ class PostsController
                 $post   = Posts::findById( $post_data['post_id'] );
                 if($post){
                     $post->dislikes    += 1;
+                    if( empty($post->disliked_by) ){
+                        $post->disliked_by = array();
+                    }
+                    if( in_array( $header_data['id'], $post->disliked_by) ){
+                        Library::logging('error',"API : dislikePost : ".POST_ALREADY_DISLIKED." ".": user_id : ".$header_data['id']);
+                        Library::output(false, '0', POST_ALREADY_DISLIKED, null);
+                    }
+                    $post->disliked_by[]    = $header_data['id'];
+                    
                     if($post->save()){
                         
                         Library::output(true, '1', POST_DISLIKED, null);
@@ -245,7 +262,43 @@ class PostsController
                         Library::output(false, '0', $errors, null);
                     }
                 }else{
-                    Library::logging('error',"API : dislikePost : Invalid Post Id : user_id : ".$header_data['id'].", post_id: ".(string)$post->_id);
+                    Library::logging('error',"API : dislikePost : Invalid Post Id : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+            } catch (Exception $ex) {
+                Library::logging('error',"API : dislikePost : ".$ex." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        }
+    }
+    
+    /**
+     * Method to dislike a post
+     * @param $header_data user and device details
+     * @param $post_data post request data containing:
+     * - post_id: which is being liked
+     * @author Saurabh Kumar
+     * @return json
+     */
+    
+    public function postLikeDislikeDetailsAction( $header_data, $post_data ){
+        if(!isset($post_data['post_id'])) {
+            Library::logging('alert',"API : dislikePost : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                $post   = Posts::findById( $post_data['post_id'] );
+                if($post){
+                    if( empty($post->disliked_by) ){
+                        $post->disliked_by = array();
+                    }
+                    if( empty($post->liked_by) ){
+                        $post->liked_by = array();
+                    }
+                    $result = array("likes"=>$post->likes, "liked_by"=>$post->liked_by, "dislikes"=>$post->dislikes, "disliked_by"=>$post->disliked_by,);
+                    Library::output(true, '1', "No Error", $result);
+                }else{
+                    Library::logging('error',"API : postLikeDislikeDetails : Invalid Post Id : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
             } catch (Exception $ex) {

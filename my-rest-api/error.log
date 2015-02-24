@@ -32,3 +32,7 @@ Stack trace:
 #3 /var/www/html/sociabileapi/my-rest-api/index.php(302): Phalcon\Mvc\Micro->handle()
 #4 {main} : user_id : 54e58635bd04ec7c058b4568
 [Tue, 24 Feb 15 16:26:55 +0530][ALERT] API : likePost : Please provide all input values.: user_id : 54e586d1bd04ec7f058b4568
+[Tue, 24 Feb 15 18:17:03 +0530][ERROR] API : dislikePost : Post Already Disliked By User : user_id : 54e586d1bd04ec7f058b4568
+[Tue, 24 Feb 15 18:17:48 +0530][ERROR] API : likePost : Post Already Liked By User : user_id : 54e586d1bd04ec7f058b4568
+[Tue, 24 Feb 15 18:18:42 +0530][ERROR] API : likePost : Post Already Liked By User : user_id : 54e58635bd04ec7c058b4568
+[Tue, 24 Feb 15 18:18:51 +0530][ERROR] API : dislikePost : Post Already Disliked By User : user_id : 54e58635bd04ec7c058b4568

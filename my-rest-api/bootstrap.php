@@ -24,11 +24,11 @@ define('SHARE_IMAGE', 'Image Share successfully.');
 define('INVALID_ID', 'Invalid User Id.');
 define('IMAGE_UPLOAD', 'Image Uploaded Sucessfully.');
 define('WRONG_TYPE', 'Wrong Type.');
-define('UNIQUE_USER_ID', 'This Unique User Id Already Exist.');
+define('UNIQUE_USER_ID', 'This User Id Already Exists');
 define('UNIQUE_USER_UPDATED', 'Unique User Id Updated Successfully.');
 define('UNIQUE_USER_ALREADY_SET', 'Unique User Id already updated.');
 define('WRONG_UNIQUE_ID', 'Unique User is not valid.');
-define('NO_USER_FOUND', 'User not found.');
+define('NO_USER_FOUND', 'No result found');
 define('DEFAULT_IMAGE', 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg');
 define('DEFAULT_PROFILE_IMAGE', 'profiles/default.png');
 define('USER_LOGIN', 'User Successfully Login.');
@@ -50,6 +50,8 @@ define('POST_SAVED', 'Post Saved Successfully.');
 define('COMMENT_SAVED', 'Comment Saved Successfully.');
 define('POST_LIKED', 'Post Liked Successfully.');
 define('POST_DISLIKED', 'Post Disliked Successfully.');
+define('POST_ALREADY_LIKED', 'Post Already Liked By User');
+define('POST_ALREADY_DISLIKED', 'Post Already Disliked By User');
 
 
 

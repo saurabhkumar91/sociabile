@@ -77,6 +77,12 @@ $app->post('/dislikePost', function () use ( $app ) {
     $post->dislikePostAction($header_data,$app->request->getPost());
 });
 
+$app->post('/postLikeDislikeDetails', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $post = new PostsController();
+    $post->postLikeDislikeDetailsAction($header_data,$app->request->getPost());
+});
+
 $app->post('/postComment', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $comment = new CommentsController();
