@@ -604,7 +604,6 @@ class SettingsController
                             break;
                         } 
                     }
-                    
                     if(is_array($groups)) {
                         
                         // loop for checking whether user can see my mind section
@@ -656,14 +655,14 @@ class SettingsController
                         $i          = 0;
                         $user_post  = array();
                         if($my_mind == 1) {
-                            $posts = Posts::find(array(array("user_id" => $user_id)));
+                            $posts = Posts::find(array(array("user_id" => $user_id, "type"=>1)));
                             if(is_array($posts)) {
                                 foreach($posts as $post) {
                                     $user_post[$i]['post_id'] = (string)$post->_id;
                                     $user_post[$i]['post_text'] = $post->text;
-                                    $user_post[$i]['post_comment_count'] = $post->total_comment;
-                                    $user_post[$i]['post_like_count'] = $postDetail->likes;
-                                    $user_post[$i]['post_dislike_count'] = $postDetail->dislikes;
+                                    $user_post[$i]['post_comment_count'] = $post->total_comments;
+                                    $user_post[$i]['post_like_count'] = $post->likes;
+                                    $user_post[$i]['post_dislike_count'] = $post->dislikes;
                                     $user_post[$i]['post_timestamp'] = $post->date;
                                     $i++;
                                 }
@@ -687,9 +686,9 @@ class SettingsController
                                 foreach($posts as $post) {
                                     $my_pictures_info[$i]['post_id'] = (string)$post->_id;
                                     $my_pictures_info[$i]['post_text'] = $post->text;
-                                    $my_pictures_info[$i]['post_comment_count'] = $post->total_comment;
-                                    $my_pictures_info[$i]['post_like_count'] = $postDetail->likes;
-                                    $my_pictures_info[$i]['post_dislike_count'] = $postDetail->dislikes;
+                                    $my_pictures_info[$i]['post_comment_count'] = $post->total_comments;
+                                    $my_pictures_info[$i]['post_like_count'] = $post->likes;
+                                    $my_pictures_info[$i]['post_dislike_count'] = $post->dislikes;
                                     $my_pictures_info[$i]['post_timestamp'] = $post->date;
                                     $i++;
                                 }
@@ -722,7 +721,7 @@ class SettingsController
                     Library::output(false, '0', INVALID_ID, null);
                 }
             } catch(Exception $e) {
-                Library::logging('error',"API : getFriegndsInfo, error_msg : ".$e." ".": user_id : ".$header_data['id']."type :".$type);
+                Library::logging('error',"API : getFriegndsInfo, error_msg : ".$e." ".": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_REQUEST, null);
             }
             
@@ -776,8 +775,8 @@ class SettingsController
                  }
                  if(isset($user['running_groups'])) {
                      foreach ($user['running_groups'] as $groups) {
-                         $friends_info = $db->execute('return db.users.find({"_id":ObjectId("'.$groups['user_id'].'")}).toArray()');
-                         if($friends_info['ok'] == 0) {
+                        $friends_info = $db->execute('return db.users.find({"_id":ObjectId("'.$groups['user_id'].'")}).toArray()');
+                        if($friends_info['ok'] == 0) {
                             Library::logging('error',"API : getImages (get friends info) , mongodb error: ".$friends_info['errmsg']." ".": user_id : ".$header_data['id']);
                             Library::output(false, '0', ERROR_REQUEST, null);
                         } 
