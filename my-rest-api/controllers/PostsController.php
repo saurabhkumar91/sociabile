@@ -35,7 +35,7 @@ class PostsController
                 $post->likes            = 0;
                 $post->dislikes         = 0;
                 $post->date             = time();
-                $post->type             = "text";
+                $post->type             = 1;    // type| 1 for text posts, 2 for images
                 if ($post->save() == false) {
                     foreach ($post->getMessages() as $message) {
                         $errors[] = $message->getMessage();
@@ -61,14 +61,14 @@ class PostsController
     /**
      * Method posts listing
      * @param $header_data user and device details
-     * @param $post_data post request data containing:
+     * @param $post_data post request data array containing:
      * - groups: for which posts would be serched
      * @author Saurabh Kumar
      * @return json
      */
     
-    public function getPostsAction($header_data,$post_data){ 
-        if(!isset($post_data['groups'])) {
+    public function getPostsAction($header_data,$post_data){
+        if( !isset($post_data['groups']) || !is_array($post_data['groups']) ) {
             Library::logging('alert',"API : createPost : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
@@ -76,12 +76,19 @@ class PostsController
                 if($header_data['os'] == 1) {
                     $post_data["groups"] =  json_decode($post_data["groups"]);
                 }
-                $friends    = array();
                 $user = Users::findById($header_data['id']);
-                $i=0;
-                if( !is_array($post_data['groups']) ){
-                    $post_data['groups']    = array($post_data['groups']);
+                if( !isset($user->username) ){
+                    $user->username   = "";
                 }
+                if( !isset($user->profile_image) ){
+                    $user->profile_image  = "";
+                } 
+                $friends    = array( 
+                                $header_data['id']=>array(
+                                        "name"=>$user->username, 
+                                        "profile_image"=>$user->profile_image, 
+                                        "type"=>"[1,2]") 
+                    );
                 if(isset($user->running_groups)) {
                     foreach($user->running_groups as $user_ids) {
                         // get groups in which user has added friend and are selected
@@ -99,18 +106,30 @@ class PostsController
                                     }
                                             
                             }
+                            $type   = 0;   // user is not in any of the groups
                             // check if user lies in the my mind groups of friend
-                            if( !empty($friend->my_mind_groups) && count(array_intersect($friendsGroup, $friend->my_mind_groups)) ){
+                            if( !empty($friend->my_mind_groups) && count(array_intersect($friendsGroup, $friend->my_mind_groups))){
+                                $type   = 1; // user is in my mind groups
+                            }
+                            // check if user lies in the my pictures groups of friend
+                            if( !empty($friend->my_pictures_groups) && count(array_intersect($friendsGroup, $friend->my_pictures_groups)) ){
+                                if( $type == 1 ){
+                                    $type   = 3; // user is in both my mind groups and my pictures groups
+                                }else{
+                                    $type   = 2; // user is in my pictures groups
+                                }
+                            }                          
+                            if( $type ){
                                 if( !isset($friend->username) ){
                                     $friend->username   = "";
                                 }
                                 if( !isset($friend->profile_image) ){
                                     $friend->profile_image  = "";
                                 }
-                                $friends[$i]["id"]              = (string)$friend->_id;
-                                $friends[$i]["name"]            = $friend->username;
-                                $friends[$i]["profile_image"]   = $friend->profile_image;
-                                $i++;
+                                $friendId                               = (string)$friend->_id;
+                                $friends[$friendId]["name"]             = $friend->username;
+                                $friends[$friendId]["profile_image"]    = $friend->profile_image;
+                                $friends[$friendId]["type"]             = ($type==3) ? "[1,2]" : "[$type]";
                             }
                         }
                     }
@@ -118,25 +137,32 @@ class PostsController
                 $result = array();
                 $posts  = new Posts();
                 $postCount  = 0;
-                foreach( $friends AS $friend ){
-                    $post   = $posts->find( array("conditions"=>array( "user_id"=>$friend["id"]))  );
-                    foreach( $post As $postDetail ){
+                $db = Library::getMongo();
+                foreach( $friends AS $friendId=>$friend ){
+                    $post = $db->execute('return db.posts.find({ user_id:"'.$friendId.'", type:{$in:'.$friend["type"].'} }).toArray()');
+                    if($post['ok'] == 0) {
+                        Library::logging('error',"API : getImages (get user info) , mongodb error: ".$post['errmsg']." ".": user_id : ".$header_data['id']);
+                        Library::output(false, '0', ERROR_REQUEST, null);
+                    }    
+                    foreach( $post['retval'] As $postDetail ){
                         $comments   = array();
                         if( !empty($postDetail->comments) ){
                             $comments   = $postDetail->comments;
                         }
-                        $result[$postCount]["post_id"]              = (string)$postDetail->_id;
-                        $result[$postCount]["friend_id"]            = $friend["id"];
-                        $result[$postCount]["friend_name"]          = $friend["name"];
-                        $result[$postCount]["friend_profile_image"] = $friend["profile_image"];
-                        $result[$postCount]["text"]                 = $postDetail->text;
-                        $result[$postCount]["date"]                 = $postDetail->date;
-                        $result[$postCount]["likes"]                = $postDetail->likes;
-                        $result[$postCount]["dislikes"]             = $postDetail->dislikes;
-                        $result[$postCount]["total_comments"]       = $postDetail->total_comments;
+                        $result[$postCount]["post_id"]              = (string)$postDetail["_id"];
+                        $result[$postCount]["user_id"]              = $friendId;
+                        $result[$postCount]["user_name"]            = $friend["name"];
+                        $result[$postCount]["user_profile_image"]   = $friend["profile_image"];
+                        $result[$postCount]["text"]                 = $postDetail["text"];
+                        $result[$postCount]["date"]                 = $postDetail["date"];
+                        $result[$postCount]["likes"]                = $postDetail["likes"];
+                        $result[$postCount]["dislikes"]             = $postDetail["dislikes"];
+                        $result[$postCount]["total_comments"]       = $postDetail["total_comments"];
+                        $result[$postCount]["post_type"]            = $postDetail["type"]; // type| 1 for text posts, 2 for images
                         $postCount++;
                     }
                 }
+                print_r($result);
                 Library::output(true, '1', "No Error", $result);
 
             } catch (Exception $e) {

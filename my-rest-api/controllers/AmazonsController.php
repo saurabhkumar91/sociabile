@@ -133,26 +133,58 @@ class AmazonsController
                 
                 // for  image uploading
                 case 2 :
-                    $user = Users::findById($id);
-                    if(isset($user->upload_image)) {
-                        $upload_images = $user->upload_image;
-                    } else {
-                        $upload_images = array();
+                    try {
+                        $result                 = array();
+                        $post                   = new Posts();
+                        $post->user_id          = $id;
+                        $post->text             = $image_name;
+                        $post->total_comments   = 0;
+                        $post->likes            = 0;
+                        $post->dislikes         = 0;
+                        $post->date             = time();
+                        $post->type             = 2;    // type| 1 for text posts, 2 for images
+                        if ($post->save() == false) {
+                            foreach ($post->getMessages() as $message) {
+                                $errors[] = $message->getMessage();
+                            }
+                            Library::logging('error',"API : createPost : ".$errors." user_id : ".$id);
+                            Library::output(false, '0', $errors, null);
+                        } else {
+                            $result['upload_image']         = FORM_ACTION.$image_name;
+                            $result['post_id']              = (string)$post->_id;
+                            $result['post_text']            = $post->text;
+                            $result['post_comment_count']   = 0;
+                            $result['post_like_count']      = 0;
+                            $result['post_dislike_count']   = 0;
+                            $result['post_timestamp']       = $post->date;
+                            Library::output(true, '1', POST_SAVED, $result);
+                        }
+                    } catch (Exception $e) {
+                        Library::logging('error',"API : createPost : ".$e." ".": user_id : ".$id);
+                        Library::output(false, '0', ERROR_REQUEST, null);
                     }
                     
-                    array_push($upload_images,$image_name);
-                    $user->upload_image = $upload_images;
-                    if ($user->save() == false) {
-                        foreach ($user->getMessages() as $message) {
-                            $errors[] = $message->getMessage();
-                        }
-                        Library::logging('error',"API : getStatus amazon controller : ".$errors." : user_id : ".$id);
-                        Library::output(false, '0', $errors, null);
-                    } else {
-                        $result['image_name'] = $image_name;
-                        $result['upload_image'] = FORM_ACTION.$image_name;
-                        Library::output(true, '1', IMAGE_UPLOAD, $result);
-                    }
+//                    
+//                    $user = Users::findById($id);
+//                    if(isset($user->upload_image)) {
+//                        $upload_images = $user->upload_image;
+//                    } else {
+//                        $upload_images = array();
+//                    }
+//                    
+//                    array_push($upload_images,$image_name);
+//                    $user->upload_image = $upload_images;
+//                    if ($user->save() == false) {
+//                        foreach ($user->getMessages() as $message) {
+//                            $errors[] = $message->getMessage();
+//                        }
+//                        Library::logging('error',"API : getStatus amazon controller : ".$errors." : user_id : ".$id);
+//                        Library::output(false, '0', $errors, null);
+//                    } else {
+//                        $result['image_name'] = $image_name;
+//                        $result['upload_image'] = FORM_ACTION.$image_name;
+//                        Library::output(true, '1', IMAGE_UPLOAD, $result);
+//                    }
                     break;
                     
                 // for share image uploading

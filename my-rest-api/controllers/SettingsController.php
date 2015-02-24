@@ -683,7 +683,20 @@ class SettingsController
                         }
 
                         if($my_pictures == 1) {
-                            $my_pictures_info = isset($user->upload_image) ? $user->upload_image : '';
+                            $posts = Posts::find(array(array("user_id" => $user_id, "type"=>2)));
+                            if(is_array($posts)) {
+                                foreach($posts as $post) {
+                                    $my_pictures_info[$i]['post_id'] = (string)$post->_id;
+                                    $my_pictures_info[$i]['post_text'] = $post->text;
+                                    $my_pictures_info[$i]['post_comment_count'] = $post->total_comment;
+                                    $my_pictures_info[$i]['post_like_count'] = $postDetail->likes;
+                                    $my_pictures_info[$i]['post_dislike_count'] = $postDetail->dislikes;
+                                    $my_pictures_info[$i]['post_timestamp'] = $post->date;
+                                    $i++;
+                                }
+                            } else {
+                                $my_pictures_info = array();
+                            }
                         }
                         
                         $profile['image_url'] = FORM_ACTION;
@@ -733,20 +746,27 @@ class SettingsController
     {
         try {
             $db = Library::getMongo();
-            $user = $db->execute('return db.users.find({"_id":ObjectId("'.$header_data['id'].'")}).toArray()');
-            if($user['ok'] == 0) {
-                Library::logging('error',"API : getImages (get user info) , mongodb error: ".$user['errmsg']." ".": user_id : ".$header_data['id']);
-                Library::output(false, '0', ERROR_REQUEST, null);
-            }    
             if($type == 1) { // type 1 for upload images
 
-                 $upload_image = array();
-                 $result['image_url'] = FORM_ACTION;
-                 $result['upload_images'] = isset($user['retval'][0]['upload_image']) ? $user['retval'][0]['upload_image'] : $upload_image;
+                $posts  = $db->execute('return db.posts.find( {"user_id":"'.$header_data['id'].'", "type":2} ).toArray()');
+                if($posts['ok'] == 0) {
+                    Library::logging('error',"API : getImages (get user info) , mongodb error: ".$posts['errmsg']." ".": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }    
+                 $result['image_url']       = FORM_ACTION;
+                 $result['upload_images']   = array();
+                 foreach( $posts['retval'] AS $post ){
+                    $result['upload_images'][]  = $post['text'];
+                 }
                  Library::output(true, '1', "No Error", $result);
              
                  
             } elseif($type == 2) { // type 2 for share images
+                $user = $db->execute('return db.users.find({"_id":ObjectId("'.$header_data['id'].'")}).toArray()');
+                if($user['ok'] == 0) {
+                    Library::logging('error',"API : getImages (get user info) , mongodb error: ".$user['errmsg']." ".": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }    
                 $i                      = 0;
                 $friendsSharedImages    = array();
                 $mySharedImages         = array();
