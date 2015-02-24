@@ -496,7 +496,7 @@ class SettingsController
                     Library::output(true, '1', PRIVACY_SETTINGS, null);
                 }
             } catch(Exception $e) {
-                Library::logging('error',"API : setPrivacySettings, error_msg : ".$e." ".": user_id : ".$header_data['id']."type :".$type);
+                Library::logging('error',"API : setPrivacySettings, error_msg : ".$e." ".": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_REQUEST, null);
             }
             

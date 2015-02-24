@@ -68,13 +68,17 @@ class PostsController
      */
     
     public function getPostsAction($header_data,$post_data){
-        if( !isset($post_data['groups']) || !is_array($post_data['groups']) ) {
+        if( !isset($post_data['groups']) ) {
             Library::logging('alert',"API : createPost : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
                 if($header_data['os'] == 1) {
                     $post_data["groups"] =  json_decode($post_data["groups"]);
+                }
+                if(!is_array($post_data['groups']) ) {
+                    Library::logging('alert',"API : createPost : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_INPUT, null);
                 }
                 $user = Users::findById($header_data['id']);
                 if( !isset($user->username) ){

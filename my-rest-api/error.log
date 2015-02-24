@@ -31,3 +31,4 @@ Stack trace:
 #2 [internal function]: {closure}()
 #3 /var/www/html/sociabileapi/my-rest-api/index.php(302): Phalcon\Mvc\Micro->handle()
 #4 {main} : user_id : 54e58635bd04ec7c058b4568
+[Tue, 24 Feb 15 16:26:55 +0530][ALERT] API : likePost : Please provide all input values.: user_id : 54e586d1bd04ec7f058b4568

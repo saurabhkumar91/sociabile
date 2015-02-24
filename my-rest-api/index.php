@@ -65,6 +65,18 @@ $app->post('/getPosts', function () use ( $app ) {
     $post->getPostsAction($header_data,$app->request->getPost());
 });
 
+$app->post('/likePost', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $post = new PostsController();
+    $post->likePostAction($header_data,$app->request->getPost());
+});
+
+$app->post('/dislikePost', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $post = new PostsController();
+    $post->dislikePostAction($header_data,$app->request->getPost());
+});
+
 $app->post('/postComment', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $comment = new CommentsController();
