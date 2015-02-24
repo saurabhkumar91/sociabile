@@ -149,10 +149,16 @@ class PostsController
                         Library::output(false, '0', ERROR_REQUEST, null);
                     }    
                     foreach( $post['retval'] As $postDetail ){
-                        $comments   = array();
-                        if( !empty($postDetail->comments) ){
-                            $comments   = $postDetail->comments;
+                        $isLiked    = false;
+                        $isDisliked = false;
+                        if( !empty($postDetail["liked_by"]) && in_array( $header_data['id'], $postDetail["liked_by"]) ){
+                            $isLiked    = true;
                         }
+                        if( !empty($postDetail["disliked_by"]) && in_array( $header_data['id'], $postDetail["disliked_by"]) ){
+                            $isDisliked = true;
+                        }
+                        $postDetail["text"] = ($postDetail["type"]==2) ? FORM_ACTION.$postDetail["text"] : $postDetail["text"];
+                        
                         $result[$postCount]["post_id"]              = (string)$postDetail["_id"];
                         $result[$postCount]["user_id"]              = $friendId;
                         $result[$postCount]["user_name"]            = $friend["name"];
@@ -162,6 +168,8 @@ class PostsController
                         $result[$postCount]["likes"]                = $postDetail["likes"];
                         $result[$postCount]["dislikes"]             = $postDetail["dislikes"];
                         $result[$postCount]["total_comments"]       = $postDetail["total_comments"];
+                        $result[$postCount]["is_liked"]             = $isLiked;
+                        $result[$postCount]["is_disliked"]          = $isDisliked;
                         $result[$postCount]["post_type"]            = $postDetail["type"]; // type| 1 for text posts, 2 for images
                         $postCount++;
                     }
