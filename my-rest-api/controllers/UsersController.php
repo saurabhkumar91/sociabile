@@ -316,8 +316,8 @@ class UsersController
                 $my_mind[$i]['post_id'] = (string)$post->_id;
                 $my_mind[$i]['post_text'] = $post->text;
                 $my_mind[$i]['post_timestamp'] = $post->date;
-                $my_mind[$i]['post_like_count'] = $postDetail->likes;
-                $my_mind[$i]['post_dislike_count'] = $postDetail->dislikes;
+                $my_mind[$i]['post_like_count'] = $post->likes;
+                $my_mind[$i]['post_dislike_count'] = $post->dislikes;
                 $my_mind[$i]['post_comment_count'] = $post->total_comment;
                 $i++;
             }
