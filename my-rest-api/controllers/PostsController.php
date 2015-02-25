@@ -60,8 +60,8 @@ class PostsController
     
     /**
      * Method posts listing
-     * @param $header_data user and device details
-     * @param $post_data post request data array containing:
+     * @param $header_data: user and device details
+     * @param $post_data: post request data array containing:
      * - groups: for which posts would be serched
      * @author Saurabh Kumar
      * @return json
@@ -182,8 +182,8 @@ class PostsController
     
     /**
      * Method to like a post
-     * @param $header_data user and device details
-     * @param $post_data post request data containing:
+     * @param $header_data: user and device details
+     * @param $post_data: post request data containing:
      * - post_id: which is being liked
      * @author Saurabh Kumar
      * @return json
@@ -230,8 +230,8 @@ class PostsController
     
     /**
      * Method to dislike a post
-     * @param $header_data user and device details
-     * @param $post_data post request data containing:
+     * @param $header_data: user and device details
+     * @param $post_data: post request data containing:
      * - post_id: which is being liked
      * @author Saurabh Kumar
      * @return json
@@ -279,8 +279,8 @@ class PostsController
     
     /**
      * Method to dislike a post
-     * @param $header_data user and device details
-     * @param $post_data post request data containing:
+     * @param $header_data: user and device details
+     * @param $post_data: post request data containing:
      * - post_id: which is being liked
      * @author Saurabh Kumar
      * @return json

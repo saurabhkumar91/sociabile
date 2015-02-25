@@ -39,7 +39,7 @@ class CommentsController
                         Library::logging('error',"API : postComments : ".$errors." user_id : ".$header_data['id']);
                         Library::output(false, '0', $errors, null);
                     } else {
-                        $post->total_comment = $post->total_comment+1;
+                        $post->total_comments = $post->total_comments+1;
                         $post->save();
                         $result['username'] = $user->username;
                         $result['comment_id'] = (string)$comment->_id;

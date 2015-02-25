@@ -17,20 +17,18 @@ class FriendsController
      * @return json
      */
     
-    public function sendRequestAction($header_data,$post_data)
-    {
+    public function sendRequestAction($header_data,$post_data){
         if( !isset($post_data['request_user_id']) || !isset($post_data['group_id'])) {
             Library::logging('alert',"API : sendRequest : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
                 if($header_data['os'] == 2) {
-                    $group_ids =  json_encode($post_data['group_id']);
+                    $groupIds =  json_encode($post_data['group_id']);
                 } else {
-                    $group_ids =  $post_data['group_id'];
+                    $groupIds =  $post_data['group_id'];
                 }
                 
-                $result         = array();
                 $user           = Users::findById($header_data['id']);
                 $requestedUser  = Users::findById($post_data['request_user_id']);
                 if(isset($user->request_sent)) {
@@ -40,25 +38,6 @@ class FriendsController
                         }
                     }
                 }
-                
-                $db = Library::getMongo();
-                //foreach($group_ids as $id) {
-                    // query for request sent by the user
-                    $request_sent = $db->execute('db.users.update({"_id" :ObjectId("'.$header_data['id'].'") },{$push : {request_sent:{$each:[{user_id:"'.$post_data['request_user_id'].'",group_id:'.$group_ids.',is_active:0,date:"'.time().'"}]}}})');
-                    if($request_sent['ok'] == 0) {
-                        Library::logging('error',"API : sendRequest (request sent query) mongodb error: ".$request_sent['errmsg']." ".": user_id : ".$header_data['id']);
-                        Library::output(false, '0', ERROR_REQUEST, null);
-                    }
-                //}
-                
-                // query for request pending entry by the user
-                $request_pending = $db->execute('db.users.update({"_id" :ObjectId("'.$post_data['request_user_id'].'") },{$push : {request_pending:{$each:[{user_id:"'.$header_data['id'].'",group_id:'.$group_ids.',is_active:0,date:"'.time().'"}]}}})');
-                
-                if($request_pending['ok'] == 0) {
-                    Library::logging('error',"API : sendRequest (request_pending query) mongodb error: ".$request_pending['errmsg']." ".": user_id : ".$header_data['id']);
-                    Library::output(false, '0', ERROR_REQUEST, null);
-                }
-                
                 
                 /******* code for subscribe(add) user on jabber server **************************************/
                 require 'JAXL-3.x/jaxl.php';
@@ -82,15 +61,36 @@ class FriendsController
                 });
                 
                 $client->add_cb('on_disconnect', function() {
+                
+                    $userId             = $_SESSION["userId"];
+                    $db                 = Library::getMongo();
+                    $requestedUserId    = $_SESSION["requestedUserId"];
+                    $groupIds          = $_SESSION["groupIds"];
+                    /**************************************code for db entry of request***************************/
+                    // insert request_user_id and groups in request_sent of user
+                    $request_sent = $db->execute('db.users.update({"_id" :ObjectId("'.$userId.'") },{$push : {request_sent:{$each:[{user_id:"'.$requestedUserId.'",group_id:'.$groupIds.',is_active:0,date:"'.time().'"}]}}})');
+                    if($request_sent['ok'] == 0) {
+                        Library::logging('error',"API : sendRequest (request sent query) mongodb error: ".$request_sent['errmsg']." ".": user_id : ".$userId);
+                        Library::output(false, '0', ERROR_REQUEST, null);
+                    }
+
+                    // query for request pending entry by the user
+                    $request_pending = $db->execute('db.users.update({"_id" :ObjectId("'.$requestedUserId.'") },{$push : {request_pending:{user_id:"'.$userId.'",group_id:'.$groupIds.',is_active:0,date:"'.time().'"}}})');
+
+                    if($request_pending['ok'] == 0) {
+                        Library::logging('error',"API : sendRequest (request_pending query) mongodb error: ".$request_pending['errmsg']." ".": user_id : ".$userId);
+                        Library::output(false, '0', ERROR_REQUEST, null);
+                    }
+                    /**************************************code for db entry of request ends ************************/
+
                     Library::output(true, '1', USER_REQUEST_SENT, null);
                 });                    
 
-//                $client->add_cb('on_presence_stanza', function($stanza) {
-//                });
-//
-                $_SESSION["client"] = $client;
-                $_SESSION["requestedId"] = $requestedUser->jaxl_id;
-                $_SESSION["userId"]     = $header_data['id'];
+                $_SESSION["client"]             = $client;
+                $_SESSION["requestedId"]        = $requestedUser->jaxl_id;
+                $_SESSION["userId"]             = $header_data['id'];
+                $_SESSION["requestedUserId"]    = $post_data['request_user_id'];
+                $_SESSION["groupIds"]           = $groupIds;
                 $client->start();
                 /******* code for subscribe(add) user end **************************************/
                     
@@ -112,8 +112,7 @@ class FriendsController
      * @return json
      */
     
-    public function pendingRequestAction($header_data)
-    {
+    public function pendingRequestAction($header_data){
         try {
             $result = array();
             $i = 0;
@@ -159,19 +158,17 @@ class FriendsController
      * @return json
      */
     
-    public function requestAcceptAction($header_data,$post_data)
-    {
+    public function requestAcceptAction($header_data,$post_data){
         try {
              if( !isset($post_data['accept_user_id']) || !isset($post_data['group_id'])) {
                 Library::logging('alert',"API : requestAccept : ".ERROR_INPUT.": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_INPUT, null);
             } else {
-                $db = Library::getMongo();
                 
                 if($header_data['os'] == 2) {
-                    $group_ids =  json_encode($post_data['group_id']);
+                    $groupIds =  json_encode($post_data['group_id']);
                 } else {
-                    $group_ids =  $post_data['group_id'];
+                    $groupIds =  $post_data['group_id'];
                 }
                 $user       = Users::findById($header_data['id']);
                 $acceptUser = Users::findById($post_data['accept_user_id']);
@@ -180,57 +177,14 @@ class FriendsController
                 $requestFound   = false;
                 foreach($request_pending_ids as $request_ids) {
                     if($request_ids['user_id'] == $post_data['accept_user_id']) {
-                        $grp_ids = $request_ids['group_id'];  // group ids of requested user
-                        //foreach($group_ids as $id) {
-                           
-                            $request_accept = $db->execute('db.users.update({"_id" :ObjectId("'.$header_data['id'].'") },{$push : {running_groups:{$each:[{user_id:"'.$post_data['accept_user_id'].'",group_id:'.$group_ids.',date:"'.time().'"}]}}})');
-                           
-                            if($request_accept['ok'] == 0) {
-                                Library::logging('error',"API : requestAccept (request accept query) mongodb error: ".$request_accept['errmsg']." ".": user_id : ".$header_data['id']);
-                                Library::output(false, '0', ERROR_REQUEST, null);
-                            }
-                            $requestFound= true;
-                            break;
-                        //}
+                        $requestGroups  = $request_ids['group_id'];  // group ids of requested user
+                        $requestFound   = true;
+                        break;
                     } 
                 }
                 if( !$requestFound ) {
                     Library::output(false, '0', WRONG_USER_ID, null);
                 }
-                
-                // qeury for adding running group whom request is accept
-                 $grp_ids = json_encode($grp_ids);
-                 $request_sync = $db->execute('db.users.update({"_id" :ObjectId("'.$post_data['accept_user_id'].'") },{$push : {running_groups:{$each:[{user_id:"'.$header_data['id'].'",group_id:'.$grp_ids.',date:"'.time().'"}]}}})');
-                 if($request_sync['ok'] == 0) {
-                    Library::logging('error',"API : requestAccept (request sync query) mongodb error: ".$request_sync['errmsg']." ".": user_id : ".$header_data['id']);
-                    Library::output(false, '0', ERROR_REQUEST, null);
-                    
-                }
-                
-                // query for updating request sent array (is_active = 1) 
-                $request_update = $db->execute('db.users.update(
-                                        {"_id" : ObjectId("'.$post_data['accept_user_id'].'"),"request_sent.user_id": "'.$header_data['id'].'"}, 
-                                        {$set: {
-                                            "request_sent.$.is_active": 1
-                                        }}
-                                        )');
-                 if($request_update['ok'] == 0) {
-                    Library::logging('error',"API : requestAccept (updating request sent array) mongodb error: ".$request_update['errmsg']." ".": user_id : ".$header_data['id']);
-                    Library::output(false, '0', ERROR_REQUEST, null);
-                    
-                }
-                // query for delete pending request after accepting
-                $delete = 'db.users.update(
-                            {_id:ObjectId("'.$header_data['id'].'") },
-                            { $pull: { request_pending: { user_id: "'.$post_data['accept_user_id'].'" } } },
-                            { multi: true }
-                          )';
-                $delete_pending = $db->execute($delete);
-                if($delete_pending['ok'] == 0) {
-                    Library::logging('error',"API : requestAccept (delete pending query) mongodb error: ".$delete_pending['errmsg']." ".": user_id : ".$header_data['id']);
-                    Library::output(false, '0', ERROR_REQUEST, null);
-                }
-                
                 
                 /******* code for subscribe(add) user on jabber server **************************************/
                 require 'JAXL-3.x/jaxl.php';
@@ -248,21 +202,66 @@ class FriendsController
                 });
                 $client->add_cb('on_auth_failure', function() {
                     $userId = $_SESSION["userId"];
-                    Library::logging('error',"API : sendRequest : ".JAXL_AUTH_FAILURE." : user_id : ".$userId);
+                    Library::logging('error',"API : requestAccept : ".JAXL_AUTH_FAILURE." : user_id : ".$userId);
                     Library::output(false, '0', JAXL_AUTH_FAILURE, null);
                 });
                 
                 $client->add_cb('on_disconnect', function() {
+                    $db             = Library::getMongo();
+                    $userId         = $_SESSION["userId"];
+                    $acceptUserId   = $_SESSION["accept_user_id"];
+                    $groupIds       = $_SESSION["groupIds"];
+                    $requestGroups  = json_encode($_SESSION["requestGroups"]);
+                    $request_accept = $db->execute('db.users.update({"_id" :ObjectId("'.$userId.'") },{$push : {running_groups:{$each:[{user_id:"'.$acceptUserId.'",group_id:'.$groupIds.',date:"'.time().'"}]}}})');
+
+                    if($request_accept['ok'] == 0) {
+                        Library::logging('error',"API : requestAccept (request accept query) mongodb error: ".$request_accept['errmsg']." ".": user_id : ".$userId);
+                        Library::output(false, '0', ERROR_REQUEST, null);
+                    }
+                
+                
+                // qeury for adding running group whom request is accept
+                 $request_sync = $db->execute('db.users.update({"_id" :ObjectId("'.$acceptUserId.'") },{$push : {running_groups:{$each:[{user_id:"'.$userId.'",group_id:'.$requestGroups.',date:"'.time().'"}]}}})');
+                 if($request_sync['ok'] == 0) {
+                    Library::logging('error',"API : requestAccept (request sync query) mongodb error: ".$request_sync['errmsg']." ".": user_id : ".$userId);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                    
+                }
+                
+                // query for updating request sent array (is_active = 1) 
+                $request_update = $db->execute('db.users.update(
+                                        {"_id" : ObjectId("'.$acceptUserId.'"),"request_sent.user_id": "'.$userId.'"}, 
+                                        {$set: {
+                                            "request_sent.$.is_active": 1
+                                        }}
+                                        )');
+                 if($request_update['ok'] == 0) {
+                    Library::logging('error',"API : requestAccept (updating request sent array) mongodb error: ".$request_update['errmsg']." ".": user_id : ".$userId);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                    
+                }
+                // query for delete pending request after accepting
+                $delete = 'db.users.update(
+                            {_id:ObjectId("'.$userId.'") },
+                            { $pull: { request_pending: { user_id: "'.$acceptUserId.'" } } },
+                            { multi: true }
+                          )';
+                $delete_pending = $db->execute($delete);
+                if($delete_pending['ok'] == 0) {
+                    Library::logging('error',"API : requestAccept (delete pending query) mongodb error: ".$delete_pending['errmsg']." ".": user_id : ".$userId);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
                     Library::output(true, '1', USER_ACCEPT, null);
                 });                    
 
-                $_SESSION["client"]     = $client;
-                $_SESSION["acceptId"]   = $acceptUser->jaxl_id;
-                $_SESSION["userId"]     = $header_data['id'];
+                $_SESSION["client"]         = $client;
+                $_SESSION["acceptId"]       = $acceptUser->jaxl_id;
+                $_SESSION["userId"]         = $header_data['id'];
+                $_SESSION["accept_user_id"] = $post_data['accept_user_id'];
+                $_SESSION["groupIds"]       = $groupIds;
+                $_SESSION["requestGroups"]  = $requestGroups;
                 $client->start();
                 /******* code for subscribe(add) user end **************************************/
-                    
-//                Library::output(true, '1', USER_ACCEPT, null);
             }
         } catch (Exception $e) {
             Library::logging('error',"API : requestAccept : ".$e->getMessage()." ".": user_id : ".$header_data['id']);
@@ -270,6 +269,28 @@ class FriendsController
         }
     }
     
+    /**
+     * Method for rejecting friend request
+     *
+     * @param $header_data: user and device details
+     * @param $post_data: post request data array containing:
+     * - accept_user_id: id of user whose request has to be rejected
+     * @author Saurabh kumar
+     * @return json
+     */
+    
+    public function rejectRequestAction($header_data,$post_data){
+        try {
+             if( !isset($post_data['accept_user_id']) || !isset($post_data['group_id'])) {
+                Library::logging('alert',"API : requestAccept : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_INPUT, null);
+            } else {
+            }
+        } catch (Exception $e) {
+            Library::logging('error',"API : requestAccept : ".$e->getMessage()." ".": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+    }
     
     /**
      * Method for showing friend list
@@ -281,8 +302,7 @@ class FriendsController
      * @return json
      */
     
-    public function getFriendsAction($header_data)
-    {
+    public function getFriendsAction($header_data){
         try {
             $friends_list = array();
             $user = Users::findById($header_data['id']);

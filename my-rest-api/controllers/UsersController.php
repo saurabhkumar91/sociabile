@@ -311,14 +311,24 @@ class UsersController
             $profile['is_edit'] = isset($user->is_edit) ? $user->is_edit : '';
             $profile['is_searchable'] = isset($user->is_searchable) ? $user->is_searchable : '';
             
-            $i = 0;
+            $i = 0; 
             foreach($posts as $post) {
-                $my_mind[$i]['post_id'] = (string)$post->_id;
-                $my_mind[$i]['post_text'] = $post->text;
-                $my_mind[$i]['post_timestamp'] = $post->date;
-                $my_mind[$i]['post_like_count'] = $post->likes;
-                $my_mind[$i]['post_dislike_count'] = $post->dislikes;
-                $my_mind[$i]['post_comment_count'] = $post->total_comment;
+                $isLiked    = false;
+                $isDisliked = false;
+                if( !empty($post->liked_by) && in_array( $header_data['id'], $post->liked_by) ){
+                    $isLiked    = true;
+                }
+                if( !empty($post->disliked_by) && in_array( $header_data['id'], $post->disliked_by) ){
+                    $isDisliked = true;
+                }
+                $my_mind[$i]['post_id']             = (string)$post->_id;
+                $my_mind[$i]['post_text']           = $post->text;
+                $my_mind[$i]['post_timestamp']      = $post->date;
+                $my_mind[$i]['post_like_count']     = $post->likes;
+                $my_mind[$i]['post_dislike_count']  = $post->dislikes;
+                $my_mind[$i]['post_comment_count']  = $post->total_comments;
+                $my_mind[$i]["is_liked"]            = $isLiked;
+                $my_mind[$i]["is_disliked"]         = $isDisliked;
                 $i++;
             }
             
