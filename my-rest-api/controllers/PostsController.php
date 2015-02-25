@@ -127,9 +127,6 @@ class PostsController
                                 if( !isset($friend->username) ){
                                     $friend->username   = "";
                                 }
-                                if( !isset($friend->profile_image) ){
-                                    $friend->profile_image  = "";
-                                }
                                 $friendId                               = (string)$friend->_id;
                                 $friends[$friendId]["name"]             = $friend->username;
                                 $friends[$friendId]["profile_image"]    = $friend->profile_image;
@@ -162,7 +159,7 @@ class PostsController
                         $result[$postCount]["post_id"]              = (string)$postDetail["_id"];
                         $result[$postCount]["user_id"]              = $friendId;
                         $result[$postCount]["user_name"]            = $friend["name"];
-                        $result[$postCount]["user_profile_image"]   = $friend["profile_image"];
+                        $result[$postCount]["user_profile_image"]   = FORM_ACTION.$friend["profile_image"];
                         $result[$postCount]["text"]                 = $postDetail["text"];
                         $result[$postCount]["date"]                 = $postDetail["date"];
                         $result[$postCount]["likes"]                = $postDetail["likes"];
@@ -297,13 +294,34 @@ class PostsController
             try {
                 $post   = Posts::findById( $post_data['post_id'] );
                 if($post){
-                    if( empty($post->disliked_by) ){
-                        $post->disliked_by = array();
-                    }
                     if( empty($post->liked_by) ){
                         $post->liked_by = array();
                     }
-                    $result = array("likes"=>$post->likes, "liked_by"=>$post->liked_by, "dislikes"=>$post->dislikes, "disliked_by"=>$post->disliked_by,);
+                    $likedBy    = array();
+                    foreach( $post->liked_by AS $friendId){        
+                        $friend         = Users::findById( $friendId );
+                        if($friend){
+                            if( !isset($friend->username) ){
+                                $friend->username   = "";
+                            }
+                            $likedBy[]  = array( "name"=> $friend->username, "profile_image"=>FORM_ACTION.$friend->profile_image );
+                        }
+                    }
+                    if( empty($post->disliked_by) ){
+                        $post->disliked_by = array();
+                    }
+                    $dislikedBy = array();
+                    foreach( $post->disliked_by AS $friendId){        
+                        $friend         = Users::findById( $friendId );
+                        if($friend){
+                            if( !isset($friend->username) ){
+                                $friend->username   = "";
+                            }
+                            $dislikedBy[]   = array( "name"=> $friend->username, "profile_image"=>FORM_ACTION.$friend->profile_image );
+                        }
+                    }
+                    
+                    $result = array("likes"=>$post->likes, "liked_by"=>$likedBy, "dislikes"=>$post->dislikes, "disliked_by"=>$dislikedBy);
                     Library::output(true, '1', "No Error", $result);
                 }else{
                     Library::logging('error',"API : postLikeDislikeDetails : Invalid Post Id : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
