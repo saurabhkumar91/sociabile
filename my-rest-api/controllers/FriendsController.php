@@ -34,11 +34,25 @@ class FriendsController
                 if(isset($user->request_sent)) {
                     foreach($user->request_sent as $request_sent) {
                         if($post_data['request_user_id'] == $request_sent['user_id']) {
-                             Library::output(false, '0', "Request Already Sent To This User.", null);
+                            Library::output(false, '0', "Request Already Sent To This User.", null);
+//                            if( $request_sent['is_active'] == "-1" ){
+//                                    $db     = Library::getMongo();
+//                                    $delete = 'db.users.update(
+//                                                {_id:ObjectId("'.$header_data['id'].'") },
+//                                                { $pull: { request_sent: { user_id: "'.$post_data['request_user_id'].'" } } },
+//                                                { multi: true }
+//                                              )';
+//                                    $delete_pending = $db->execute($delete);
+//                                    if($delete_pending['ok'] == 0) {
+//                                        Library::logging('error',"API : requestAccept (delete pending query) mongodb error: ".$delete_pending['errmsg']." ".": user_id : ".$userId);
+//                                        Library::output(false, '0', ERROR_REQUEST, null);
+//                                    }
+//                            }else{
+//                                Library::output(false, '0', "Request Already Sent To This User.", null);
+//                            }
                         }
                     }
                 }
-                
                 /******* code for subscribe(add) user on jabber server **************************************/
                 require 'JAXL-3.x/jaxl.php';
                 $client = new JAXL(array(
@@ -220,37 +234,37 @@ class FriendsController
                     }
                 
                 
-                // qeury for adding running group whom request is accept
-                 $request_sync = $db->execute('db.users.update({"_id" :ObjectId("'.$acceptUserId.'") },{$push : {running_groups:{$each:[{user_id:"'.$userId.'",group_id:'.$requestGroups.',date:"'.time().'"}]}}})');
-                 if($request_sync['ok'] == 0) {
-                    Library::logging('error',"API : requestAccept (request sync query) mongodb error: ".$request_sync['errmsg']." ".": user_id : ".$userId);
-                    Library::output(false, '0', ERROR_REQUEST, null);
-                    
-                }
-                
-                // query for updating request sent array (is_active = 1) 
-                $request_update = $db->execute('db.users.update(
-                                        {"_id" : ObjectId("'.$acceptUserId.'"),"request_sent.user_id": "'.$userId.'"}, 
-                                        {$set: {
-                                            "request_sent.$.is_active": 1
-                                        }}
-                                        )');
-                 if($request_update['ok'] == 0) {
-                    Library::logging('error',"API : requestAccept (updating request sent array) mongodb error: ".$request_update['errmsg']." ".": user_id : ".$userId);
-                    Library::output(false, '0', ERROR_REQUEST, null);
-                    
-                }
-                // query for delete pending request after accepting
-                $delete = 'db.users.update(
-                            {_id:ObjectId("'.$userId.'") },
-                            { $pull: { request_pending: { user_id: "'.$acceptUserId.'" } } },
-                            { multi: true }
-                          )';
-                $delete_pending = $db->execute($delete);
-                if($delete_pending['ok'] == 0) {
-                    Library::logging('error',"API : requestAccept (delete pending query) mongodb error: ".$delete_pending['errmsg']." ".": user_id : ".$userId);
-                    Library::output(false, '0', ERROR_REQUEST, null);
-                }
+                    // qeury for adding running group whom request is accept
+                    $request_sync = $db->execute('db.users.update({"_id" :ObjectId("'.$acceptUserId.'") },{$push : {running_groups:{$each:[{user_id:"'.$userId.'",group_id:'.$requestGroups.',date:"'.time().'"}]}}})');
+                    if($request_sync['ok'] == 0) {
+                        Library::logging('error',"API : requestAccept (request sync query) mongodb error: ".$request_sync['errmsg']." ".": user_id : ".$userId);
+                        Library::output(false, '0', ERROR_REQUEST, null);
+
+                    }
+
+                    // query for updating request sent array (is_active = 1) 
+                    $request_update = $db->execute('db.users.update(
+                                            {"_id" : ObjectId("'.$acceptUserId.'"),"request_sent.user_id": "'.$userId.'"}, 
+                                            {$set: {
+                                                "request_sent.$.is_active": 1
+                                            }}
+                                            )');
+                     if($request_update['ok'] == 0) {
+                        Library::logging('error',"API : requestAccept (updating request sent array) mongodb error: ".$request_update['errmsg']." ".": user_id : ".$userId);
+                        Library::output(false, '0', ERROR_REQUEST, null);
+
+                    }
+                    // query for delete pending request after accepting
+                    $delete = 'db.users.update(
+                                {_id:ObjectId("'.$userId.'") },
+                                { $pull: { request_pending: { user_id: "'.$acceptUserId.'" } } },
+                                { multi: true }
+                              )';
+                    $delete_pending = $db->execute($delete);
+                    if($delete_pending['ok'] == 0) {
+                        Library::logging('error',"API : requestAccept (delete pending query) mongodb error: ".$delete_pending['errmsg']." ".": user_id : ".$userId);
+                        Library::output(false, '0', ERROR_REQUEST, null);
+                    }
                     Library::output(true, '1', USER_ACCEPT, null);
                 });                    
 
@@ -281,10 +295,34 @@ class FriendsController
     
     public function rejectRequestAction($header_data,$post_data){
         try {
-             if( !isset($post_data['accept_user_id']) || !isset($post_data['group_id'])) {
+            if( !isset($post_data['reject_user_id']) ) {
                 Library::logging('alert',"API : requestAccept : ".ERROR_INPUT.": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_INPUT, null);
             } else {
+                $db = Library::getMongo();
+                // query for delete pending request
+                $delete = 'db.users.update(
+                            {_id:ObjectId("'.$header_data["id"].'") },
+                            { $pull: { request_pending: { user_id: "'.$post_data['reject_user_id'].'" } } },
+                            { multi: true }
+                          )';
+                $delete_pending = $db->execute($delete);
+                if($delete_pending['ok'] == 0) {
+                    Library::logging('error',"API : requestAccept (delete pending query) mongodb error: ".$delete_pending['errmsg']." ".": user_id : ".$header_data["id"]);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+
+                // query for  delete sent request
+                $request_update = $db->execute('db.users.update(
+                                        {"_id" : ObjectId("'.$post_data['reject_user_id'].'"),"request_sent.user_id": "'.$header_data["id"].'"}, 
+                                        {$pull: { request_sent: { user_id: "'.$header_data["id"].'" } } }
+                                    )');
+                 if($request_update['ok'] == 0) {
+                    Library::logging('error',"API : requestAccept (updating request sent array) mongodb error: ".$request_update['errmsg']." ".": user_id : ".$header_data["id"]);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+
+                }
+                Library::output(true, '1', USER_REJECT, null);
             }
         } catch (Exception $e) {
             Library::logging('error',"API : requestAccept : ".$e->getMessage()." ".": user_id : ".$header_data['id']);

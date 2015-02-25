@@ -170,6 +170,12 @@ $app->get('/getFriends', function () use ( $app ) {
     $friends->getFriendsAction($header_data);
 });
 
+$app->post('/rejectRequest', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $friends = new FriendsController();
+    $friends->rejectRequestAction($header_data,$app->request->getPost());
+});
+
 $app->post('/generateOTP', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $settings = new SettingsController();
