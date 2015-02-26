@@ -4,13 +4,12 @@ class UsersController
 {   
 
     /**
-     * Method for new user registration
+     * Method for registration on ejabberd server
+     * @param $mobile_no request params
+     * @param $jaxlPassword reponse object
      *
-     * @param object request params
-     * @param object reponse object
-     *
-     * @author Shubham Agarwal <shubham.agarwal@kelltontech.com>
-     * @return json
+     * @author Saurabh Kumar
+     * @return array containing jaxl_id and jaxl_password
      */
     
     function registerOnEjabberd($mobile_no,$jaxlPassword){
@@ -52,6 +51,16 @@ class UsersController
             Library::output(false, '0', JAXL_REG_FAILED, null);
         }
     }
+    
+    /**
+     * Method for new user registration
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Shubham Agarwal <shubham.agarwal@kelltontech.com>
+     * @return json
+     */
     
     public function registrationAction($data)
     {   

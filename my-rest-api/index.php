@@ -83,6 +83,12 @@ $app->post('/postLikeDislikeDetails', function () use ( $app ) {
     $post->postLikeDislikeDetailsAction($header_data,$app->request->getPost());
 });
 
+$app->post('/deletePost', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $post = new PostsController();
+    $post->deletePostAction($header_data,$app->request->getPost());
+});
+
 $app->post('/postComment', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $comment = new CommentsController();

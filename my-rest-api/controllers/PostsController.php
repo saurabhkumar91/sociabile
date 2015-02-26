@@ -323,5 +323,23 @@ class PostsController
             }
         }
     }
+    
+    public function deletePostAction(){
+            require 'components/S3.php';
+            $s3 = new S3(AUTHKEY, SECRETKEY);
+            $bucketName = S3BUCKET; 
+            
+            if ($s3->deleteObject($bucketName, "1421046369.982799.png")) {
+                if ($s3->deleteBucket($bucketName)) {
+                        echo "S3::deleteBucket(): Deleted bucket {$bucketName}\n";
+                } else {
+                        echo "S3::deleteBucket(): Failed to delete bucket (it probably isn't empty)\n";
+                }
+            } else {
+                    echo "S3::deleteObject(): Failed to delete file\n";
+            }
+        
+        
+    }
 }
 ?>

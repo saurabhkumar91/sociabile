@@ -55,7 +55,7 @@ class AmazonsController
                     [	"starts-with",
                         "$Content-Type",
                         ""
-                                        ]
+                    ]
 
                 ]
             }';

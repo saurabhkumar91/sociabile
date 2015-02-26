@@ -40,7 +40,6 @@ class TimeCapsuleController {
                 Library::output(false, '0', $errors, null);
             }            
         } catch (Exception $e) {
-        exit("test");
             Library::logging('alert',"API : createTimeCapsule : ".$e." : user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         }
