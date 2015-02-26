@@ -1,8 +1,4 @@
 <?php
- 
-use Phalcon\Mvc\Model\Criteria;
-use Phalcon\Paginator\Adapter\Model as Paginator;
-use Phalcon\Logger\Adapter\File as FileAdapter;
 
 class TimeCapsuleController {
     

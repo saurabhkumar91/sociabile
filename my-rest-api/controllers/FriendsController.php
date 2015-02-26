@@ -299,30 +299,65 @@ class FriendsController
                 Library::logging('alert',"API : requestAccept : ".ERROR_INPUT.": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_INPUT, null);
             } else {
-                $db = Library::getMongo();
-                // query for delete pending request
-                $delete = 'db.users.update(
-                            {_id:ObjectId("'.$header_data["id"].'") },
-                            { $pull: { request_pending: { user_id: "'.$post_data['reject_user_id'].'" } } },
-                            { multi: true }
-                          )';
-                $delete_pending = $db->execute($delete);
-                if($delete_pending['ok'] == 0) {
-                    Library::logging('error',"API : requestAccept (delete pending query) mongodb error: ".$delete_pending['errmsg']." ".": user_id : ".$header_data["id"]);
-                    Library::output(false, '0', ERROR_REQUEST, null);
-                }
+                
+                
+                
+                $user       = Users::findById($header_data['id']);
+                $rejectUser = Users::findById($post_data['reject_user_id']);
+                /******* code for subscribe(add) user on jabber server **************************************/
+                require 'JAXL-3.x/jaxl.php';
+                $client = new JAXL(array(
+                    'jid' => $user->jaxl_id,
+                    'pass' => $user->jaxl_password,
+                    'log_level' => JAXL_DEBUG
+                ));
+                $client->add_cb('on_auth_success', function() {
+                    $client      = $_SESSION["client"];
+                    $acceptId    = $_SESSION["acceptId"];
+                    //$client->set_status("available!");  // set your status
+                    $client->unsubscribed( $acceptId);
+                    $client->send_end_stream();
+                });
+                $client->add_cb('on_auth_failure', function() {
+                    $userId = $_SESSION["userId"];
+                    Library::logging('error',"API : rejectRequest : ".JAXL_AUTH_FAILURE." : user_id : ".$userId);
+                    Library::output(false, '0', JAXL_AUTH_FAILURE, null);
+                });
+                
+                $client->add_cb('on_disconnect', function() {
+                        $db = Library::getMongo();
+                        // query for delete pending request
+                        $delete = 'db.users.update(
+                                    {_id:ObjectId("'.$header_data["id"].'") },
+                                    { $pull: { request_pending: { user_id: "'.$post_data['reject_user_id'].'" } } },
+                                    { multi: true }
+                                  )';
+                        $delete_pending = $db->execute($delete);
+                        if($delete_pending['ok'] == 0) {
+                            Library::logging('error',"API : requestAccept (delete pending query) mongodb error: ".$delete_pending['errmsg']." ".": user_id : ".$header_data["id"]);
+                            Library::output(false, '0', ERROR_REQUEST, null);
+                        }
 
-                // query for  delete sent request
-                $request_update = $db->execute('db.users.update(
-                                        {"_id" : ObjectId("'.$post_data['reject_user_id'].'"),"request_sent.user_id": "'.$header_data["id"].'"}, 
-                                        {$pull: { request_sent: { user_id: "'.$header_data["id"].'" } } }
-                                    )');
-                 if($request_update['ok'] == 0) {
-                    Library::logging('error',"API : requestAccept (updating request sent array) mongodb error: ".$request_update['errmsg']." ".": user_id : ".$header_data["id"]);
-                    Library::output(false, '0', ERROR_REQUEST, null);
+                        // query for  delete sent request
+                        $request_update = $db->execute('db.users.update(
+                                                {"_id" : ObjectId("'.$post_data['reject_user_id'].'"),"request_sent.user_id": "'.$header_data["id"].'"}, 
+                                                {$pull: { request_sent: { user_id: "'.$header_data["id"].'" } } }
+                                            )');
+                         if($request_update['ok'] == 0) {
+                            Library::logging('error',"API : requestAccept (updating request sent array) mongodb error: ".$request_update['errmsg']." ".": user_id : ".$header_data["id"]);
+                            Library::output(false, '0', ERROR_REQUEST, null);
 
-                }
-                Library::output(true, '1', USER_REJECT, null);
+                        }
+                        Library::output(true, '1', USER_REJECT, null);
+                });                    
+
+                $_SESSION["client"]         = $client;
+                $_SESSION["acceptId"]       = $rejectUser->jaxl_id;
+                $_SESSION["userId"]         = $header_data['id'];
+                $_SESSION["reject_user_id"] = $post_data['reject_user_id'];
+                $client->start();
+                /******* code for subscribe(add) user end **************************************/
+                
             }
         } catch (Exception $e) {
             Library::logging('error',"API : requestAccept : ".$e->getMessage()." ".": user_id : ".$header_data['id']);

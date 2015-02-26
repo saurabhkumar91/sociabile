@@ -1,14 +1,5 @@
 <?php
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-use Phalcon\Mvc\Model\Criteria;
-use Phalcon\Paginator\Adapter\Model as Paginator;
-use Phalcon\Logger\Adapter\File as FileAdapter;
-
 class PostsController 
 { 
     /**
@@ -135,10 +126,9 @@ class PostsController
                         }
                     }
                 }
-                $result = array();
-                $posts  = new Posts();
+                $result     = array();
                 $postCount  = 0;
-                $db = Library::getMongo();
+                $db         = Library::getMongo();
                 foreach( $friends AS $friendId=>$friend ){
                     $post = $db->execute('return db.posts.find({ user_id:"'.$friendId.'", type:{$in:'.$friend["type"].'} }).toArray()');
                     if($post['ok'] == 0) {

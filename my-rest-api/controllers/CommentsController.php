@@ -87,7 +87,8 @@ class CommentsController
                 ');
                
                 if(count($comments['retval'])> 0) {
-                    $i=0;
+                    $i          =   0;
+                    $listing    = array();
                     foreach ($comments['retval'] as $comment) {
                         $listing[$i]['username'] = isset($comment['user']['username']) ? $comment['user']['username'] : '';
                         $listing[$i]['comment_id'] = (string)$comment['_id'];

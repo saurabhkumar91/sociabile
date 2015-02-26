@@ -1,9 +1,5 @@
 <?php
  
-use Phalcon\Mvc\Model\Criteria;
-use Phalcon\Paginator\Adapter\Model as Paginator;
-use Phalcon\Logger\Adapter\File as FileAdapter;
-
 class UsersController 
 {   
 
@@ -384,7 +380,6 @@ class UsersController
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
-                $user_id = $header_data['id'];
                 $user = Users::findById($header_data['id']);
                 $user->username = $post_data['username'];
                 $user->birthday = $post_data['birthday'];
@@ -459,7 +454,8 @@ class UsersController
             } else {
                 $contact_numbers =  $user->contact_numbers;
             }
-            $i = 0;
+            $i          = 0;
+            $register   = array();
             foreach($contact_numbers as $contacts) {
                 $get_contacts = str_replace(' ', '', $contacts); 
                 $get_contacts = str_replace('+91', '', $contacts); 
@@ -469,7 +465,6 @@ class UsersController
                 }
                 $filter_contacts= preg_replace('/[^0-9\-]/', '', $get_contacts);
                 $filter_contacts = str_replace('-', '', $filter_contacts); 
-                $j = 0;
                 if( $user->mobile_no == $filter_contacts ){
                     continue;
                 }
