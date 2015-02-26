@@ -300,22 +300,20 @@ class FriendsController
                 Library::output(false, '0', ERROR_INPUT, null);
             } else {
                 
-                
-                
                 $user       = Users::findById($header_data['id']);
                 $rejectUser = Users::findById($post_data['reject_user_id']);
                 /******* code for subscribe(add) user on jabber server **************************************/
                 require 'JAXL-3.x/jaxl.php';
                 $client = new JAXL(array(
-                    'jid' => $user->jaxl_id,
-                    'pass' => $user->jaxl_password,
+                    'jid'       => $user->jaxl_id,
+                    'pass'      => $user->jaxl_password,
                     'log_level' => JAXL_DEBUG
                 ));
                 $client->add_cb('on_auth_success', function() {
                     $client      = $_SESSION["client"];
-                    $acceptId    = $_SESSION["acceptId"];
+                    $rejectId    = $_SESSION["rejectId"];
                     //$client->set_status("available!");  // set your status
-                    $client->unsubscribed( $acceptId);
+                    $client->unsubscribed( $rejectId);
                     $client->send_end_stream();
                 });
                 $client->add_cb('on_auth_failure', function() {
@@ -326,25 +324,27 @@ class FriendsController
                 
                 $client->add_cb('on_disconnect', function() {
                         $db = Library::getMongo();
+                        $userId = $_SESSION["userId"];
+                        $rejectUserId = $_SESSION["reject_user_id"];
                         // query for delete pending request
                         $delete = 'db.users.update(
-                                    {_id:ObjectId("'.$header_data["id"].'") },
-                                    { $pull: { request_pending: { user_id: "'.$post_data['reject_user_id'].'" } } },
+                                    {_id:ObjectId("'.$userId.'") },
+                                    { $pull: { request_pending: { user_id: "'.$rejectUserId.'" } } },
                                     { multi: true }
                                   )';
                         $delete_pending = $db->execute($delete);
                         if($delete_pending['ok'] == 0) {
-                            Library::logging('error',"API : requestAccept (delete pending query) mongodb error: ".$delete_pending['errmsg']." ".": user_id : ".$header_data["id"]);
+                            Library::logging('error',"API : rejectRequest (delete pending query) mongodb error: ".$delete_pending['errmsg']." ".": user_id : ".$userId);
                             Library::output(false, '0', ERROR_REQUEST, null);
                         }
 
                         // query for  delete sent request
                         $request_update = $db->execute('db.users.update(
-                                                {"_id" : ObjectId("'.$post_data['reject_user_id'].'"),"request_sent.user_id": "'.$header_data["id"].'"}, 
-                                                {$pull: { request_sent: { user_id: "'.$header_data["id"].'" } } }
+                                                {"_id" : ObjectId("'.$rejectUserId.'"),"request_sent.user_id": "'.$userId.'"}, 
+                                                {$pull: { request_sent: { user_id: "'.$userId.'" } } }
                                             )');
                          if($request_update['ok'] == 0) {
-                            Library::logging('error',"API : requestAccept (updating request sent array) mongodb error: ".$request_update['errmsg']." ".": user_id : ".$header_data["id"]);
+                            Library::logging('error',"API : rejectRequest (updating request sent array) mongodb error: ".$request_update['errmsg']." ".": user_id : ".$userId);
                             Library::output(false, '0', ERROR_REQUEST, null);
 
                         }
@@ -352,7 +352,7 @@ class FriendsController
                 });                    
 
                 $_SESSION["client"]         = $client;
-                $_SESSION["acceptId"]       = $rejectUser->jaxl_id;
+                $_SESSION["rejectId"]       = $rejectUser->jaxl_id;
                 $_SESSION["userId"]         = $header_data['id'];
                 $_SESSION["reject_user_id"] = $post_data['reject_user_id'];
                 $client->start();
@@ -360,7 +360,7 @@ class FriendsController
                 
             }
         } catch (Exception $e) {
-            Library::logging('error',"API : requestAccept : ".$e->getMessage()." ".": user_id : ".$header_data['id']);
+            Library::logging('error',"API : rejectRequest : ".$e->getMessage()." ".": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_REQUEST, null);
         }
     }
