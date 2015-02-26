@@ -329,7 +329,7 @@ class PostsController
             $s3 = new S3(AUTHKEY, SECRETKEY);
             $bucketName = S3BUCKET; 
             
-            if ($s3->deleteObject($bucketName, "1421046369.982799.png")) {
+            if ($s3->deleteObject($bucketName, "1421047025.075165.png")) {
                 if ($s3->deleteBucket($bucketName)) {
                         echo "S3::deleteBucket(): Deleted bucket {$bucketName}\n";
                 } else {
