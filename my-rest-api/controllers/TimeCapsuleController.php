@@ -77,12 +77,18 @@ class TimeCapsuleController {
                 $capsuleCount++;
             }
             $receivedTimeCapsules   = TimeCapsules::find( array("conditions"=>array( "capsule_recipients"=>$header_data["id"]))  );
+            $db         = Library::getMongo();
             foreach( $receivedTimeCapsules AS $timeCapsule ){
-                $users          = Users::findById( $timeCapsule->user_id );
+                $users = $db->execute('return db.users.find({"_id" : ObjectId("'.$timeCapsule->user_id.'")}, {username:1}).toArray()');
+                if( $users['ok'] == 0 || empty($users["retval"]) ) {
+                    Library::logging('error',"API : getImages (get user info) , mongodb error: ".$users['errmsg']." ".": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
                 foreach ($timeCapsule->capsule_image as &$value){
                     $value  = FORM_ACTION.$value;                
                 }
-                $result[$capsuleCount]['username']              = $users->username;
+                
+                $result[$capsuleCount]['username']              = $users["retval"][0]["username"];
                 $result[$capsuleCount]['capsule_id']            = (string)$timeCapsule->_id;
                 $result[$capsuleCount]['capsule_text']          = $timeCapsule->capsule_text;
                 $result[$capsuleCount]['capsule_image']         = $timeCapsule->capsule_image;
