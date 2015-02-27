@@ -303,7 +303,7 @@ class UsersController
             $my_mind = array();
             $about_me = array();
             $user = Users::findById($user_id);
-            $posts = Posts::find(array(array('user_id' => $user_id)));
+            $posts = Posts::find(array(array('user_id' => $user_id, "type"=>1)));
             $email_id = array();
             $profile['mobile_no'] = $user->mobile_no;
             $profile['username'] = $user->username;
