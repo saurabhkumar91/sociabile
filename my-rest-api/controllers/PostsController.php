@@ -326,24 +326,43 @@ class PostsController
     
     public function deletePostAction( $header_data, $post_data ){
         if(!isset($post_data['post_id'])) {
-            Library::logging('alert',"API : dislikePost : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::logging('alert',"API : deletePost : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
-                require 'components/S3.php';
-                $s3         = new S3(AUTHKEY, SECRETKEY);
-                $bucketName = S3BUCKET; 
-                if ($s3->deleteObject($bucketName, "1421047025.075165.png")) {
-                    if ($s3->deleteBucket($bucketName)) {
-                            echo "S3::deleteBucket(): Deleted bucket {$bucketName}\n";
-                    } else {
-                            echo "S3::deleteBucket(): Failed to delete bucket (it probably isn't empty)\n";
+                if(!isset($post_data['post_id'])) {
+                    Library::logging('alert',"API : deletePost : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_INPUT, null);
+                }
+                
+                $post   = Posts::findById( $post_data['post_id'] );
+                if($post){
+                    if( $post->user_id !== $header_data['id'] ){
+                        Library::logging('error',"API : deletePost : ".POST_DELETE_AUTH_ERR." : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
+                        Library::output(false, '0', POST_DELETE_AUTH_ERR, null);
                     }
-                } else {
-                        echo "S3::deleteObject(): Failed to delete file\n";
+                    if($post->type == 2){
+                        require 'components/S3.php';
+                        $s3         = new S3(AUTHKEY, SECRETKEY);
+                        $bucketName = S3BUCKET; 
+                        if ( ! $s3->deleteObject($bucketName, $post->text) ) {
+                            Library::logging('error',"API : deletePost : POST's FILE NOT DELETED FROM S3 Server : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
+                            Library::output(false, '0', POST_NOT_DELETED, null);
+                        }
+                    }
+                    $db     = Library::getMongo();
+                    $res    = $db->execute('db.posts.remove({"_id" : ObjectId("'.$post_data['post_id'].'")})');
+                    if( empty($res['retval']["nRemoved"]) ) {
+                        Library::logging('error',"API : deletePost, mongodb error: ".$res['errmsg']." : user_id : ".$header_data['id']);
+                        Library::output(false, '0', POST_NOT_DELETED, null);
+                    }
+                    Library::output(false, '0', POST_DELETED, null);
+                }else{
+                    Library::logging('error',"API : deletePost : Invalid Post Id : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
                 }
             } catch (Exception $ex) {
-                Library::logging('error',"API : dislikePost : ".$ex." ".": user_id : ".$header_data['id']);
+                Library::logging('error',"API : deletePost : ".$ex." ".": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_REQUEST, null);
             }
         }

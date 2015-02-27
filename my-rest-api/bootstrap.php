@@ -33,6 +33,7 @@ define('NO_USER_FOUND', 'No result found');
 define('DEFAULT_IMAGE', 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg');
 define('DEFAULT_PROFILE_IMAGE', 'profiles/default.png');
 define('USER_LOGIN', 'User Successfully Login.');
+define('INVALID_LOGIN', 'User Id or Password is Incorrect.');
 
 
 // otp relaed messages
@@ -53,6 +54,9 @@ define('POST_LIKED', 'Post Liked Successfully.');
 define('POST_DISLIKED', 'Post Disliked Successfully.');
 define('POST_ALREADY_LIKED', 'Post Already Liked By User');
 define('POST_ALREADY_DISLIKED', 'Post Already Disliked By User');
+define('POST_DELETED', 'Post Deleted Successfully.');
+define('POST_NOT_DELETED', 'Post Was Not Deleted. Plaese Try Again Later.');
+define('POST_DELETE_AUTH_ERR', 'Your Are Not Authorized to Delete This Post.');
 
 
 

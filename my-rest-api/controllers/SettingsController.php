@@ -413,7 +413,7 @@ class SettingsController
                     }
 
                 } else {
-                    Library::output(false, '0', "Wrong Password", null);
+                    Library::output(false, '0', INVALID_LOGIN, null);
                 }
             } catch (Exception $e) {
                 Library::logging('error',"API : changePassword, error_msg : ".$e." ".": user_id : ".$header_data['id']);
@@ -859,7 +859,7 @@ class SettingsController
                 if ($security->checkHash($post_data['password'], $user->password) && $user->unique_id == $post_data['unique_id']) {
                     Library::output(true, '1', USER_LOGIN, null);
                 } else {
-                    Library::output(false, '0', "Wrong Password", null);
+                    Library::output(false, '0', INVALID_LOGIN, null);
                 }
             } catch(Exception $e) {
                 Library::logging('error',"API : userLogin, error_msg : ".$e." ".": user_id : ".$header_data['id']);

@@ -54,51 +54,52 @@ class TimeCapsuleController {
     
     function getTimeCapsuleAction( $header_data ){
         try{
-            $timeCapsules   = TimeCapsules::find( array("conditions"=>array( "user_id"=>$header_data["id"]))  );
             $result         = array();
             $capsuleCount   = 0;
             $users          = Users::findById( $header_data["id"] );
             if( !isset($users->username) ){
                 $users->username   = "";
             }
-            foreach( $timeCapsules AS $timeCapsule ){
-                foreach ($timeCapsule->capsule_image as &$value){
-                    $value  = FORM_ACTION.$value;                
-                }
-                $result[$capsuleCount]['username']              = $users->username;
-                $result[$capsuleCount]['capsule_id']            = (string)$timeCapsule->_id;
-                $result[$capsuleCount]['capsule_text']          = $timeCapsule->capsule_text;
-                $result[$capsuleCount]['capsule_image']         = $timeCapsule->capsule_image;
-                $result[$capsuleCount]['capsule_recipients']    = $timeCapsule->capsule_recipients;
-                $result[$capsuleCount]['capsule_time']          = $timeCapsule->capsule_time;
-                $result[$capsuleCount]['capsule_opened_by']     = $timeCapsule->capsule_opened_by;
-                $result[$capsuleCount]['creation_time']         = $timeCapsule->date;
-                $result[$capsuleCount]['capsule_type']          = 0;
-                $capsuleCount++;
-            }
-            $receivedTimeCapsules   = TimeCapsules::find( array("conditions"=>array( "capsule_recipients"=>$header_data["id"]))  );
-            $db         = Library::getMongo();
-            foreach( $receivedTimeCapsules AS $timeCapsule ){
-                $users = $db->execute('return db.users.find({"_id" : ObjectId("'.$timeCapsule->user_id.'")}, {username:1}).toArray()');
-                if( $users['ok'] == 0 || empty($users["retval"]) ) {
-                    Library::logging('error',"API : getImages (get user info) , mongodb error: ".$users['errmsg']." ".": user_id : ".$header_data['id']);
+            //$timeCapsules   = TimeCapsules::find( array("conditions"=>array( "user_id"=>))  );
+            $db             = Library::getMongo();
+            $timeCapsules   = $db->execute('return db.time_capsules.find( { $or : [{ "user_id" : "'.$header_data["id"].'" }, { "capsule_recipients" : "'.$header_data["id"].'" } ]} ).sort( { date: -1 } ).toArray()');
+                if( $timeCapsules['ok'] == 0 ) {
+                    Library::logging('error',"API : getTimeCapsule, mongodb error: ".$timeCapsules['errmsg']." : user_id : ".$header_data['id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
-                foreach ($timeCapsule->capsule_image as &$value){
+            if( empty($timeCapsules["retval"]) ){
+                    Library::output(false, '0', "No Result Found.", null);
+            }
+            foreach( $timeCapsules["retval"] AS $timeCapsule ){
+                if( $timeCapsule["user_id"] == $header_data["id"] ){
+                    $capsuleType    = 0;
+                    $sender         = $users->username;
+                }else{
+                    $senderRes  = $db->execute('return db.users.find({"_id" : ObjectId("'.$timeCapsule["user_id"].'")}, {username:1}).toArray()');
+                    if( $senderRes['ok'] == 0 || empty($senderRes["retval"]) ) {
+                        $errorMessage   = ($senderRes['ok'] == 0) ? $senderRes['errmsg'] : "User(".$timeCapsule->user_id.") Not found";
+                        Library::logging('error',"API : getTimeCapsule, mongodb error: ".$errorMessage." : user_id : ".$header_data['id']);
+                        Library::output(false, '0', ERROR_REQUEST, null);
+                    }
+                    $sender         = $senderRes["retval"][0]["username"];
+                    $capsuleType    = 1;
+                    
+                }
+                foreach ($timeCapsule["capsule_image"] as &$value){
                     $value  = FORM_ACTION.$value;                
                 }
-                
-                $result[$capsuleCount]['username']              = $users["retval"][0]["username"];
-                $result[$capsuleCount]['capsule_id']            = (string)$timeCapsule->_id;
-                $result[$capsuleCount]['capsule_text']          = $timeCapsule->capsule_text;
-                $result[$capsuleCount]['capsule_image']         = $timeCapsule->capsule_image;
-                $result[$capsuleCount]['capsule_recipients']    = $timeCapsule->capsule_recipients;
-                $result[$capsuleCount]['capsule_time']          = $timeCapsule->capsule_time;
-                $result[$capsuleCount]['capsule_opened_by']     = $timeCapsule->capsule_opened_by;
-                $result[$capsuleCount]['creation_time']         = $timeCapsule->date;
-                $result[$capsuleCount]['capsule_type']          = 1;
+                $result[$capsuleCount]['username']              = $sender;
+                $result[$capsuleCount]['capsule_id']            = (string)$timeCapsule["_id"];
+                $result[$capsuleCount]['capsule_text']          = $timeCapsule["capsule_text"];
+                $result[$capsuleCount]['capsule_image']         = $timeCapsule["capsule_image"];
+                $result[$capsuleCount]['capsule_recipients']    = $timeCapsule["capsule_recipients"];
+                $result[$capsuleCount]['capsule_time']          = $timeCapsule["capsule_time"];
+                $result[$capsuleCount]['capsule_opened_by']     = $timeCapsule["capsule_opened_by"];
+                $result[$capsuleCount]['creation_time']         = $timeCapsule["date"];
+                $result[$capsuleCount]['capsule_type']          = $capsuleType;
                 $capsuleCount++;
             }
+            print_r($result); exit;
             Library::output(true, '1', "No Error", $result);
         } catch (Exception $ex) {
             Library::logging('alert',"API : createTimeCapsule : ".$ex." : user_id : ".$header_data['id']);
