@@ -99,7 +99,6 @@ class TimeCapsuleController {
                 $result[$capsuleCount]['capsule_type']          = $capsuleType;
                 $capsuleCount++;
             }
-            print_r($result); exit;
             Library::output(true, '1', "No Error", $result);
         } catch (Exception $ex) {
             Library::logging('alert',"API : createTimeCapsule : ".$ex." : user_id : ".$header_data['id']);
