@@ -13,8 +13,8 @@ class UsersController
      */
     
     function registerOnEjabberd($mobile_no,$jaxlPassword){
-        require 'JAXL-3.x/jaxl.php';
-        require 'JAXL-3.x/register.php';
+        require 'components/JAXL3/jaxl.php';
+        require 'components/JAXL3/register.php';
         $client = new JAXL(array(
                 'jid' => JAXL_HOST_NAME,
                 'log_level' => JAXL_DEBUG

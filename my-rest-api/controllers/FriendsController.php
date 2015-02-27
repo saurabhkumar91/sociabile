@@ -54,7 +54,7 @@ class FriendsController
                     }
                 }
                 /******* code for subscribe(add) user on jabber server **************************************/
-                require 'JAXL-3.x/jaxl.php';
+                require 'components/JAXL3/jaxl.php';
                 $client = new JAXL(array(
                     'jid' => $user->jaxl_id,
                     'pass' => $user->jaxl_password,
@@ -201,7 +201,7 @@ class FriendsController
                 }
                 
                 /******* code for subscribe(add) user on jabber server **************************************/
-                require 'JAXL-3.x/jaxl.php';
+                require 'components/JAXL3/jaxl.php';
                 $client = new JAXL(array(
                     'jid' => $user->jaxl_id,
                     'pass' => $user->jaxl_password,
@@ -303,7 +303,7 @@ class FriendsController
                 $user       = Users::findById($header_data['id']);
                 $rejectUser = Users::findById($post_data['reject_user_id']);
                 /******* code for subscribe(add) user on jabber server **************************************/
-                require 'JAXL-3.x/jaxl.php';
+                require 'components/JAXL3/jaxl.php';
                 $client = new JAXL(array(
                     'jid'       => $user->jaxl_id,
                     'pass'      => $user->jaxl_password,

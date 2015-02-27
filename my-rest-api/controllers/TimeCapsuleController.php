@@ -76,8 +76,9 @@ class TimeCapsuleController {
                 $result[$capsuleCount]['capsule_type']          = 0;
                 $capsuleCount++;
             }
-            $timeCapsules   = TimeCapsules::find( array("conditions"=>array( "capsule_recipients"=>$header_data["id"]))  );
-            foreach( $timeCapsules AS $timeCapsule ){
+            $receivedTimeCapsules   = TimeCapsules::find( array("conditions"=>array( "capsule_recipients"=>$header_data["id"]))  );
+            foreach( $receivedTimeCapsules AS $timeCapsule ){
+                $users          = Users::findById( $timeCapsule->user_id );
                 foreach ($timeCapsule->capsule_image as &$value){
                     $value  = FORM_ACTION.$value;                
                 }

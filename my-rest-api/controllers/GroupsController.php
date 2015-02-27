@@ -88,7 +88,7 @@ class GroupsController
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
                 $user   = Users::findById($header_data['id']);
-                require 'JAXL-3.x/jaxl.php';
+                require 'components/JAXL3/jaxl.php';
                 $client = new JAXL(array(
                     'jid' => $user->jaxl_id,
                     'pass' => $user->jaxl_password,
@@ -190,7 +190,7 @@ class GroupsController
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
                 $user   = Users::findById($header_data['id']);
-                require 'JAXL-3.x/jaxl.php';
+                require 'components/JAXL3/jaxl.php';
                 $client = new JAXL(array(
                     'jid' => $user->jaxl_id,
                     'pass' => $user->jaxl_password,

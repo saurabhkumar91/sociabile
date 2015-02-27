@@ -324,20 +324,29 @@ class PostsController
         }
     }
     
-    public function deletePostAction(){
-            require 'components/S3.php';
-            $s3 = new S3(AUTHKEY, SECRETKEY);
-            $bucketName = S3BUCKET; 
-            
-            if ($s3->deleteObject($bucketName, "1421047025.075165.png")) {
-                if ($s3->deleteBucket($bucketName)) {
-                        echo "S3::deleteBucket(): Deleted bucket {$bucketName}\n";
+    public function deletePostAction( $header_data, $post_data ){
+        if(!isset($post_data['post_id'])) {
+            Library::logging('alert',"API : dislikePost : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                require 'components/S3.php';
+                $s3         = new S3(AUTHKEY, SECRETKEY);
+                $bucketName = S3BUCKET; 
+                if ($s3->deleteObject($bucketName, "1421047025.075165.png")) {
+                    if ($s3->deleteBucket($bucketName)) {
+                            echo "S3::deleteBucket(): Deleted bucket {$bucketName}\n";
+                    } else {
+                            echo "S3::deleteBucket(): Failed to delete bucket (it probably isn't empty)\n";
+                    }
                 } else {
-                        echo "S3::deleteBucket(): Failed to delete bucket (it probably isn't empty)\n";
+                        echo "S3::deleteObject(): Failed to delete file\n";
                 }
-            } else {
-                    echo "S3::deleteObject(): Failed to delete file\n";
+            } catch (Exception $ex) {
+                Library::logging('error',"API : dislikePost : ".$ex." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
             }
+        }
         
         
     }
