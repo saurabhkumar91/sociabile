@@ -23,6 +23,10 @@ class FriendsController
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
+                if( $post_data['request_user_id'] == $header_data['id'] ) {
+                    Library::logging('error',"API : sendRequest : ".REQUEST_TO_SELF." : user_id : ".$header_data['id']);
+                    Library::output(false, '0', REQUEST_TO_SELF, null);
+                }
                 if($header_data['os'] == 2) {
                     $groupIds =  json_encode($post_data['group_id']);
                 } else {
@@ -35,6 +39,8 @@ class FriendsController
                     foreach($user->request_sent as $request_sent) {
                         if($post_data['request_user_id'] == $request_sent['user_id']) {
                             Library::output(false, '0', "Request Already Sent To This User.", null);
+                            
+                            // code for delete rqst if it was rejected
 //                            if( $request_sent['is_active'] == "-1" ){
 //                                    $db     = Library::getMongo();
 //                                    $delete = 'db.users.update(

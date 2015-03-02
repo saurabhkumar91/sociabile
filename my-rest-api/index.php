@@ -323,6 +323,12 @@ $app->post( "/openTimeCapsule", function() use ($app) {
     $timeCapsule->openTimeCapsuleAction( $header_data, $app->request->getPost() );
 } );
 
+$app->post( "/deleteTimeCapsule", function() use ($app) {
+    $header_data    = Library::getallheaders();
+    $timeCapsule    = new TimeCapsuleController();
+    $timeCapsule->deleteTimeCapsuleAction( $header_data, $app->request->getPost() );
+} );
+
 $app->notFound(
 	function () use ( $app ) {
             $app->response->setStatusCode( 404, "Not Found" )->sendHeaders();

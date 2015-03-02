@@ -13,6 +13,7 @@ define('USER_PROFILE', 'Profile Saved Successfully.');
 define('USER_PROFILE_IMAGE', 'Profile Image Saved Successfully.');
 define('CONTEXT_INDICATOR', 'Context Indicator Set Successfully.');
 define('USER_REQUEST_SENT', 'Request Sent Successfully.');
+define('REQUEST_TO_SELF', 'You Can Not Send Request To Yourself.');
 define('USER_ACCEPT', 'Request Accepted Successfully.');
 define('USER_REJECT', 'Request Rejected Successfully.');
 define('WRONG_USER_ID', 'Wrong User Id To Accept.');
@@ -56,7 +57,7 @@ define('POST_ALREADY_LIKED', 'Post Already Liked By User');
 define('POST_ALREADY_DISLIKED', 'Post Already Disliked By User');
 define('POST_DELETED', 'Post Deleted Successfully.');
 define('POST_NOT_DELETED', 'Post Was Not Deleted. Plaese Try Again Later.');
-define('POST_DELETE_AUTH_ERR', 'Your Are Not Authorized to Delete This Post.');
+define('POST_DELETE_AUTH_ERR', 'You Are Not Authorized to Delete This Post.');
 
 
 
@@ -65,6 +66,9 @@ define('TIME_CAPSULE_SAVED', 'Time Capsule Saved Successfully.');
 define('TIME_CAPSULE_OPENED', 'Time Capsule Opened Successfully.');
 define('TIME_CAPSULE_IMAGE', 'Time Capsule Image Saved Successfully.');
 define('INVALID_CAPSULE',"Invalid Capsule Id");
+define('TIME_CAPSULE_DELETED', 'Time Capsule Deleted Successfully.');
+define('TIME_CAPSULE_NOT_DELETED', 'Time Capsule Was Not Deleted. Plaese Try Again Later.');
+define('TIME_CAPSULE_DELETE_AUTH_ERR', 'You Are Not Authorized to Delete This Time Capsule.');
 
 
 //amazon variable
