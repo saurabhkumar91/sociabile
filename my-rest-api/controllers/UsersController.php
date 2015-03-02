@@ -212,6 +212,7 @@ class UsersController
                         $user->unique_id = uniqid();
                         $user->is_edit = 0;
                         $user->is_searchable = 0;
+                        $user->is_mobile_searchable = 0;
                         $user->save();
                     }
                     Library::output(true, '1', OTP_VERIFIED, null);
@@ -315,6 +316,7 @@ class UsersController
             $profile['unique_id'] = isset($user->unique_id) ? $user->unique_id : '';
             $profile['is_edit'] = isset($user->is_edit) ? $user->is_edit : '';
             $profile['is_searchable'] = isset($user->is_searchable) ? $user->is_searchable : '';
+            $profile['is_mobile_searchable'] = isset($user->is_mobile_searchable) ? $user->is_mobile_searchable : '';
             
             $i = 0; 
             foreach($posts as $post) {
@@ -644,7 +646,7 @@ class UsersController
              } elseif($type == 0) { // is searchable false
                 $update_id = $db->execute('return db.users.update({"_id" :ObjectId("'.$header_data['id'].'") },{$set:{is_searchable : 0}})');
                 if($update_id['ok'] == 0) {
-                    Library::logging('error',"API : editUniqueId (type 0), mongodb error: ".$update_id['errmsg']." ".": user_id : ".$header_data['id']);
+                    Library::logging('error',"API : isSearchable (type 0), mongodb error: ".$update_id['errmsg']." ".": user_id : ".$header_data['id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
                 Library::output(true, '1', "Updated Successfully", null);
@@ -654,6 +656,46 @@ class UsersController
              }
         } catch(Exception $e) {
             Library::logging('error',"API : isSearchable : ".$e." ".": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+     }
+     
+     
+    /**
+     * Method for set searchable mobile no
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Saurabh Kumar
+     * @return json
+     */
+    
+     public function isMobileSearchableAction($header_data,$type)
+     {
+         try {
+             $db = Library::getMongo();
+             if($type == 1) { // is searchable true
+                $update_id = $db->execute('return db.users.update({"_id" :ObjectId("'.$header_data['id'].'") },{$set:{is_mobile_searchable : 1}})');
+                if($update_id['ok'] == 0) {
+                    Library::logging('error',"API : isMobileSearchable (type 1), mongodb error: ".$update_id['errmsg']." ".": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+                Library::output(true, '1', "Updated Successfully", null);
+                
+             } elseif($type == 0) { // is searchable false
+                $update_id = $db->execute('return db.users.update({"_id" :ObjectId("'.$header_data['id'].'") },{$set:{is_mobile_searchable : 0}})');
+                if($update_id['ok'] == 0) {
+                    Library::logging('error',"API : isMobileSearchable (type 0), mongodb error: ".$update_id['errmsg']." ".": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+                Library::output(true, '1', "Updated Successfully", null);
+                
+             } else {
+                 Library::output(false, '0', WRONG_TYPE, null);
+             }
+        } catch(Exception $e) {
+            Library::logging('error',"API : isMobileSearchable : ".$e." ".": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_REQUEST, null);
         }
      }
@@ -697,5 +739,42 @@ class UsersController
         }
      }
          
+     
+    /**
+     * Method for searching user based on mobile no
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Saurabh Kumar
+     * @return json
+     */
+    
+     public function searchUserByMobileAction($header_data,$mobileNo)
+     {
+         try {
+             if(empty($mobileNo)) {
+                 Library::output(false, '0', ERROR_INPUT, null);
+             } else {
+                $db = Library::getMongo();
+                $user_info = $db->execute('return db.users.find({"mobile_no" : "'.$mobileNo.'", is_mobile_searchable : 1 }).toArray()');
+                if($user_info['ok'] == 0) {
+                    Library::logging('error',"API : searchUserByMobileNo (user info) , mongodb error: ".$user_info['errmsg']." ".": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+                if(isset($user_info['retval'][0])) {
+                    $result['id'] = (string)$user_info['retval'][0]['_id'];
+                    $result['username'] = $user_info['retval'][0]['username'];
+                    $result['profile_pic'] = FORM_ACTION.$user_info['retval'][0]["profile_image"];
+                    Library::output(true, '1', "No Error", $result);
+                } else {
+                     Library::output(false, '0', NO_USER_FOUND, null);
+                }
+             }
+        } catch(Exception $e) {
+            Library::logging('error',"API : searchUserByMobileNo : ".$e." ".": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+     }
   
 }

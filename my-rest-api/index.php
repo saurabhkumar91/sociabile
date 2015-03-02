@@ -298,6 +298,17 @@ $app->get('/searchUser/{unique_id}', function ($unique_id) use ( $app ) {
     $users->searchUserAction($header_data,$unique_id);
 });
 
+$app->get('/isMobileSearchable/{type}', function ($type) use ( $app ) {
+    $header_data = Library::getallheaders();
+    $users = new UsersController();
+    $users->isMobileSearchableAction($header_data,$type);
+});
+
+$app->get('/searchUserByMobile/{unique_id}', function ($unique_id) use ( $app ) {
+    $header_data = Library::getallheaders();
+    $users = new UsersController();
+    $users->searchUserByMobileAction($header_data,$unique_id);
+});
 
 $app->post('/userLogin', function () use ( $app ) {
     $header_data = Library::getallheaders();
