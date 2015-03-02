@@ -69,6 +69,7 @@ define('INVALID_CAPSULE',"Invalid Capsule Id");
 define('TIME_CAPSULE_DELETED', 'Time Capsule Deleted Successfully.');
 define('TIME_CAPSULE_NOT_DELETED', 'Time Capsule Was Not Deleted. Plaese Try Again Later.');
 define('TIME_CAPSULE_DELETE_AUTH_ERR', 'You Are Not Authorized to Delete This Time Capsule.');
+define('TIME_CAPSULE_NOT_OPENED', 'Unopened Time Capsule Can Not Be Deleted .');
 
 
 //amazon variable

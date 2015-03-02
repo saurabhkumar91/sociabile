@@ -356,7 +356,7 @@ class PostsController
                         Library::logging('error',"API : deletePost, mongodb error: ".$res['errmsg']." : user_id : ".$header_data['id']);
                         Library::output(false, '0', POST_NOT_DELETED, null);
                     }
-                    Library::output(false, '0', POST_DELETED, null);
+                    Library::output(true, '0', POST_DELETED, null);
                 }else{
                     Library::logging('error',"API : deletePost : Invalid Post Id : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
                     Library::output(false, '0', ERROR_REQUEST, null);

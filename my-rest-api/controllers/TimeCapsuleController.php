@@ -163,34 +163,47 @@ class TimeCapsuleController {
                 Library::logging('alert',"API : deleteTimeCapsule : ".ERROR_INPUT.": user_id : ".$header_data['id']." : capsule_id : ".$post_data["capsule_id"]);
                 Library::output(false, '0', "This Time Capsule Does Not Exists.", null);
             }
-            if( $timeCapsule->user_id !== $header_data['id'] && !in_array( $header_data['id'], $timeCapsule->capsule_recipients ) ){
+            if( /*$timeCapsule->user_id !== $header_data['id'] &&*/ !in_array( $header_data['id'], $timeCapsule->capsule_recipients ) ){
                 Library::logging('error',"API : deleteTimeCapsule : ".TIME_CAPSULE_DELETE_AUTH_ERR." : user_id : ".$header_data['id'].", capsule_id: ".$post_data['capsule_id']);
                 Library::output(false, '0', TIME_CAPSULE_DELETE_AUTH_ERR, null);
             }
-            $db     = Library::getMongo();
-            if( $timeCapsule->user_id == $header_data['id'] ){
-                require 'components/S3.php';
-                $s3         = new S3(AUTHKEY, SECRETKEY);
-                $bucketName = S3BUCKET; 
-                foreach( $timeCapsule->capsule_image AS $image){
-                    if ( ! $s3->deleteObject($bucketName, $image) ) {
-                        Library::logging('error',"API : deleteTimeCapsule : Image Not Deleted From S3 Server : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
-                        Library::output(false, '0', TIME_CAPSULE_NOT_DELETED, null);
+            $openedFlag = false;
+            if(!empty($timeCapsule->capsule_opened_by)){
+                foreach( $timeCapsule->capsule_opened_by AS $openedBy ){
+                    if( $openedBy["user_id"] == $header_data['id'] ){
+                        $openedFlag = true;
+                        break;
                     }
                 }
-                $res    = $db->execute('db.time_capsules.remove({"_id" : ObjectId("'.$post_data['capsule_id'].'")})');
-                if( empty($res['retval']["nRemoved"]) ) {
-                    Library::logging('error',"API : deleteTimeCapsule, mongodb error: ".$res['errmsg']." : user_id : ".$header_data['id']);
-                    Library::output(false, '0', TIME_CAPSULE_NOT_DELETED, null);
-                }
-            }else{
+            }
+            if( !$openedFlag ){
+                Library::logging('error',"API : deleteTimeCapsule : ".TIME_CAPSULE_NOT_OPENED." : user_id : ".$header_data['id'].", capsule_id: ".$post_data['capsule_id']);
+                Library::output(false, '0', TIME_CAPSULE_NOT_OPENED, null);
+            }
+            $db     = Library::getMongo();
+//            if( $timeCapsule->user_id == $header_data['id'] ){
+//                require 'components/S3.php';
+//                $s3         = new S3(AUTHKEY, SECRETKEY);
+//                $bucketName = S3BUCKET; 
+//                foreach( $timeCapsule->capsule_image AS $image){
+//                    if ( ! $s3->deleteObject($bucketName, $image) ) {
+//                        Library::logging('error',"API : deleteTimeCapsule : Image Not Deleted From S3 Server : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
+//                        Library::output(false, '0', TIME_CAPSULE_NOT_DELETED, null);
+//                    }
+//                }
+//                $res    = $db->execute('db.time_capsules.remove({"_id" : ObjectId("'.$post_data['capsule_id'].'")})');
+//                if( empty($res['retval']["nRemoved"]) ) {
+//                    Library::logging('error',"API : deleteTimeCapsule, mongodb error: ".$res['errmsg']." : user_id : ".$header_data['id']);
+//                    Library::output(false, '0', TIME_CAPSULE_NOT_DELETED, null);
+//                }
+//            }else{
                 $update = $db->execute('db.time_capsules.update( {"_id" : ObjectId("'.$post_data['capsule_id'].'")}, { $pull: { capsule_recipients: "'.$header_data['id'].'" } } )');
                 if( $update['ok'] == 0 ){
                     Library::logging('error',"API : deleteTimeCapsule, mongodb error: ".$update['errmsg']." : user_id : ".$header_data['id']);
                     Library::output(false, '0', TIME_CAPSULE_NOT_DELETED, null);
                 }
-            }
-            Library::output(false, '0', TIME_CAPSULE_DELETED, null);
+//            }
+            Library::output(true, '0', TIME_CAPSULE_DELETED, null);
             
         } catch (Exception $e) {
             Library::logging('alert',"API : deleteTimeCapsule : ".$e." : user_id : ".$header_data['id']);
