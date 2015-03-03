@@ -15,7 +15,7 @@ class AmazonsController
 
     public function createsignatureAction($header_data,$type, $param='')
     {
-        if($type == 1 || $type == 2 || $type == 3  || $type == 4 || $type == 5 || $type == 6 || $type == 10) {
+        if($type == 1 || $type == 2 || $type == 3  || $type == 4 || $type == 5 || $type == 6 || $type == 7 || $type == 10) {
             $form = array(
                 'acl'                       => ACL,
                 'success_action_redirect'   => SUCCESS_ACTION_REDIRECT,
@@ -261,8 +261,63 @@ class AmazonsController
                     }
                     break;
                 
-                // for  image uploading
-                    
+                // for multiple images (as single post) uploading
+                case 7 :
+                    try {
+                        $createdAt              = time();
+                        $post                   = new Posts();
+                        $post->user_id          = $id;
+                        $post->text             = $image_name;
+                        $post->total_comments   = 0;
+                        $post->likes            = 0;
+                        $post->dislikes         = 0;
+                        $post->date             = $createdAt;
+                        $post->type             = 2;    // type| 1 for text posts, 2 for images
+                        if ($post->save() == false) {
+                            foreach ($post->getMessages() as $message) {
+                                $errors[] = $message->getMessage();
+                            }
+                            Library::logging('error',"API : getStatus : ".$errors." user_id : ".$id);
+                            Library::output(false, '0', $errors, null);
+                        }
+                        $postId = (string)$post->_id;
+                        $db     = Library::getMongo();
+                        if( !empty($param) ){
+                            $result = $db->execute('return db.posts.find( {"_id" : ObjectId("'.$param.'") } ).toArray()');
+                            if( $result['ok'] == 0 ){
+                                Library::logging('error',"API : getStatus, mongodb error: ".$result['errmsg']." : user_id : ".$id);
+                                Library::output(false, '0', "Unable to get details from database", null);
+                            }
+                        }
+                        if( !empty( $result["retval"][0] ) ){
+                            $update = $db->execute('db.posts.update( {"_id" : ObjectId("'.$param.'")}, { $push: { text: "'.$postId.'" } } )');
+                            if( $update['ok'] == 0 ){
+                                Library::logging('error',"API : getStatus, mongodb error: ".$update['errmsg']." : user_id : ".$id);
+                                Library::output(false, '0', "Unable to update images", null);
+                            }
+                        }else{
+                            $update = $db->execute('db.posts.insert( { "user_id" : "'.$id.'", text: ["'.$postId.'"], total_comments:0, likes:0, dislikes:0, date: "'.$createdAt.'", type:2 } )');
+                            if( $update['ok'] == 0 ){
+                                Library::logging('error',"API : getStatus, mongodb error: ".$update['errmsg']." : user_id : ".$id);
+                                Library::output(false, '0', "Unable to update images", null);
+                            }
+                            $result = $db->execute('return db.posts.find( { "user_id" : "'.$id.'", text: ["'.$postId.'"], date: "'.$createdAt.'", type:2 } ).toArray()');
+                        }
+                        $res['upload_image']         = FORM_ACTION.$image_name;
+                        $res['post_id']              = (string)$result["retval"][0]["_id"];
+                        $res['post_text']            = $result["retval"][0]["text"];
+                        $res['post_comment_count']   = $result["retval"][0]["total_comments"];
+                        $res['post_like_count']      = $result["retval"][0]["likes"];
+                        $res['post_dislike_count']   = $result["retval"][0]["dislikes"];
+                        $res['post_timestamp']       = $result["retval"][0]["date"];
+                        Library::output(true, '1', POST_SAVED, $res);
+                    } catch (Exception $e) {
+                        Library::logging('error',"API : createPost : ".$e." ".": user_id : ".$id);
+                        Library::output(false, '0', ERROR_REQUEST, null);
+                    }
+                    break;
+                
+                // for thumbnail uploading
                 case 10 :
                     exit($image_name);
                 default:

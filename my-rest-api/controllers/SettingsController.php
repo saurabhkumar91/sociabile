@@ -678,19 +678,33 @@ class SettingsController
                             $about_me_info['description'] = '';
                         }
 
-                        $i                  = 0;
                         $my_pictures_info   = array();
+                        $postGroups         = array(); // posts having multiple images
                         if($my_pictures == 1) {
                             $posts = Posts::find(array(array("user_id" => $user_id, "type"=>2)));
                             if(is_array($posts)) {
                                 foreach($posts as $post) {
-                                    $my_pictures_info[$i]['post_id'] = (string)$post->_id;
-                                    $my_pictures_info[$i]['post_text'] = $post->text;
-                                    $my_pictures_info[$i]['post_comment_count'] = $post->total_comments;
-                                    $my_pictures_info[$i]['post_like_count'] = $post->likes;
-                                    $my_pictures_info[$i]['post_dislike_count'] = $post->dislikes;
-                                    $my_pictures_info[$i]['post_timestamp'] = $post->date;
-                                    $i++;
+                                    $postId = (string)$post->_id;
+                                    $my_pictures_info[$postId]['post_id'] = $postId;
+                                    $my_pictures_info[$postId]['post_text'] = $post->text;
+                                    $my_pictures_info[$postId]['post_comment_count'] = $post->total_comments;
+                                    $my_pictures_info[$postId]['post_like_count'] = $post->likes;
+                                    $my_pictures_info[$postId]['post_dislike_count'] = $post->dislikes;
+                                    $my_pictures_info[$postId]['post_timestamp'] = $post->date;
+                                    $my_pictures_info[$postId]['post_type'] = 2;
+                                    if( is_array($post->text) ){
+                                        $postGroups[$postId]                = $post->text;
+                                        $my_pictures_info[$postId]['post_type']  = 3;
+                                    }
+                                }
+                            }
+                        }
+                        foreach( $postGroups As $postId=>$postGroup ){
+                            $my_pictures_info[$postId]["post_text"]    = array();
+                            foreach( $postGroup as $childPost ){
+                                if( isset($my_pictures_info[$childPost]) ){
+                                    $my_pictures_info[$postId]["post_text"][]  = $my_pictures_info[$childPost];
+                                    unset( $my_pictures_info[$childPost] );
                                 }
                             }
                         }
@@ -705,12 +719,7 @@ class SettingsController
                         $result['profile'] = $profile;
                         $result['my_mind'] = $user_post;
                         $result['about_me'] = isset($about_me_info) ? $about_me_info : '';
-                        if(empty($my_pictures_info)) {
-                            $pic = array();
-                            $result['my_pictures'] = $pic;
-                        } else {
-                            $result['my_pictures'] = $my_pictures_info;
-                        }
+                        $result['my_pictures'] = array_values($my_pictures_info);
 
                         Library::output(true, '1', "No Error", $result);
                     } else {
