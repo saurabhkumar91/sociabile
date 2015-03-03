@@ -127,10 +127,9 @@ class PostsController
                     }
                 }
                 $result     = array();
-                $postCount  = 0;
                 $db         = Library::getMongo();
                 foreach( $friends AS $friendId=>$friend ){
-                    $post = $db->execute('return db.posts.find({ user_id:"'.$friendId.'", type:{$in:'.$friend["type"].'} }).toArray()');
+                    $post = $db->execute('return db.posts.find({ user_id:"'.$friendId.'", type:{$in:'.$friend["type"].'}, parent:{$exists:false} }).toArray()');
                     if($post['ok'] == 0) {
                         Library::logging('error',"API : getImages (get user info) , mongodb error: ".$post['errmsg']." ".": user_id : ".$header_data['id']);
                         Library::output(false, '0', ERROR_REQUEST, null);
@@ -145,20 +144,19 @@ class PostsController
                             $isDisliked = true;
                         }
                         $postDetail["text"] = ($postDetail["type"]==2) ? FORM_ACTION.$postDetail["text"] : $postDetail["text"];
-                        
-                        $result[$postCount]["post_id"]              = (string)$postDetail["_id"];
-                        $result[$postCount]["user_id"]              = $friendId;
-                        $result[$postCount]["user_name"]            = $friend["name"];
-                        $result[$postCount]["user_profile_image"]   = FORM_ACTION.$friend["profile_image"];
-                        $result[$postCount]["text"]                 = $postDetail["text"];
-                        $result[$postCount]["date"]                 = $postDetail["date"];
-                        $result[$postCount]["likes"]                = $postDetail["likes"];
-                        $result[$postCount]["dislikes"]             = $postDetail["dislikes"];
-                        $result[$postCount]["total_comments"]       = $postDetail["total_comments"];
-                        $result[$postCount]["is_liked"]             = $isLiked;
-                        $result[$postCount]["is_disliked"]          = $isDisliked;
-                        $result[$postCount]["post_type"]            = $postDetail["type"]; // type| 1 for text posts, 2 for images
-                        $postCount++;
+                        $postId = (string)$postDetail["_id"];
+                        $result[$postId]["post_id"]              = (string)$postDetail["_id"];
+                        $result[$postId]["user_id"]              = $friendId;
+                        $result[$postId]["user_name"]            = $friend["name"];
+                        $result[$postId]["user_profile_image"]   = FORM_ACTION.$friend["profile_image"];
+                        $result[$postId]["text"]                 = $postDetail["text"];
+                        $result[$postId]["date"]                 = $postDetail["date"];
+                        $result[$postId]["likes"]                = $postDetail["likes"];
+                        $result[$postId]["dislikes"]             = $postDetail["dislikes"];
+                        $result[$postId]["total_comments"]       = $postDetail["total_comments"];
+                        $result[$postId]["is_liked"]             = $isLiked;
+                        $result[$postId]["is_disliked"]          = $isDisliked;
+                        $result[$postId]["post_type"]            = $postDetail["type"]; // type| 1 for text posts, 2 for images
                     }
                 }
                 Library::output(true, '1', "No Error", $result);

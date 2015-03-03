@@ -482,6 +482,9 @@ class UsersController
                 $record = Users::find(array("conditions" =>array("mobile_no"=>$filter_contacts,"is_active"=>1)));
                 if(!empty($record)) {
                     
+                    if(empty($user->is_mobile_searchable)) {
+                        continue;
+                    }
                     if(isset($user->running_groups)) {
                         $isFriend   = false;
                         foreach($user->running_groups as $user_ids) {

@@ -304,10 +304,10 @@ $app->get('/isMobileSearchable/{type}', function ($type) use ( $app ) {
     $users->isMobileSearchableAction($header_data,$type);
 });
 
-$app->get('/searchUserByMobile/{unique_id}', function ($unique_id) use ( $app ) {
+$app->get('/searchUserByMobile/{mobile_no}', function ($mobile_no) use ( $app ) {
     $header_data = Library::getallheaders();
     $users = new UsersController();
-    $users->searchUserByMobileAction($header_data,$unique_id);
+    $users->searchUserByMobileAction($header_data,$mobile_no);
 });
 
 $app->post('/userLogin', function () use ( $app ) {
