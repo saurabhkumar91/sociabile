@@ -146,21 +146,22 @@ class PostsController
                         }
                         $postDetail["text"] = (!is_array($postDetail["text"])&&$postDetail["type"]==2) ? FORM_ACTION.$postDetail["text"] : $postDetail["text"];
                         $postId = (string)$postDetail["_id"];
-                        $result[$postId]["post_id"]              = (string)$postDetail["_id"];
-                        $result[$postId]["user_id"]              = $friendId;
-                        $result[$postId]["user_name"]            = $friend["name"];
-                        $result[$postId]["user_profile_image"]   = FORM_ACTION.$friend["profile_image"];
-                        $result[$postId]["text"]                 = $postDetail["text"];
-                        $result[$postId]["date"]                 = $postDetail["date"];
-                        $result[$postId]["likes"]                = $postDetail["likes"];
-                        $result[$postId]["dislikes"]             = $postDetail["dislikes"];
-                        $result[$postId]["total_comments"]       = $postDetail["total_comments"];
-                        $result[$postId]["is_liked"]             = $isLiked;
-                        $result[$postId]["is_disliked"]          = $isDisliked;
-                        $result[$postId]["post_type"]            = $postDetail["type"]; // type| 1 for text posts, 2 for images ,3 for group of images
+                        $result[$postId]["post_id"]             = (string)$postDetail["_id"];
+                        $result[$postId]["user_id"]             = $friendId;
+                        $result[$postId]["user_name"]           = $friend["name"];
+                        $result[$postId]["user_profile_image"]  = FORM_ACTION.$friend["profile_image"];
+                        $result[$postId]["text"]                = $postDetail["text"];
+                        $result[$postId]["date"]                = $postDetail["date"];
+                        $result[$postId]["likes"]               = $postDetail["likes"];
+                        $result[$postId]["dislikes"]            = $postDetail["dislikes"];
+                        $result[$postId]["total_comments"]      = $postDetail["total_comments"];
+                        $result[$postId]["is_liked"]            = $isLiked;
+                        $result[$postId]["is_disliked"]         = $isDisliked;
+                        $result[$postId]["post_type"]           = $postDetail["type"]; // type| 1 for text posts, 2 for images ,3 for group of images
+                        $result[$postId]["multiple"]            = 0;
                         if( is_array($postDetail["text"]) ){
                             $postGroups[$postId] = $postDetail["text"];
-                            $result[$postId]["post_type"]            = 3; // type| 3 for group of images
+                            $result[$postId]["multiple"]        = 1; // type| 3 for group of images
                         }
                     }
                 }

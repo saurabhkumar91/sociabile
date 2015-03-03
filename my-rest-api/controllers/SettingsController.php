@@ -556,17 +556,27 @@ class SettingsController
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
-                if($header_data['os'] == 2) {
-                    $group_ids =  json_encode($post_data['group_id']);
+                if($header_data['os'] == 1) {
+                    $group_ids =  json_decode($post_data['group_id']);
                 } else {
                     $group_ids =  $post_data['group_id'];
                 }
                 
-                $db = Library::getMongo();
-                $request_sent = $db->execute('db.users.update({"_id" :ObjectId("'.$header_data['id'].'") },{$push : {share_image:{$each:[{image_name:"'.$post_data['image_name'].'",group_id:'.$group_ids.'}]}}})');
-                if($request_sent['ok'] == 0) {
-                    Library::logging('error',"API : sharePhotos,mongodb error: ".$request_sent['errmsg']." ".": user_id : ".$header_data['id']);
-                    Library::output(false, '0', ERROR_REQUEST, null);
+                $post                   = new Posts();
+                $post->user_id          = $header_data['id'];
+                $post->text             = $post_data['image_name'];
+                $post->total_comments   = 0;
+                $post->likes            = 0;
+                $post->dislikes         = 0;
+                $post->date             = time();
+                $post->group_id         = $group_ids;
+                $post->type             = 3;    // type| 1 for text posts, 2 for images, 3 for shared images
+                if ($post->save() == false) {
+                    foreach ($post->getMessages() as $message) {
+                        $errors[] = $message->getMessage();
+                    }
+                    Library::logging('error',"API : sharePhotos : ".$errors." user_id : ".$header_data['id']);
+                    Library::output(false, '0', $errors, null);
                 }
                 Library::output(true, '1', SHARE_IMAGE, null);
             } catch(Exception $e) {
@@ -691,10 +701,10 @@ class SettingsController
                                     $my_pictures_info[$postId]['post_like_count'] = $post->likes;
                                     $my_pictures_info[$postId]['post_dislike_count'] = $post->dislikes;
                                     $my_pictures_info[$postId]['post_timestamp'] = $post->date;
-                                    $my_pictures_info[$postId]['post_type'] = 2;
+                                    $my_pictures_info[$postId]['multiple'] = 0;
                                     if( is_array($post->text) ){
                                         $postGroups[$postId]                = $post->text;
-                                        $my_pictures_info[$postId]['post_type']  = 3;
+                                        $my_pictures_info[$postId]['multiple']  = 1;
                                     }
                                 }
                             }
