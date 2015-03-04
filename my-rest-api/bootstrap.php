@@ -40,7 +40,7 @@ define('INVALID_LOGIN', 'User Id or Password is Incorrect.');
 // otp relaed messages
 define('OTP_SENT', 'OTP Sent Successfully');
 define('OTP_VERIFIED', 'OTP Verified.');
-define('OTP_WRONG', 'OTP Not Verified.');
+define('OTP_WRONG', 'Please enter valid verification code.');
 
 // authentication
 define('KEY', 'JUTdqn7yMq5BjrQoiDo6kbYHymcoaWmbR5mlbEt');

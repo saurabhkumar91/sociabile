@@ -556,12 +556,12 @@ class SettingsController
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
+                $post_data['image_name']    = str_replace( FORM_ACTION, "", $post_data['image_name'] );
                 if($header_data['os'] == 1) {
                     $group_ids =  json_decode($post_data['group_id']);
                 } else {
                     $group_ids =  $post_data['group_id'];
                 }
-                
                 $post                   = new Posts();
                 $post->user_id          = $header_data['id'];
                 $post->text             = $post_data['image_name'];
