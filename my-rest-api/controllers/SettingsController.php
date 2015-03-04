@@ -748,7 +748,7 @@ class SettingsController
     }
     
     /**
-     * Method for get Images
+     * Method for get Images uploaded by user and shared with him by friends
      *
      * @param object request params
      * @param object reponse object
@@ -760,48 +760,70 @@ class SettingsController
     public function getImagesAction($header_data,$type)
     {
         try {
-            $db = Library::getMongo();
-            if($type == 1) { // type 1 for upload images
-
+            $db         = Library::getMongo();
+            $userResult = $db->execute('return db.users.find({"_id":ObjectId("'.$header_data['id'].'")}).toArray()');
+            if($userResult['ok'] == 0) {
+                Library::logging('error',"API : getImages (get user info) , mongodb error: ".$userResult['errmsg']." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }    
+            $user   = $userResult['retval'][0];
+            
+            if( $type == 1 ) { // type 1 for uploaded images
                 $posts  = $db->execute('return db.posts.find( {"user_id":"'.$header_data['id'].'", "type":2} ).toArray()');
                 if($posts['ok'] == 0) {
                     Library::logging('error',"API : getImages (get user info) , mongodb error: ".$posts['errmsg']." ".": user_id : ".$header_data['id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
-                }    
-                 $result['image_url']       = FORM_ACTION;
-                 $result['upload_images']   = array();
-                 foreach( $posts['retval'] AS $post ){
-                    $result['upload_images'][]  = $post['text'];
-                 }
-                 Library::output(true, '1', "No Error", $result);
-             
-                 
-            } elseif($type == 2) { // type 2 for share images
-                $user = $db->execute('return db.users.find({"_id":ObjectId("'.$header_data['id'].'")}).toArray()');
-                if($user['ok'] == 0) {
-                    Library::logging('error',"API : getImages (get user info) , mongodb error: ".$user['errmsg']." ".": user_id : ".$header_data['id']);
-                    Library::output(false, '0', ERROR_REQUEST, null);
-                }    
-                $i                      = 0;
-                $friendsSharedImages    = array();
-                $mySharedImages         = array();
-                $user                   = $user['retval'][0];
-                 if(isset($user['share_image'])) {
-                     foreach($user['share_image'] as $images) {
-                         $mySharedImages[$i] = $images['image_name'];
-                         $i++;
-                     }
-                 }
+                }
+                $result     = array();
+                $postGroups = array();
+                foreach( $posts['retval'] As $postDetail ){
+                    $isLiked    = false;
+                    $isDisliked = false;
+                    if( !empty($postDetail["liked_by"]) && in_array( $header_data['id'], $postDetail["liked_by"]) ){
+                        $isLiked    = true;
+                    }
+                    if( !empty($postDetail["disliked_by"]) && in_array( $header_data['id'], $postDetail["disliked_by"]) ){
+                        $isDisliked = true;
+                    }
+                    $postDetail["text"] = (!is_array($postDetail["text"])) ? FORM_ACTION.$postDetail["text"] : $postDetail["text"];
+                    $postId = (string)$postDetail["_id"];
+                    $result[$postId]["post_id"]             = (string)$postDetail["_id"];
+                    $result[$postId]["text"]                = $postDetail["text"];
+                    $result[$postId]["date"]                = $postDetail["date"];
+                    $result[$postId]["likes"]               = $postDetail["likes"];
+                    $result[$postId]["dislikes"]            = $postDetail["dislikes"];
+                    $result[$postId]["total_comments"]      = $postDetail["total_comments"];
+                    $result[$postId]["is_liked"]            = $isLiked;
+                    $result[$postId]["is_disliked"]         = $isDisliked;
+                    $result[$postId]["multiple"]            = 0;
+                    if( is_array($postDetail["text"]) ){
+                        $postGroups[$postId] = $postDetail["text"];
+                        $result[$postId]["multiple"]        = 1; // type| 3 for group of images
+                    }
+                }
+                foreach( $postGroups As $postId=>$postGroup ){
+                    $result[$postId]["text"]    = array();
+                    foreach( $postGroup as $childPost ){
+                        if( isset($result[$childPost]) ){
+                            $result[$postId]["text"][]  = $result[$childPost];
+                            unset( $result[$childPost] );
+                        }
+                    }
+                }
+            }
+            elseif( $type == 2 ) { // type 2 for share images
+                
+                $result     = array();
+                $postGroups = array();
                  if(isset($user['running_groups'])) {
                      foreach ($user['running_groups'] as $groups) {
-                        $friends_info = $db->execute('return db.users.find({"_id":ObjectId("'.$groups['user_id'].'")}).toArray()');
-                        if($friends_info['ok'] == 0) {
-                            Library::logging('error',"API : getImages (get friends info) , mongodb error: ".$friends_info['errmsg']." ".": user_id : ".$header_data['id']);
+                        $friendsResult  = $db->execute('return db.users.find({"_id":ObjectId("'.$groups['user_id'].'")}).toArray()');
+                        if($friendsResult['ok'] == 0) {
+                            Library::logging('error',"API : getImages (get friends info) , mongodb error: ".$friendsResult['errmsg']." ".": user_id : ".$header_data['id']);
                             Library::output(false, '0', ERROR_REQUEST, null);
                         } 
-                        $friends_info   = $friends_info['retval'][0];
-                            
-                        if( empty($friends_info['share_image']) || empty($friends_info['running_groups']) ){
+                        $friends_info   = $friendsResult['retval'][0];
+                        if( empty($friends_info['running_groups']) ){
                             continue;
                         }
                         
@@ -813,41 +835,55 @@ class SettingsController
                                 break;
                             }
                         }
-                        foreach($friends_info['share_image'] as $share_image) {
-                            if( count(array_intersect($friendsGroup, $share_image["group_id"])) ){
-                                array_push( $friendsSharedImages, $share_image['image_name'] );
+                        
+                        $posts  = $db->execute('return db.posts.find({"user_id":"'.(string)$friends_info['_id'].'", "type":3}).toArray()');
+                        if($posts['ok'] == 0) {
+                            Library::logging('error',"API : getImages (get user info) , mongodb error: ".$posts['errmsg']." ".": user_id : ".$header_data['id']);
+                            Library::output(false, '0', ERROR_REQUEST, null);
+                        }
+                        foreach( $posts['retval'] As $postDetail ){ 
+                            if( count(array_intersect($friendsGroup, $postDetail["group_id"])) ){
+                                $isLiked    = false;
+                                $isDisliked = false;
+                                if( !empty($postDetail["liked_by"]) && in_array( $header_data['id'], $postDetail["liked_by"]) ){
+                                    $isLiked    = true;
+                                }
+                                if( !empty($postDetail["disliked_by"]) && in_array( $header_data['id'], $postDetail["disliked_by"]) ){
+                                    $isDisliked = true;
+                                }
+                                $postDetail["text"] = (!is_array($postDetail["text"])) ? FORM_ACTION.$postDetail["text"] : $postDetail["text"];
+                                $postId = (string)$postDetail["_id"];
+                                $result[$postId]["post_id"]             = (string)$postDetail["_id"];
+                                $result[$postId]["text"]                = $postDetail["text"];
+                                $result[$postId]["date"]                = $postDetail["date"];
+                                $result[$postId]["likes"]               = $postDetail["likes"];
+                                $result[$postId]["dislikes"]            = $postDetail["dislikes"];
+                                $result[$postId]["total_comments"]      = $postDetail["total_comments"];
+                                $result[$postId]["is_liked"]            = $isLiked;
+                                $result[$postId]["is_disliked"]         = $isDisliked;
+                                $result[$postId]["multiple"]            = 0;
+                                if( is_array($postDetail["text"]) ){
+                                    $postGroups[$postId] = $postDetail["text"];
+                                    $result[$postId]["multiple"]        = 1; // type| 3 for group of images
+                                }
                             }
                         }
-                            
-//                        if($friends_info['share_image']) {
-//                            if($friends_info['running_groups']) {
-//                                foreach($friends_info['running_groups'] as $groups) {
-//                                    if($groups['user_id'] == $header_data['id']) {
-//                                        foreach($groups['group_id'] as $ids) {
-//                                            foreach($friends_info['share_image'] as $share_image_groups) {
-//                                                foreach($share_image_groups['group_id'] as $share_image_ids) {
-//                                                    if($ids == $share_image_ids) {
-//                                                        array_push($friendsSharedImages,$share_image_groups['image_name']);
-//                                                    }
-//                                                }
-//                                            }
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-                        
                      }
-                 } 
-                 $sh_images                 = array();
-                 $shared_images             = array_merge($mySharedImages,array_unique ($friendsSharedImages));
-                 $result['image_url']       = FORM_ACTION;
-                 $result['share_images']    = isset($shared_images) ? $shared_images : $sh_images;
-                 Library::output(true, '1', "No Error", $result);
+                 }
+                foreach( $postGroups As $postId=>$postGroup ){
+                    $result[$postId]["text"]    = array();
+                    foreach( $postGroup as $childPost ){
+                        if( isset($result[$childPost]) ){
+                            $result[$postId]["text"][]  = $result[$childPost];
+                            unset( $result[$childPost] );
+                        }
+                    }
+                }
              } else {
                  Library::output(false, '0', WRONG_TYPE, null);
              }
-          
+             
+            Library::output(true, '1', "No Error", $result);
         } catch(Exception $e) {
             Library::logging('error',"API : getImages, error_msg : ".$e." ".": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_REQUEST, null);
