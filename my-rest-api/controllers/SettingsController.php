@@ -786,8 +786,10 @@ class SettingsController
                         $isDisliked = true;
                     }
                     $postDetail["text"] = (!is_array($postDetail["text"])) ? FORM_ACTION.$postDetail["text"] : $postDetail["text"];
+                    $username   = isset($user["username"]) ? $user["username"] : '';
                     $postId = (string)$postDetail["_id"];
                     $result[$postId]["post_id"]             = (string)$postDetail["_id"];
+                    $result[$postId]["username"]            = $username;
                     $result[$postId]["text"]                = $postDetail["text"];
                     $result[$postId]["date"]                = $postDetail["date"];
                     $result[$postId]["likes"]               = $postDetail["likes"];
@@ -852,8 +854,10 @@ class SettingsController
                                     $isDisliked = true;
                                 }
                                 $postDetail["text"] = (!is_array($postDetail["text"])) ? FORM_ACTION.$postDetail["text"] : $postDetail["text"];
-                                $postId = (string)$postDetail["_id"];
+                                $username   = isset($friends_info["username"]) ? $friends_info["username"] : '';
+                                $postId     = (string)$postDetail["_id"];
                                 $result[$postId]["post_id"]             = (string)$postDetail["_id"];
+                                $result[$postId]["username"]            = $username;
                                 $result[$postId]["text"]                = $postDetail["text"];
                                 $result[$postId]["date"]                = $postDetail["date"];
                                 $result[$postId]["likes"]               = $postDetail["likes"];
