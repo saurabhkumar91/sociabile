@@ -883,7 +883,7 @@ class SettingsController
                  Library::output(false, '0', WRONG_TYPE, null);
              }
              
-            Library::output(true, '1', "No Error", $result);
+            Library::output(true, '1', "No Error", array_values($result) );
         } catch(Exception $e) {
             Library::logging('error',"API : getImages, error_msg : ".$e." ".": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_REQUEST, null);
