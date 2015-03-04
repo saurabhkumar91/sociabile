@@ -695,13 +695,25 @@ class SettingsController
                             if(is_array($posts)) {
                                 foreach($posts as $post) {
                                     $postId = (string)$post->_id;
-                                    $my_pictures_info[$postId]['post_id'] = $postId;
-                                    $my_pictures_info[$postId]['post_text'] = $post->text;
-                                    $my_pictures_info[$postId]['post_comment_count'] = $post->total_comments;
-                                    $my_pictures_info[$postId]['post_like_count'] = $post->likes;
-                                    $my_pictures_info[$postId]['post_dislike_count'] = $post->dislikes;
-                                    $my_pictures_info[$postId]['post_timestamp'] = $post->date;
-                                    $my_pictures_info[$postId]['multiple'] = 0;
+                                    $isLiked    = false;
+                                    $isDisliked = false;
+                                    if( !empty($post->liked_by) && in_array( $header_data['id'], $post->liked_by) ){
+                                        $isLiked    = true;
+                                    }
+                                    if( !empty($post->disliked_by) && in_array( $header_data['id'], $post->disliked_by) ){
+                                        $isDisliked = true;
+                                    }
+                                    $post->text = (!is_array($post->text)) ? FORM_ACTION.$post->text : $post->text;
+                                    $my_pictures_info[$postId]['post_id']           = $postId;
+                                    $my_pictures_info[$postId]['text']              = $post->text;
+                                    $my_pictures_info[$postId]['user_name']         = $user->username;
+                                    $my_pictures_info[$postId]['total_comments']    = $post->total_comments;
+                                    $my_pictures_info[$postId]['likes']             = $post->likes;
+                                    $my_pictures_info[$postId]['dislikes']          = $post->dislikes;
+                                    $my_pictures_info[$postId]['date']              = $post->date;
+                                    $my_pictures_info[$postId]['is_liked']          = $isLiked;
+                                    $my_pictures_info[$postId]['is_disliked']       = $isDisliked;
+                                    $my_pictures_info[$postId]['multiple']          = 0;
                                     if( is_array($post->text) ){
                                         $postGroups[$postId]                = $post->text;
                                         $my_pictures_info[$postId]['multiple']  = 1;
@@ -710,10 +722,10 @@ class SettingsController
                             }
                         }
                         foreach( $postGroups As $postId=>$postGroup ){
-                            $my_pictures_info[$postId]["post_text"]    = array();
+                            $my_pictures_info[$postId]["text"]    = array();
                             foreach( $postGroup as $childPost ){
                                 if( isset($my_pictures_info[$childPost]) ){
-                                    $my_pictures_info[$postId]["post_text"][]  = $my_pictures_info[$childPost];
+                                    $my_pictures_info[$postId]["text"][]  = $my_pictures_info[$childPost];
                                     unset( $my_pictures_info[$childPost] );
                                 }
                             }
@@ -789,7 +801,7 @@ class SettingsController
                     $username   = isset($user["username"]) ? $user["username"] : '';
                     $postId = (string)$postDetail["_id"];
                     $result[$postId]["post_id"]             = (string)$postDetail["_id"];
-                    $result[$postId]["username"]            = $username;
+                    $result[$postId]["user_name"]           = $username;
                     $result[$postId]["text"]                = $postDetail["text"];
                     $result[$postId]["date"]                = $postDetail["date"];
                     $result[$postId]["likes"]               = $postDetail["likes"];
@@ -857,7 +869,7 @@ class SettingsController
                                 $username   = isset($friends_info["username"]) ? $friends_info["username"] : '';
                                 $postId     = (string)$postDetail["_id"];
                                 $result[$postId]["post_id"]             = (string)$postDetail["_id"];
-                                $result[$postId]["username"]            = $username;
+                                $result[$postId]["user_name"]           = $username;
                                 $result[$postId]["text"]                = $postDetail["text"];
                                 $result[$postId]["date"]                = $postDetail["date"];
                                 $result[$postId]["likes"]               = $postDetail["likes"];
