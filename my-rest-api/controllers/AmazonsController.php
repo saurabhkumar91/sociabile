@@ -149,13 +149,16 @@ class AmazonsController
                             Library::logging('error',"API : createPost : ".$errors." user_id : ".$id);
                             Library::output(false, '0', $errors, null);
                         } else {
-                            $result['upload_image']         = FORM_ACTION.$image_name;
                             $result['post_id']              = (string)$post->_id;
-                            $result['post_text']            = $post->text;
-                            $result['post_comment_count']   = 0;
-                            $result['post_like_count']      = 0;
-                            $result['post_dislike_count']   = 0;
-                            $result['post_timestamp']       = $post->date;
+                            $result["user_id"]              = $id;
+                            $result['text']                 = FORM_ACTION.$image_name;
+                            $result['date']                 = $post->date;
+                            $result['likes']                = 0;
+                            $result['dislikes']             = 0;
+                            $result['total_comments']       = 0;
+                            $result["multiple"]             = 0;
+                            $result["is_liked"]             = false;
+                            $result["is_disliked"]          = false;
                             Library::output(true, '1', POST_SAVED, $result);
                         }
                     } catch (Exception $e) {
@@ -282,13 +285,16 @@ class AmazonsController
                             }
                             $result = $db->execute('return db.posts.find( { "user_id" : "'.$id.'", text: ["'.$postId.'"], date: "'.$createdAt.'", type:2 } ).toArray()');
                         }
-                        $res['upload_image']         = FORM_ACTION.$image_name;
                         $res['post_id']              = (string)$result["retval"][0]["_id"];
-                        $res['post_text']            = $result["retval"][0]["text"];
-                        $res['post_comment_count']   = $result["retval"][0]["total_comments"];
-                        $res['post_like_count']      = $result["retval"][0]["likes"];
-                        $res['post_dislike_count']   = $result["retval"][0]["dislikes"];
-                        $res['post_timestamp']       = $result["retval"][0]["date"];
+                        $res["user_id"]              = $id;
+                        $res['text']                 = FORM_ACTION.$image_name;
+                        $res['date']                 = $result["retval"][0]["date"];
+                        $res['likes']                = $result["retval"][0]["likes"];
+                        $res['dislikes']             = $result["retval"][0]["dislikes"];
+                        $res['total_comments']       = $result["retval"][0]["total_comments"];
+                        $res["multiple"]             = 0;
+                        $res["is_liked"]             = false;
+                        $res["is_disliked"]          = false;
                         Library::output(true, '1', POST_SAVED, $res);
                     } catch (Exception $e) {
                         Library::logging('error',"API : createPost : ".$e." ".": user_id : ".$id);

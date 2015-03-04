@@ -136,13 +136,7 @@ class GroupsController
                                     //$item = $x->exists('item');
                                     //exit("xmlns #user exists with x ".$x->ns." status ".$status->attrs['code'].", affiliation:".$item->attrs['affiliation'].", role:".$item->attrs['role']);
                                 
-                                    $request = 'db.chat_groups.insert({ 
-                                            group_name: "'.$groupName.'", 
-                                            group_jid: "'.$chatGroupID.'",
-                                            admin_id: "'.$userId.'",
-                                            created_by: "'.$userId.'",
-                                            members: "['.$userId.']",
-                                    })';
+                                    $request = 'db.chat_groups.insert({ group_name: "'.$groupName.'", group_jid: "'.$chatGroupID.'", admin_id: "'.$userId.'", created_by: "'.$userId.'", members: "['.$userId.']"   })';
 
                                     $db = Library::getMongo();
                                     $result =  $db->execute($request);
