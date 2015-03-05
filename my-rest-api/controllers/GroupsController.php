@@ -80,14 +80,28 @@ class GroupsController
         }
     }
     
-    public function createChatGroupAction( $header_data, $groupname )
+    /**
+     * Method for opening time capsule 
+     * @param $header_data: array of header data
+     * @param $post_data: array of post data(groupname) 
+     * @author Saurabh Kumar
+     * @return json
+     */
+    
+    public function createChatGroupAction( $header_data, $post_data )
     {
         try{
-                if(empty($groupname)){
+                if(empty($post_data["groupname"])){
                     Library::logging('error',"API : createChatGroup : invalid parameters recieved(group name): user_id : ".$header_data['id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
-                $user   = Users::findById($header_data['id']);
+                $groupname  = $post_data["groupname"];
+                $user       = Users::findById($header_data['id']);
+                $chatGroup  = ChatGroups::find( array( array("group_name"=>$groupname) ) );
+                if( $chatGroup ){
+                    Library::logging('error',"API : createChatGroup : ".JAXL_MUC_EXISTS.": user_id : ".$header_data['id']);
+                    Library::output(false, '0', JAXL_MUC_EXISTS, null);
+                }
                 require 'components/JAXL3/jaxl.php';
                 $client = new JAXL(array(
                     'jid' => $user->jaxl_id,
@@ -136,12 +150,13 @@ class GroupsController
                                     //$item = $x->exists('item');
                                     //exit("xmlns #user exists with x ".$x->ns." status ".$status->attrs['code'].", affiliation:".$item->attrs['affiliation'].", role:".$item->attrs['role']);
                                 
-                                    $request = 'db.chat_groups.insert({ group_name: "'.$groupName.'", group_jid: "'.$chatGroupID.'", admin_id: "'.$userId.'", created_by: "'.$userId.'", members: "['.$userId.']"   })';
+                                    $request = 'db.chat_groups.insert({ group_name: "'.$groupName.'", group_jid: "'.$chatGroupID.'", admin_id: "'.$userId.'", created_by: "'.$userId.'", members: ["'.$userId.'"]   })';
 
                                     $db = Library::getMongo();
                                     $result =  $db->execute($request);
                                     if($result['ok'] == 0) {
                                         Library::logging('error',"API : createChatGroup, error_msg: ".$result['errmsg']." ".": user_id : ".$userId);
+                                        Library::output(false, '0', JAXL_ERR_CREATE_MUC, null);
                                     }
                                     
                                     Library::output(true, '1', JAXL_MUC_CREATED, array("chatGroupId"=>$chatGroupID));
@@ -158,6 +173,12 @@ class GroupsController
                             Library::output(false, '0', JAXL_ERR_CREATE_MUC, null);
                         }
                     }
+                });
+                $client->add_cb('on_disconnect', function() {
+                    $userId         = $_SESSION["userId"];
+                    $chatGroupID    = $_SESSION["chatGroupID"];
+                    Library::logging('error',"API : createChatGroup : ".JAXL_ERR_CREATE_MUC."(disconnected) : user_id : ".$userId." group_jid : ".$chatGroupID);
+                    Library::output(false, '0', JAXL_ERR_CREATE_MUC, null);
                 });
             
                 $_SESSION["client"]         = $client;
@@ -176,14 +197,28 @@ class GroupsController
         
     }
     
-    public function joinChatGroupAction( $header_data, $group )
+    /**
+     * Method for opening time capsule 
+     * @param $header_data: array of header data
+     * @param $post_data: array of post data(group_id) 
+     * @author Saurabh Kumar
+     * @return json
+     */
+    
+    public function joinChatGroupAction( $header_data, $post_data )
     {
         try{
-                if(empty($group["id"])){
-                    Library::logging('error',"API : createChatGroup : invalid parameters recieved(group name): user_id : ".$header_data['id']);
+                if(empty($post_data["group_id"])){
+                    Library::logging('error',"API : joinChatGroup : invalid parameters recieved(group name): user_id : ".$header_data['id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
-                $user   = Users::findById($header_data['id']);
+                $groupId    = $post_data["group_id"];
+                $chatGroup  = ChatGroups::findById($groupId);
+                if( !$chatGroup ){
+                    Library::logging('error',"API : joinChatGroup : invalid parameters recieved(group name): user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+                $user       = Users::findById($header_data['id']);
                 require 'components/JAXL3/jaxl.php';
                 $client = new JAXL(array(
                     'jid' => $user->jaxl_id,
@@ -194,12 +229,6 @@ class GroupsController
                         '0045',     // group chat
                         '0030'      // discover
                 ));
-                
-                $chatGroup      = ChatGroups::findById($group["id"]);
-                if( !$chatGroup ){
-                    Library::logging('error',"API : createChatGroup : invalid parameters recieved(group name): user_id : ".$header_data['id']);
-                    Library::output(false, '0', ERROR_REQUEST, null);
-                }
                 $chatGroupID    = $chatGroup->group_jid;
                 $roomFullJid    = new XMPPJid( $chatGroupID. "/" .$user->mobile_no );
                 
@@ -236,12 +265,12 @@ class GroupsController
                             if(($status = $x->exists('status', null, array('code'=>'110'))) !== false) {
                                     //$item = $x->exists('item');
                                     //exit("xmlns #user exists with x ".$x->ns." status ".$status->attrs['code'].", affiliation:".$item->attrs['affiliation'].", role:".$item->attrs['role']);
-                                
-                                    $request = 'db.chat_groups.update({"_id" :ObjectId("'.$groupId.'") }, {$push : {members:'.$userId.'})';
+                                    $request = 'return db.chat_groups.update({"_id" :ObjectId("'.$groupId.'") }, {$push : {members:"'.$userId.'"}})';
                                     $db = Library::getMongo();
                                     $result =  $db->execute($request);
                                     if($result['ok'] == 0) {
                                         Library::logging('error',"API : joinChatGroup, error_msg: ".$result['errmsg']." ".": user_id : ".$userId);
+                                        Library::output(false, '0', JAXL_ERR_JOIN_MUC, null);
                                     }
                                     
                                     Library::output(true, '1', JAXL_MUC_JOINED, null);
@@ -262,7 +291,7 @@ class GroupsController
                 $_SESSION["client"]         = $client;
                 $_SESSION["roomFullJid"]    = $roomFullJid;
                 $_SESSION["chatGroupID"]    = $chatGroupID;
-                $_SESSION["groupId"]        = $group["id"];
+                $_SESSION["groupId"]        = $groupId;
                 $_SESSION["userId"]         = $header_data['id'];
                 $client->start();
                 /******* code for subscribe(add) user end **************************************/

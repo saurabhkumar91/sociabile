@@ -141,10 +141,10 @@ $app->post('/addGroup', function () use ( $app ) {
     $group->addGroupAction($header_data,$app->request->getPost());
 });
 
-$app->get('/createChatGroup/{groupName}', function ($groupName) use ( $app ) {
+$app->post('/createChatGroup', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $group = new GroupsController();
-    $group->createChatGroupAction( $header_data, $groupName );
+    $group->createChatGroupAction( $header_data, $app->request->getPost() );
 });
 $app->post('/joinChatGroup', function () use ( $app ) {
     $header_data = Library::getallheaders();
