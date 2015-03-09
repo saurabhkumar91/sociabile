@@ -150,7 +150,8 @@ class PostsController
                         $result[$postId]["user_id"]             = $friendId;
                         $result[$postId]["user_name"]           = $friend["name"];
                         $result[$postId]["user_profile_image"]  = FORM_ACTION.$friend["profile_image"];
-                        $result[$postId]["text"]                = $postDetail["text"];
+                        $result[$postId]["text"]                = ($postDetail["type"]=="1") ? $postDetail["text"] : '';
+                        $result[$postId]["image"]               = ($postDetail["type"]=="2") ? $postDetail["text"] : '';
                         $result[$postId]["date"]                = $postDetail["date"];
                         $result[$postId]["likes"]               = $postDetail["likes"];
                         $result[$postId]["dislikes"]            = $postDetail["dislikes"];
@@ -159,17 +160,20 @@ class PostsController
                         $result[$postId]["is_disliked"]         = $isDisliked;
                         $result[$postId]["post_type"]           = $postDetail["type"]; // type| 1 for text posts, 2 for images ,3 for group of images
                         $result[$postId]["multiple"]            = 0;
-                        if( is_array($postDetail["text"]) ){
-                            $postGroups[$postId] = $postDetail["text"];
-                            $result[$postId]["multiple"]        = 1; // type| 3 for group of images
+                        if( is_array($postDetail["image"]) ){
+                            $postGroups[$postId] = $postDetail["image"];
+                            $result[$postId]["multiple"]        = 1;
+                        }else{
+                            $postDetail["image"]    = array( $postDetail["image"] );
                         }
                     }
                 }
+                // for multiplpe image posts
                 foreach( $postGroups As $postId=>$postGroup ){
-                    $result[$postId]["text"]    = array();
+                    $result[$postId]["image"]   = array();
                     foreach( $postGroup as $childPost ){
                         if( isset($result[$childPost]) ){
-                            $result[$postId]["text"][]  = $result[$childPost];
+                            $result[$postId]["image"][]  = $result[$childPost];
                             unset( $result[$childPost] );
                         }
                     }
