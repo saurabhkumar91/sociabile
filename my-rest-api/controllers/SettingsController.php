@@ -676,15 +676,15 @@ class SettingsController
                                     if( !empty($post->disliked_by) && in_array( $header_data['id'], $post->disliked_by) ){
                                         $isDisliked = true;
                                     }
-                                    $user_post[$i]['post_id']           = (string)$post->_id;
-                                    $user_post[$i]['user_name']         = $post->username;
-                                    $user_post[$i]['text']              = $post->text;
-                                    $user_post[$i]['total_comments']    = $post->total_comments;
-                                    $user_post[$i]['likes']             = $post->likes;
-                                    $user_post[$i]['dislikes']          = $post->dislikes;
-                                    $user_post[$i]['is_liked']          = $isLiked;
-                                    $user_post[$i]['is_disliked']       = $isDisliked;
-                                    $user_post[$i]['date']              = $post->date;
+                                    $user_post[$i]['post_id']               = (string)$post->_id;
+                                    $user_post[$i]['user_name']             = $post->username;
+                                    $user_post[$i]['post_text']             = $post->text;
+                                    $user_post[$i]['post_comment_count']    = $post->total_comments;
+                                    $user_post[$i]['post_like_count']       = $post->likes;
+                                    $user_post[$i]['post_dislike_count']    = $post->dislikes;
+                                    $user_post[$i]['is_liked']              = $isLiked;
+                                    $user_post[$i]['is_disliked']           = $isDisliked;
+                                    $user_post[$i]['post_timestamp']        = $post->date;
                                     $i++;
                                 }
                             }
