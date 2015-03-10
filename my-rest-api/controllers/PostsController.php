@@ -151,7 +151,7 @@ class PostsController
                         $result[$postId]["user_name"]           = $friend["name"];
                         $result[$postId]["user_profile_image"]  = FORM_ACTION.$friend["profile_image"];
                         $result[$postId]["text"]                = ($postDetail["type"]=="1") ? $postDetail["text"] : '';
-                        $result[$postId]["image"]               = ($postDetail["type"]=="2") ? $postDetail["text"] : '';
+                        //$result[$postId]["image"]               = ($postDetail["type"]=="2") ? $postDetail["text"] : '';
                         $result[$postId]["date"]                = $postDetail["date"];
                         $result[$postId]["likes"]               = $postDetail["likes"];
                         $result[$postId]["dislikes"]            = $postDetail["dislikes"];
@@ -164,7 +164,11 @@ class PostsController
                             $postGroups[$postId] = $postDetail["text"];
                             $result[$postId]["multiple"]        = 1;
                         }else{
-                            $result[$postId]["image"]    =  $result[$postId];
+                            if( $postDetail["type"] == 2 ){
+                                $result[$postId]["image"]    =  $result[$postId];
+                            }else{
+                                $result[$postId]["image"]   = array();
+                            }
                         }
                     }
                 }
