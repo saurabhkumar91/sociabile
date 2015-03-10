@@ -798,20 +798,26 @@ class UsersController
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
-                $user = Users::findById($header_data['id']);
-                $user->username = $post_data['username'];
-                $user->birthday = $post_data['birthday'];
-                $user->gender = $post_data['gender'];
-                $user->hobbies = $post_data['hobbies'];
-                $user->about_me = $post_data['about_me'];
-                if ($user->save() == false) {
-                    foreach ($user->getMessages() as $message) {
-                        $errors[] = $message->getMessage();
+                require 'components/S3.php';
+                $s3         = new S3(AUTHKEY, SECRETKEY);
+                $bucketName = S3BUCKET;
+                $uploadFile = $post_data['image'];
+                if ($s3->putObjectFile($uploadFile, $bucketName, baseName($uploadFile), S3::ACL_PUBLIC_READ)) {
+                    $user = Users::findById($id);
+                    $user->profile_image = $image_name;
+                    if ($user->save() == false) {
+                        foreach ($user->getMessages() as $message) {
+                            $errors[] = $message->getMessage();
+                        }
+                        Library::logging('error',"API : getStatus amazon controller : ".$errors." : user_id : ".$id);
+                        Library::output(false, '0', $errors, null);
+                    } else {
+                        $result['profile_image'] = FORM_ACTION.$image_name;
+                        Library::output(true, '1', USER_PROFILE_IMAGE, $result);
                     }
-                    Library::logging('error',"API : setProfileImage : ".$errors." : user_id : ".$header_data['id']);
-                    Library::output(false, '0', $errors, null);
-                } else {
-                    Library::output(true, '1', USER_PROFILE, null);
+                }else{
+                    Library::logging('error',"API : setProfileImage : ".$e." ".": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
                 }
             } catch (Exception $e) {
                 Library::logging('error',"API : setProfileImage : ".$e." ".": user_id : ".$header_data['id']);
