@@ -164,7 +164,7 @@ class PostsController
                             $postGroups[$postId] = $postDetail["text"];
                             $result[$postId]["multiple"]        = 1;
                         }else{
-                            $result[$postId]["image"]    = array( $result["image"] );
+                            $result[$postId]["image"]    = array( $result[$postId]["image"] );
                         }
                     }
                 }

@@ -793,8 +793,8 @@ class UsersController
     
      public function setProfileImageAction($header_data,$post_data)
      { 
-        if( !isset($post_data['username']) || !isset($post_data['birthday']) || !isset($post_data['gender']) || !isset($post_data['hobbies']) || !isset($post_data['about_me'])) {
-            Library::logging('alert',"API : setProfile : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+        if( empty($post_data['image']) ) {
+            Library::logging('alert',"API : setProfileImage : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
@@ -808,13 +808,13 @@ class UsersController
                     foreach ($user->getMessages() as $message) {
                         $errors[] = $message->getMessage();
                     }
-                    Library::logging('error',"API : setProfile : ".$errors." : user_id : ".$header_data['id']);
+                    Library::logging('error',"API : setProfileImage : ".$errors." : user_id : ".$header_data['id']);
                     Library::output(false, '0', $errors, null);
                 } else {
                     Library::output(true, '1', USER_PROFILE, null);
                 }
             } catch (Exception $e) {
-                Library::logging('error',"API : setProfile : ".$e." ".": user_id : ".$header_data['id']);
+                Library::logging('error',"API : setProfileImage : ".$e." ".": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_REQUEST, null);
             }  
         }
