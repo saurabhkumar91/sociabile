@@ -165,7 +165,7 @@ class PostsController
                             $result[$postId]["multiple"]        = 1;
                         }else{
                             if( $postDetail["type"] == 2 ){
-                                $result[$postId]["image"]    =  $result[$postId];
+                                $result[$postId]["image"]    =  array($result[$postId]);
                             }else{
                                 $result[$postId]["image"]   = array();
                             }
