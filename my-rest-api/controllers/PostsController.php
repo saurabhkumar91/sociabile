@@ -160,11 +160,11 @@ class PostsController
                         $result[$postId]["is_disliked"]         = $isDisliked;
                         $result[$postId]["post_type"]           = $postDetail["type"]; // type| 1 for text posts, 2 for images ,3 for group of images
                         $result[$postId]["multiple"]            = 0;
-                        if( is_array($postDetail["image"]) ){
-                            $postGroups[$postId] = $postDetail["image"];
+                        if( is_array($postDetail["text"]) ){
+                            $postGroups[$postId] = $postDetail["text"];
                             $result[$postId]["multiple"]        = 1;
                         }else{
-                            $postDetail["image"]    = array( $postDetail["image"] );
+                            $result["image"]    = array( $result["image"] );
                         }
                     }
                 }

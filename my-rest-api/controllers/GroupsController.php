@@ -91,9 +91,12 @@ class GroupsController
     public function createChatGroupAction( $header_data, $post_data )
     {
         try{
-                if(empty($post_data["groupname"])){
-                    Library::logging('error',"API : createChatGroup : invalid parameters recieved(group name): user_id : ".$header_data['id']);
+                if(empty($post_data["groupname"]) || empty($post_data["members"]) ){
+                    Library::logging('error',"API : createChatGroup : invalid parameters recieved : user_id : ".$header_data['id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
+                }
+                if($header_data['os'] == 1) {
+                    $post_data["members"] =  json_decode($post_data["members"]);
                 }
                 $groupname  = $post_data["groupname"];
                 $user       = Users::findById($header_data['id']);
