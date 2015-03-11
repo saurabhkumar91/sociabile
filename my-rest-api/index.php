@@ -53,6 +53,12 @@ $app->post('/setProfileImage', function () use ( $app ) {
     $user->setProfileImageAction($header_data,$app->request->getPost());
 });
 
+$app->get('/deleteProfileImage', function () {
+    $header_data = Library::getallheaders();
+    $user = new UsersController();
+    $user->deleteProfileImageAction($header_data);
+});
+
 $app->put('/setContextIndicator/{context}', function ($context) use ( $app ) {
     $header_data = Library::getallheaders();
     $user = new UsersController();

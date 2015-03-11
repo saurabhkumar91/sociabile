@@ -858,6 +858,37 @@ class UsersController
             }  
         }
      }
+    
+     public function deleteProfileImageAction( $header_data )
+     { 
+        try {
+                $user = Users::findById($header_data['id']);
+                if($user->profile_image    == DEFAULT_PROFILE_IMAGE){
+                    Library::logging('error',"API : deleteProfileImage amazon controller : ".NO_PROFILE_IMAGE." : user_id : ".$header_data['id']);
+                    Library::output(false, '0', NO_PROFILE_IMAGE, null);
+                }
+                require 'components/S3.php';
+                $s3         = new S3(AUTHKEY, SECRETKEY);
+                $bucketName = S3BUCKET;
+                if ( ! $s3->deleteObject($bucketName, $user->profile_image) ) {
+                    Library::logging('error',"API : deleteProfileImage : PROFILE IMAGE's FILE NOT DELETED FROM S3 Server : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
+                    Library::output(false, '0', PROFILE_IMAGE_NOT_DELETED, null);
+                }
+                $user->profile_image = DEFAULT_PROFILE_IMAGE;
+                if ($user->save() == false) {
+                    foreach ($user->getMessages() as $message) {
+                        $errors[] = $message->getMessage();
+                    }
+                    Library::logging('error',"API : deleteProfileImage amazon controller : ".$errors." : user_id : ".$header_data['id']);
+                    Library::output(false, '0', $errors, null);
+                }
+                Library::output(true, '1', PROFILE_IMAGE_DELETED, null );
+
+        } catch (Exception $e) {
+            Library::logging('error',"API : deleteProfileImage : ".$e." ".": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }  
+     }
      
   
 }

@@ -10,7 +10,7 @@ define('CONTACTS_SAVED', 'All The Contacts Has Been Saved Successfully.');
 define('USER_NAME_SAVED', 'User Name Saved Successfully.');
 define('HEADER_INFO', 'Missing Header Information.');
 define('USER_PROFILE', 'Profile Saved Successfully.');
-define('USER_PROFILE_IMAGE', 'Profile Image Saved Successfully.');
+define('USER_PROFILE_IMAGE', 'Profile Image Changed Successfully.');
 define('CONTEXT_INDICATOR', 'Context Indicator Set Successfully.');
 define('USER_REQUEST_SENT', 'Request Sent Successfully.');
 define('REQUEST_TO_SELF', 'You Can Not Send Request To Yourself.');
@@ -35,6 +35,9 @@ define('DEFAULT_IMAGE', 'http://www.gettyimages.in/CMS/StaticContent/13910991264
 define('DEFAULT_PROFILE_IMAGE', 'profiles/default.png');
 define('USER_LOGIN', 'User Successfully Login.');
 define('INVALID_LOGIN', 'User Id or Password is Incorrect.');
+define('NO_PROFILE_IMAGE', 'You did not set your profile image yet.');
+define('PROFILE_IMAGE_NOT_DELETED', 'Your profile image could not be deleted now. Please Try again later.');
+define('PROFILE_IMAGE_DELETED', 'Your profile image has been deleted successfully.');
 
 
 // otp relaed messages
