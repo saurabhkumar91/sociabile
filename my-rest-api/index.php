@@ -47,6 +47,12 @@ $app->post('/setProfile', function () use ( $app ) {
     $user->setProfileAction($header_data,$app->request->getPost());
 });
 
+$app->post('/setProfileImage', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $user = new UsersController();
+    $user->setProfileImageAction($header_data,$app->request->getPost());
+});
+
 $app->put('/setContextIndicator/{context}', function ($context) use ( $app ) {
     $header_data = Library::getallheaders();
     $user = new UsersController();
