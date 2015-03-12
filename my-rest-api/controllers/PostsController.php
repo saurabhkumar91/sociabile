@@ -347,12 +347,21 @@ class PostsController
 
     function deletePost( $postId ) {
         $db     = Library::getMongo();
-        $res    = $db->execute('db.posts.remove({"_id" : ObjectId("'.$postId.'")})');
+        $res    = $db->execute('return db.posts.remove({"_id" : ObjectId("'.$postId.'")})');
         if( empty($res['retval']["nRemoved"]) ) {
             Library::logging('error',"API : deletePost, mongodb error: ".$res['errmsg']." : post_id : ".$postId);
             Library::output(false, '0', POST_NOT_DELETED, null);
         }
 
+    }
+    
+    function deleteSharedPost( $imageName ){
+        $db     = Library::getMongo();
+        $res    = $db->execute('return db.posts.remove( {text:"'.$imageName.'", type:3} )');
+        if( $res["ok"] == 0 ) {
+            Library::logging('error',"API : deletePost, mongodb error: ".$res['errmsg']." : shared_image : ".$imageName);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
     }
     
     public function deletePostAction( $header_data, $post_data ){
@@ -368,7 +377,11 @@ class PostsController
                         Library::logging('error',"API : deletePost : ".POST_DELETE_AUTH_ERR." : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
                         Library::output(false, '0', POST_DELETE_AUTH_ERR, null);
                     }
-                    if($post->type == 2){
+                    if( !in_array($post->type, array("1", "2")) ){
+                        Library::logging('error',"API : deletePost : shared post can not be deleted : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
+                        Library::output(false, '0', "Shared post can not be deleted", null);
+                    }
+                    if($post->type == 2 ){
                         require 'components/S3.php';
                         $s3         = new S3(AUTHKEY, SECRETKEY);
                         $bucketName = S3BUCKET;
@@ -385,6 +398,9 @@ class PostsController
                                         Library::output(false, '0', POST_NOT_DELETED, null);
                                     }
                                     $this->deletePost( (string)$postDetail['_id'] );
+                                    
+                                    // if this image was shared then delete shared posts 
+                                    $this->deleteSharedPost( $postDetail["text"] );
                                 }
                             }
                         }else{
@@ -392,6 +408,8 @@ class PostsController
                                 Library::logging('error',"API : deletePost : POST's FILE NOT DELETED FROM S3 Server : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
                                 Library::output(false, '0', POST_NOT_DELETED, null);
                             }
+                            // if this image was shared then delete shared posts 
+                            $this->deleteSharedPost( $post->text );
                         }
                     }
                     $this->deletePost($post_data['post_id']);
