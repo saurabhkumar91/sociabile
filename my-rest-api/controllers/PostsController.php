@@ -377,9 +377,21 @@ class PostsController
                         Library::logging('error',"API : deletePost : ".POST_DELETE_AUTH_ERR." : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
                         Library::output(false, '0', POST_DELETE_AUTH_ERR, null);
                     }
-                    if( !in_array($post->type, array("1", "2")) ){
-                        Library::logging('error',"API : deletePost : shared post can not be deleted : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
-                        Library::output(false, '0', "Shared post can not be deleted", null);
+                    if($post->type == 3 ){
+                        $res    = $db->execute('return db.posts.find( {text:"'.$post->text.'" } ).toArray()');
+                        if( $res["ok"] == 0 ) {
+                            Library::logging('error',"API : deletePost, mongodb error: ".$res['errmsg']." : user_id : ".$header_data['id']);
+                            Library::output(false, '0', ERROR_REQUEST, null);
+                        }
+                        if( count($res["retval"]) == 1 ){
+                            require 'components/S3.php';
+                            $s3         = new S3(AUTHKEY, SECRETKEY);
+                            $bucketName = S3BUCKET;
+                            if ( ! $s3->deleteObject($bucketName, $post->text) ) {
+                                Library::logging('error',"API : deletePost : POST's FILE NOT DELETED FROM S3 Server : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
+                                Library::output(false, '0', POST_NOT_DELETED, null);
+                            }
+                        }
                     }
                     if($post->type == 2 ){
                         require 'components/S3.php';
