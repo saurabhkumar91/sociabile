@@ -88,8 +88,8 @@ define('ACL','public-read');
 define('TOKEN_EXP_DURATION','58');  //seconds
 
 // jaxl constants
-//define('JAXL_HOST_NAME','192.168.0.37');
-define('JAXL_HOST_NAME','kelltontech.biz');
+define('JAXL_HOST_NAME','192.168.0.37');
+//define('JAXL_HOST_NAME','kelltontech.biz');
 define('JAXL_REG_FAILED', "User's Registration On Chat Server Failed"); 
 define('JAXL_DISCONNECTED', "Chat Server Connection Interrupted"); 
 define('JAXL_AUTH_FAILURE', "Invalid User Credentials For Chat Server"); 
@@ -99,4 +99,5 @@ define('JAXL_MUC_JOINED', "User Successfully Joined the Chat Group");
 define('JAXL_MUC_EXISTS', "Chat Group With This Name Already Exists"); 
 define('JAXL_ERR_CREATE_MUC', "Some Error Occurred While Creating the Chat Group"); 
 define('JAXL_MUC_CREATED', "Chat Group Successfully Created and Joined By User"); 
+define('JAXL_NOT_A_MUC_MEMBER', "You are not a member of this group."); 
 define('JAXL_NO_MUC_MEMBER', "Atleast one member should be selected."); 
