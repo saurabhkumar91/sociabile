@@ -890,5 +890,8 @@ class UsersController
         }  
      }
      
+     public function removeUserAction( $header_data )
+     { 
+     }
   
 }

@@ -99,6 +99,26 @@ class XEP_0045 extends XMPPXep {
 		$this->jaxl->send($pkt);
 	}
 	
+        
+        public function setRoomConfig( $room_full_jid, $fields, $callback=false) {
+            $query = new JAXLXml('query', "http://jabber.org/protocol/muc#owner");
+            $x      = $query->c("x", "jabber:x:data", array("type"=>"submit"), null);  
+            $field  = $x->c("field", null, array("var"=>"FORM_TYPE"), null);  
+            $field->c("value", null, array(), "http://jabber.org/protocol/muc#roomconfig")->up()->up();  
+            
+            $field  = $x->c("field", null, array("var"=>$fields["var"]), null);  
+            $field->c("value", null, array(), $fields["value"]);  
+            $pkt        = $this->jaxl->get_iq_pkt(
+                                array('type'=>'set', 'from'=>$this->jaxl->full_jid->to_string(), 'to'=>(($room_full_jid instanceof XMPPJid) ? $room_full_jid->to_string() : $room_full_jid)),
+                                $query	
+                        );
+            if($callback){
+                $this->jaxl->add_cb('on_stanza_id_'.$pkt->id, $callback);
+            }
+            $this->jaxl->send($pkt);
+//            return XMPPSend::iq($jaxl, "set", $payload, $roomJid, $jid, $callback);
+        }
+        
 	//
 	// api methods (moderator use case)
 	//
