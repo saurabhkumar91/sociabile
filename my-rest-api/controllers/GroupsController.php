@@ -437,5 +437,49 @@ class GroupsController
         }
         
     }
+    
+    public function getChatGroupsAction( $header_data )
+    {
+        try{
+            $request    = 'return db.chat_groups.find( {"members.member_id":"'.$header_data['id'].'" }).toArray()';
+            $db         = Library::getMongo();
+            $chatGroups = $db->execute($request);
+            if( $chatGroups['ok'] == 0 ) {
+                Library::logging('error',"API : getChatGroups, error_msg: ".$chatGroups['errmsg']." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+            $result = array();
+            foreach( $chatGroups["retval"] AS $chatGroup ){
+                $members        = array();
+                $membersCount   = 0;
+                foreach( $chatGroup["members"] AS $member ){
+                    $request    = 'return db.users.find( {"_id" : ObjectId("'.$member["member_id"].'") }, {mobile_no:1,username:1} ).toArray()';
+                    $user       =  $db->execute($request);
+                    if($user['ok'] == 0) {
+                        Library::logging('error',"API : getChatGroups, error_msg: ".$user['errmsg']." ".": user_id : ".$header_data['id']);
+                        Library::output(false, '0', ERROR_REQUEST, null);
+                    }
+                    if( $user["retval"] ){
+                        $members[$membersCount]["mobile_no"]    = $user["retval"][0]["mobile_no"];
+                        $members[$membersCount]["username"]     = $user["retval"][0]["username"];
+                        $members[$membersCount]["member_id"]    = $member["member_id"];
+                        $membersCount++;
+                    }
+                }
+                $result[]   = array(
+                                    "id"            => (string)$chatGroup["_id"], 
+                                    "group_name"    => $chatGroup["group_name"], 
+                                    "group_jid"     => $chatGroup["group_jid"], 
+                                    "admin_id"      => $chatGroup["admin_id"],
+                                    "members"       => $members
+                                );
+            }
+            Library::output(true, '1', "No Error", $result);
+        } catch(Exception $e) {
+            Library::logging('error',"API : getChatGroups : ".$e." ".": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+        
+    }
 }
 ?>

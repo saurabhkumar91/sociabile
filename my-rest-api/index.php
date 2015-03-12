@@ -164,6 +164,12 @@ $app->post('/joinChatGroup', function () use ( $app ) {
     $group->joinChatGroupAction( $header_data, $app->request->getPost() );
 });
 
+$app->get('/getChatGroups', function () {
+    $header_data = Library::getallheaders();
+    $group = new GroupsController();
+    $group->getChatGroupsAction( $header_data );
+});
+
 $app->post('/sendRequest', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $friends = new FriendsController();
