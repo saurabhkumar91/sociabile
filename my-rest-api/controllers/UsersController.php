@@ -138,7 +138,7 @@ class UsersController
     
     public function generateTokenAction($header_data,$data)
     {    
-        if(!isset($data['device_id']) && !isset($data['device_token']) ) {
+        if( !isset($data['device_id']) ) {
             Library::logging('alert',"API : generateToken : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
@@ -153,7 +153,6 @@ class UsersController
                     $hash = KEY.'-'.$device_id;
                     $hash = $security->hash($hash);   
                     $user->hash         = $hash;
-                    $user->device_token = $data['device_token']; // token used to send push notification to device
                     $user->save();
 
                     $result['token'] = $hash;
@@ -225,6 +224,40 @@ class UsersController
                 Library::logging('error',"API : codeVerification : ".$e." ".": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_REQUEST, null);
             }
+        }
+    }
+    
+    /**
+     * Method to set device token (token used to send push notification to device)
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Saurabh Kumar
+     * @return json
+     */
+    
+    public function setDeviceTokenAction($header_data,$data)
+    {
+       if( !isset($data['device_token']) ) {
+            Library::logging('alert',"API : setDeviceToken : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        }
+        try{
+            $user = Users::findById($header_data['id']);
+            $user->device_token = $data['device_token']; // token used to send push notification to device
+            if( $user->save() ){
+                Library::output(true, '1', DEVICE_TOKEN_UPDATED, null );
+            }else{
+               foreach ($user->getMessages() as $message) {
+                   $errors[] = $message->getMessage();
+               }
+               Library::logging('error',"API : setDeviceToken : ".$errors." : user_id : ".$header_data['id']);
+               Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        } catch (Exception $e) {
+            Library::logging('error',"API : setDeviceToken : ".$e." ".": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
         }
     }
     

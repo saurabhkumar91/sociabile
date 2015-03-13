@@ -18,6 +18,12 @@ $app->post('/codeVerification', function () use ( $app ) {
     $user->codeVerificationAction($header_data,$app->request->getPost());
 }); 
 
+$app->post('/setDeviceToken', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $user = new UsersController();
+    $user->setDeviceTokenAction($header_data,$app->request->getPost());
+}); 
+
 $app->post('/sendContacts', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $user = new UsersController();
