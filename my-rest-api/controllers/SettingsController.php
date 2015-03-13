@@ -951,7 +951,8 @@ class SettingsController
         }
     }
 
-    function sendNotifications1( $deviceToken, $message, $os ){
+    function sendNotifications( $deviceToken, $message, $os ){
+        // prep the bundle
         if($os=='ios'){
             $passphrase = '123456'; 
             $file_path = dirname(__FILE__).'/certificates/OxyFryerFinalProd.pem';
@@ -970,6 +971,7 @@ class SettingsController
                 );
             }
             foreach($deviceToken as $token){
+                $err    = $errstr   = '';
                 $fp = stream_socket_client('ssl://gateway.push.apple.com:2195', $err, $errstr, 120, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT, $ctx);
                 if(!$fp){
                     print "Failed to connect $err $errstr\n";
@@ -987,22 +989,24 @@ class SettingsController
                 fclose($fp);
             }
         }elseif($os=='android'){ 
-            $registrationIds    = $deviceToken;
+            if( !is_array($deviceToken) ){
+                $deviceToken    = array( $deviceToken );
+            }
             $msg = array
             (
-                    'message' 	=> 'here is a message. message',
-                    'title'		=> 'This is a title. title',
+                    'message' 	=> $message["message"],
+                    'title'	=> 'This is a title. title',
                     'subtitle'	=> 'This is a subtitle. subtitle',
-                    'tickerText'	=> 'Ticker text here...Ticker text here...Ticker text here',
+                    'tickerText'=> 'Ticker text here...Ticker text here...Ticker text here',
                     'vibrate'	=> 1,
-                    'sound'		=> 1,
+                    'sound'	=> 1,
                     'largeIcon'	=> 'large_icon',
                     'smallIcon'	=> 'small_icon'
             );
             $fields = array
             (
-                    'registration_ids' 	=> $registrationIds,
-                    'data'			=> $msg
+                    'registration_ids' 	=> $deviceToken,
+                    'data'		=> $msg
             );
             $headers = array
             (
@@ -1021,46 +1025,6 @@ class SettingsController
             curl_close( $ch );
             echo $result;    
         }
-    }
-    
-
-    function sendNotifications( $registrationIds ){
-        // prep the bundle
-        if( !is_array($registrationIds) ){
-            $registrationIds    = array( $registrationIds );
-        }
-        $msg = array
-        (
-                'message' 	=> 'here is a message. message',
-                'title'		=> 'This is a title. title',
-                'subtitle'	=> 'This is a subtitle. subtitle',
-                'tickerText'	=> 'Ticker text here...Ticker text here...Ticker text here',
-                'vibrate'	=> 1,
-                'sound'		=> 1,
-                'largeIcon'	=> 'large_icon',
-                'smallIcon'	=> 'small_icon'
-        );
-        $fields = array
-        (
-                'registration_ids' 	=> $registrationIds,
-                'data'			=> $msg
-        );
-        $headers = array
-        (
-                'Authorization: key=' . GCM_API_ACCESS_KEY,
-                'Content-Type: application/json'
-        );
-
-        $ch = curl_init();
-        curl_setopt( $ch,CURLOPT_URL, 'https://android.googleapis.com/gcm/send' );
-        curl_setopt( $ch,CURLOPT_POST, true );
-        curl_setopt( $ch,CURLOPT_HTTPHEADER, $headers );
-        curl_setopt( $ch,CURLOPT_RETURNTRANSFER, true );
-        curl_setopt( $ch,CURLOPT_SSL_VERIFYPEER, false );
-        curl_setopt( $ch,CURLOPT_POSTFIELDS, json_encode( $fields ) );
-        $result = curl_exec($ch );
-        curl_close( $ch );
-        echo $result;    
     }
     
 }
