@@ -101,3 +101,7 @@ define('JAXL_ERR_CREATE_MUC', "Some Error Occurred While Creating the Chat Group
 define('JAXL_MUC_CREATED', "Chat Group Successfully Created and Joined By User"); 
 define('JAXL_NOT_A_MUC_MEMBER', "You are not a member of this group."); 
 define('JAXL_NO_MUC_MEMBER', "Atleast one member should be selected."); 
+define('JAXL_MUC_ADD_MEMBERS_AUTH_ERROR', "You are not authorized to add memebers to this group."); 
+define('JAXL_MUC_MEMBERS_ADDED', "Members successfully added to group."); 
+
+define( 'GCM_API_ACCESS_KEY', 'AIzaSyCx1n3N4CEOB7YPHrpaRJSVvsg0FK3wDhM' );

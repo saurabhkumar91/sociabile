@@ -98,7 +98,7 @@ class GroupsController
                 if($header_data['os'] == 1) {
                     $post_data["members"] =  json_decode($post_data["members"]);
                 }
-                $members    = array( array("member_id"=>$header_data['id'], "is_active"=>1) );
+                $members    = array( $header_data['id'] => array("member_id"=>$header_data['id'], "is_active"=>1) );
                 $db         = Library::getMongo();
                 foreach($post_data["members"] AS $member){
                     if( $member == $header_data['id'] ){
@@ -110,7 +110,7 @@ class GroupsController
                         Library::logging('error',"API : createChatGroup : Invalid group member($member) : user_id : ".$header_data['id']);
                         Library::output(false, '0', "Invalid group member", null);
                     }
-                    $members[]   = array("member_id"=>(string)$result['retval'][0]["_id"], "is_active"=>0);
+                    $members[ $header_data['id'] ]  = array("member_id"=>(string)$result['retval'][0]["_id"], "is_active"=>0);
                 }
                 if( count($members) < 2 ){
                         Library::logging('error',"API : createChatGroup : No member in group : user_id : ".$header_data['id']);
@@ -211,7 +211,7 @@ class GroupsController
                 $_SESSION["roomFullJid"]    = $roomFullJid;
                 $_SESSION["chatGroupID"]    = $chatGroupID;
                 $_SESSION["userId"]         = $header_data['id'];
-                $_SESSION["members"]        = $members;
+                $_SESSION["members"]        = array_values($members);
                 $_SESSION["groupName"]      = $groupname;
                 
                 $client->start();
@@ -233,98 +233,65 @@ class GroupsController
      * @return json
      */
     
-    public function addMemberInChatGroupAction( $header_data, $post_data )
+    public function addMembersInChatGroupAction( $header_data, $post_data )
     {
         try{
-                if(empty($post_data["group_id"])){
-                    Library::logging('error',"API : joinChatGroup : invalid parameters recieved(group name): user_id : ".$header_data['id']);
-                    Library::output(false, '0', ERROR_REQUEST, null);
+            if(empty($post_data["group_id"]) || empty($post_data["members"]) ){
+                Library::logging('error',"API : addMembersInChatGroup : invalid parameters recieved : user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+            if($header_data['os'] == 1) {
+                $post_data["members"] =  json_decode($post_data["members"]);
+            }
+            $group_id  = $post_data["group_id"];
+            $chatGroup  = ChatGroups::findById( $group_id );
+            if( !$chatGroup ){
+                Library::logging('error',"API : createChatGroup : invalid parameters recieved(group name): user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+            if( $chatGroup->admin_id != $header_data['id'] ){
+                Library::logging('error',"API : createChatGroup : ".JAXL_MUC_ADD_MEMBERS_AUTH_ERROR.": user_id : ".$header_data['id']);
+                Library::output(false, '0', JAXL_MUC_ADD_MEMBERS_AUTH_ERROR, null);
+            }
+            if( !is_array($post_data["members"]) || count($post_data["members"]) == 0 ){
+                    Library::logging('error',"API : createChatGroup : No member to add in group : user_id : ".$header_data['id']);
+                    Library::output(false, '0', JAXL_NO_MUC_MEMBER, null);
+            }
+            $members    = array();
+            $db         = Library::getMongo();
+            foreach($post_data["members"] AS $member){
+                if( $member == $header_data['id'] ){
+                    continue;
                 }
-                $groupId    = $post_data["group_id"];
-                $chatGroup  = ChatGroups::findById($groupId);
-                if( !$chatGroup ){
-                    Library::logging('error',"API : joinChatGroup : invalid parameters recieved(group name): user_id : ".$header_data['id']);
-                    Library::output(false, '0', ERROR_REQUEST, null);
-                }
-                $user       = Users::findById($header_data['id']);
-                require 'components/JAXL3/jaxl.php';
-                $client = new JAXL(array(
-                    'jid' => $user->jaxl_id,
-                    'pass' => $user->jaxl_password,
-                    'log_level' => JAXL_DEBUG
-                ));
-                $client->require_xep(array(
-                        '0045',     // group chat
-                        '0030'      // discover
-                ));
-                $chatGroupID    = $chatGroup->group_jid;
-                $roomFullJid    = new XMPPJid( $chatGroupID. "/" .$user->mobile_no );
-                
-                $client->add_cb('on_auth_success', function() {
-                    $client         = $_SESSION["client"];
-                    $chatGroupID    = $_SESSION["chatGroupID"];
-                    $client->xeps['0030']->get_items($chatGroupID, function($stanza){
-                            $chatGroupID    = $_SESSION["chatGroupID"];
-                            $userId = $_SESSION["userId"];
-                            if( count($stanza->childrens) == 1 ){
-                                $client     = $_SESSION["client"];
-                                $roomJid    = $_SESSION["roomFullJid"];
-                                $client->xeps['0045']->join_room($roomJid);
-                            }else{
-                                Library::logging('error',"API : joinChatGroup : ".JAXL_MUC_NOT_FOUND." : user_id : ".$userId." : chat_group_id : ".$chatGroupID);
-                                Library::output(false, '0', JAXL_MUC_NOT_FOUND, null);
-                            }
-                    });
-                });
-                $client->add_cb('on_auth_failure', function() {
-                    $userId = $_SESSION["userId"];
-                    Library::logging('error',"API : joinChatGroup : ".JAXL_AUTH_FAILURE." : user_id : ".$userId);
-                    Library::output(false, '0', JAXL_AUTH_FAILURE, null);
-                });
-                
-                $client->add_cb('on_presence_stanza', function($stanza) {
-                    $roomJid    = $_SESSION["roomFullJid"];
-                    $userId     = $_SESSION["userId"];
-                    $groupId    = $_SESSION["groupId"];
-                    $from = new XMPPJid($stanza->from);
-                    // self-stanza received, we now have complete room roster
-                    if( strtolower($from->to_string()) == strtolower( $roomJid->to_string() ) ) {
-                        if(($x = $stanza->exists('x', NS_MUC.'#user')) !== false) {
-                            if(($status = $x->exists('status', null, array('code'=>'110'))) !== false) {
-                                    $request = 'return db.chat_groups.update({"_id" :ObjectId("'.$groupId.'") }, {$push : {members:"'.$userId.'"}})';
-                                    $db = Library::getMongo();
-                                    $result =  $db->execute($request);
-                                    if($result['ok'] == 0) {
-                                        Library::logging('error',"API : joinChatGroup, error_msg: ".$result['errmsg']." ".": user_id : ".$userId);
-                                        Library::output(false, '0', JAXL_ERR_JOIN_MUC, null);
-                                    }
-                                    
-                                    Library::output(true, '1', JAXL_MUC_JOINED, null);
-                            }
-                            else {
-                                $userId = $_SESSION["userId"];
-                                Library::logging('error',"API : joinChatGroup : ".JAXL_ERR_JOIN_MUC."(user have no x child element) : user_id : ".$userId);
-                                Library::output(false, '0', JAXL_ERR_JOIN_MUC, null);
-                            }
-                        }
-                        else {
-                            Library::logging('error',"API : joinChatGroup : ".JAXL_ERR_JOIN_MUC." : user_id : ".$userId);
-                            Library::output(false, '0', JAXL_ERR_JOIN_MUC, null);
-                        }
+                $memberAlreadyExists    = false;
+                foreach( $chatGroup->members AS $value ){
+                    if( $value["member_id"] == $member ){
+                        $memberAlreadyExists    = true;
+                        break;
                     }
-                });
-            
-                $_SESSION["client"]         = $client;
-                $_SESSION["roomFullJid"]    = $roomFullJid;
-                $_SESSION["chatGroupID"]    = $chatGroupID;
-                $_SESSION["groupId"]        = $groupId;
-                $_SESSION["userId"]         = $header_data['id'];
-                $client->start();
-                /******* code for subscribe(add) user end **************************************/
-                    
-                
+                }
+                if( $memberAlreadyExists ){
+                    continue;
+                }
+                $request    = 'return db.users.find( {"_id" : ObjectId("'.$member.'")}, {"mobile_no":1} ).toArray()';
+                $result =  $db->execute($request);
+                if( empty($result['retval']) ) {
+                    Library::logging('error',"API : addMembersInChatGroup : Invalid group member($member) : user_id : ".$header_data['id']);
+                    Library::output(false, '0', "Invalid group member", null);
+                }
+                $members[$member]   = array("member_id"=>$member, "is_active"=>0);
+            }
+            $chatGroup->members = array_merge( array_values($members), $chatGroup->members );
+            if ($chatGroup->save() == false) {
+               foreach ($chatGroup->getMessages() as $message) {
+                   $errors[] = $message->getMessage();
+               }
+               Library::logging('error',"API : createChatGroup : ".$errors." : user_id : ".$header_data['id']);
+               Library::output(false, '0', ERROR_REQUEST, null);
+            }
+            Library::output(true, '1', JAXL_MUC_MEMBERS_ADDED, null);
         } catch(Exception $e) {
-            Library::logging('error',"API : joinChatGroup : ".$e." ".": user_id : ".$header_data['id']);
+            Library::logging('error',"API : createChatGroup : ".$e." ".": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_REQUEST, null);
         }
         

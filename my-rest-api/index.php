@@ -170,6 +170,12 @@ $app->get('/getChatGroups', function () {
     $group->getChatGroupsAction( $header_data );
 });
 
+$app->post('/addMembersInChatGroup', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $group = new GroupsController();
+    $group->addMembersInChatGroupAction( $header_data, $app->request->getPost() );
+});
+
 $app->post('/sendRequest', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $friends = new FriendsController();

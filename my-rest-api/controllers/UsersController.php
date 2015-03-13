@@ -138,7 +138,7 @@ class UsersController
     
     public function generateTokenAction($header_data,$data)
     {    
-        if(!isset($data['device_id'])) {
+        if(!isset($data['device_id']) && !isset($data['device_token']) ) {
             Library::logging('alert',"API : generateToken : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
@@ -152,7 +152,8 @@ class UsersController
                     // generate new hash
                     $hash = KEY.'-'.$device_id;
                     $hash = $security->hash($hash);   
-                    $user->hash = $hash;
+                    $user->hash         = $hash;
+                    $user->device_token = $data['device_token']; // token used to send push notification to device
                     $user->save();
 
                     $result['token'] = $hash;

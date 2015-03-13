@@ -950,6 +950,118 @@ class SettingsController
             
         }
     }
+
+    function sendNotifications1( $deviceToken, $message, $os ){
+        if($os=='ios'){
+            $passphrase = '123456'; 
+            $file_path = dirname(__FILE__).'/certificates/OxyFryerFinalProd.pem';
+            $ctx = stream_context_create();
+            stream_context_set_option($ctx, 'ssl', 'local_cert', $file_path);
+            stream_context_set_option($ctx, 'ssl', 'passphrase', $passphrase);
+            $body["aps"] = array(
+              "alert"=>$message['message'],
+              "apnsType"=>2
+            );
+            if(isset($message['rp_id']) && !empty($message['rp_id']) && ($message['rp_id']!=-1)) {
+                $body["aps"] = array(  
+                  "alert"=>$message['message'],
+                  "apnsType"=>1,
+                  "result" => array("rp_id"=>$message['rp_id'])
+                );
+            }
+            foreach($deviceToken as $token){
+                $fp = stream_socket_client('ssl://gateway.push.apple.com:2195', $err, $errstr, 120, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT, $ctx);
+                if(!$fp){
+                    print "Failed to connect $err $errstr\n";
+                    return;
+                } 
+                $payload = json_encode($body);
+                $token = '';
+                $msg = chr(0) . chr(0) . chr(32) . pack('H*', str_replace(' ', '', $token)) . chr(0) . chr(strlen($payload)) . $payload;
+                $res = fwrite($fp, $msg);
+                if($res != 0 && $res != FALSE){
+                    echo 1;   
+                } else {
+                    echo 0;
+                }
+                fclose($fp);
+            }
+        }elseif($os=='android'){ 
+            $registrationIds    = $deviceToken;
+            $msg = array
+            (
+                    'message' 	=> 'here is a message. message',
+                    'title'		=> 'This is a title. title',
+                    'subtitle'	=> 'This is a subtitle. subtitle',
+                    'tickerText'	=> 'Ticker text here...Ticker text here...Ticker text here',
+                    'vibrate'	=> 1,
+                    'sound'		=> 1,
+                    'largeIcon'	=> 'large_icon',
+                    'smallIcon'	=> 'small_icon'
+            );
+            $fields = array
+            (
+                    'registration_ids' 	=> $registrationIds,
+                    'data'			=> $msg
+            );
+            $headers = array
+            (
+                    'Authorization: key=' . GCM_API_ACCESS_KEY,
+                    'Content-Type: application/json'
+            );
+
+            $ch = curl_init();
+            curl_setopt( $ch,CURLOPT_URL, 'https://android.googleapis.com/gcm/send' );
+            curl_setopt( $ch,CURLOPT_POST, true );
+            curl_setopt( $ch,CURLOPT_HTTPHEADER, $headers );
+            curl_setopt( $ch,CURLOPT_RETURNTRANSFER, true );
+            curl_setopt( $ch,CURLOPT_SSL_VERIFYPEER, false );
+            curl_setopt( $ch,CURLOPT_POSTFIELDS, json_encode( $fields ) );
+            $result = curl_exec($ch );
+            curl_close( $ch );
+            echo $result;    
+        }
+    }
+    
+
+    function sendNotifications( $registrationIds ){
+        // prep the bundle
+        if( !is_array($registrationIds) ){
+            $registrationIds    = array( $registrationIds );
+        }
+        $msg = array
+        (
+                'message' 	=> 'here is a message. message',
+                'title'		=> 'This is a title. title',
+                'subtitle'	=> 'This is a subtitle. subtitle',
+                'tickerText'	=> 'Ticker text here...Ticker text here...Ticker text here',
+                'vibrate'	=> 1,
+                'sound'		=> 1,
+                'largeIcon'	=> 'large_icon',
+                'smallIcon'	=> 'small_icon'
+        );
+        $fields = array
+        (
+                'registration_ids' 	=> $registrationIds,
+                'data'			=> $msg
+        );
+        $headers = array
+        (
+                'Authorization: key=' . GCM_API_ACCESS_KEY,
+                'Content-Type: application/json'
+        );
+
+        $ch = curl_init();
+        curl_setopt( $ch,CURLOPT_URL, 'https://android.googleapis.com/gcm/send' );
+        curl_setopt( $ch,CURLOPT_POST, true );
+        curl_setopt( $ch,CURLOPT_HTTPHEADER, $headers );
+        curl_setopt( $ch,CURLOPT_RETURNTRANSFER, true );
+        curl_setopt( $ch,CURLOPT_SSL_VERIFYPEER, false );
+        curl_setopt( $ch,CURLOPT_POSTFIELDS, json_encode( $fields ) );
+        $result = curl_exec($ch );
+        curl_close( $ch );
+        echo $result;    
+    }
     
 }
 ?>
