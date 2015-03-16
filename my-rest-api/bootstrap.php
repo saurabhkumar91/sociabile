@@ -105,4 +105,9 @@ define('JAXL_NO_MUC_MEMBER', "Atleast one member should be selected.");
 define('JAXL_MUC_ADD_MEMBERS_AUTH_ERROR', "You are not authorized to add memebers to this group."); 
 define('JAXL_MUC_MEMBERS_ADDED', "Members successfully added to group."); 
 
-define( 'GCM_API_ACCESS_KEY', 'AIzaSyCx1n3N4CEOB7YPHrpaRJSVvsg0FK3wDhM' );
+define( 'GCM_API_ACCESS_KEY', 'AIzaSyBFBU3JBafjDBREqBFgn2m_M-FuepLZG8c' );
+define( 'PUSH_NOTIFICATION_FAILED', 'Unable to send notifications.' );
+
+// push notifications types
+define( 'NOTIFY_FRIEND_REQUEST', '1' );
+define( 'NOTIFY_JOIN_GROUP_CHAT', '2' );

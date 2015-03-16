@@ -120,7 +120,7 @@ class UsersController
                 }
             }
         } catch (Exception $e) {
-            Library::logging('error',"API : registration : ".$e." ".$mobile_no);
+            Library::logging('error',"API : registration : ".$e." ".$data['mobile_no']);
             Library::output(false, '0', ERROR_REQUEST, null);
         }
     }
@@ -246,6 +246,7 @@ class UsersController
         try{
             $user = Users::findById($header_data['id']);
             $user->device_token = $data['device_token']; // token used to send push notification to device
+            $user->os           = $header_data["os"];
             if( $user->save() ){
                 Library::output(true, '1', DEVICE_TOKEN_UPDATED, null );
             }else{

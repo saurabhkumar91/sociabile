@@ -952,6 +952,9 @@ class SettingsController
     }
 
     function sendNotifications( $deviceToken, $message, $os ){
+        if( !is_array($deviceToken) ){
+            $deviceToken    = array( $deviceToken );
+        }
         // prep the bundle
         if($os=='ios'){
             $passphrase = '123456'; 
@@ -981,27 +984,16 @@ class SettingsController
                 $token = '';
                 $msg = chr(0) . chr(0) . chr(32) . pack('H*', str_replace(' ', '', $token)) . chr(0) . chr(strlen($payload)) . $payload;
                 $res = fwrite($fp, $msg);
-                if($res != 0 && $res != FALSE){
-                    echo 1;   
-                } else {
-                    echo 0;
-                }
                 fclose($fp);
+                if($res != 0 && $res != FALSE){
+                } else {
+                    Library::logging('error',"API : sendNotifications : Unable to send push notification : message : ".$message["message"]);
+                }
             }
-        }elseif($os=='android'){ 
-            if( !is_array($deviceToken) ){
-                $deviceToken    = array( $deviceToken );
-            }
+        }elseif( $os == 'android' ){
             $msg = array
             (
-                    'message' 	=> $message["message"],
-                    'title'	=> 'This is a title. title',
-                    'subtitle'	=> 'This is a subtitle. subtitle',
-                    'tickerText'=> 'Ticker text here...Ticker text here...Ticker text here',
-                    'vibrate'	=> 1,
-                    'sound'	=> 1,
-                    'largeIcon'	=> 'large_icon',
-                    'smallIcon'	=> 'small_icon'
+                    'message' 	=> $message["message"]
             );
             $fields = array
             (
@@ -1013,7 +1005,6 @@ class SettingsController
                     'Authorization: key=' . GCM_API_ACCESS_KEY,
                     'Content-Type: application/json'
             );
-
             $ch = curl_init();
             curl_setopt( $ch,CURLOPT_URL, 'https://android.googleapis.com/gcm/send' );
             curl_setopt( $ch,CURLOPT_POST, true );
@@ -1023,8 +1014,14 @@ class SettingsController
             curl_setopt( $ch,CURLOPT_POSTFIELDS, json_encode( $fields ) );
             $result = curl_exec($ch );
             curl_close( $ch );
-            echo $result;    
+            if( empty($result["success"]) ){
+                    Library::logging('error',"API : sendNotifications : Unable to send push notification : message : ".$message["message"]);
+           }
         }
+    }
+
+    function sendNotification($post_data){
+        $this->sendNotifications( $post_data["token"], array("message"=>$post_data["message"]), $post_data["os"] );
     }
     
 }
