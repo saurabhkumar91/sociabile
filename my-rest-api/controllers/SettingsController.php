@@ -798,7 +798,6 @@ class SettingsController
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
                 $result     = array();
-                $postGroups = array();
                 foreach( $posts['retval'] As $postDetail ){
                     $isLiked    = false;
                     $isDisliked = false;
@@ -809,6 +808,9 @@ class SettingsController
                         $isDisliked = true;
                     }
                     $postDetail["text"] = (!is_array($postDetail["text"])) ? FORM_ACTION.$postDetail["text"] : $postDetail["text"];
+                    if( is_array($postDetail["text"]) ){
+                        continue;
+                    }
                     $username   = isset($user["username"]) ? $user["username"] : '';
                     $postId = (string)$postDetail["_id"];
                     $result[$postId]["post_id"]             = (string)$postDetail["_id"];
@@ -821,25 +823,11 @@ class SettingsController
                     $result[$postId]["is_liked"]            = $isLiked;
                     $result[$postId]["is_disliked"]         = $isDisliked;
                     $result[$postId]["multiple"]            = 0;
-                    if( is_array($postDetail["text"]) ){
-                        $postGroups[$postId] = $postDetail["text"];
-                        $result[$postId]["multiple"]        = 1; // type| 3 for group of images
-                    }
-                }
-                foreach( $postGroups As $postId=>$postGroup ){
-                    $result[$postId]["text"]    = array();
-                    foreach( $postGroup as $childPost ){
-                        if( isset($result[$childPost]) ){
-                            $result[$postId]["text"][]  = $result[$childPost];
-                            unset( $result[$childPost] );
-                        }
-                    }
                 }
             }
             elseif( $type == 2 ) { // type 2 for share images
                 
                 $result     = array();
-                $postGroups = array();
                  if(isset($user['running_groups'])) {
                      foreach ($user['running_groups'] as $groups) {
                         $friendsResult  = $db->execute('return db.users.find({"_id":ObjectId("'.$groups['user_id'].'")}).toArray()');
@@ -877,6 +865,9 @@ class SettingsController
                                     $isDisliked = true;
                                 }
                                 $postDetail["text"] = (!is_array($postDetail["text"])) ? FORM_ACTION.$postDetail["text"] : $postDetail["text"];
+                                if( is_array($postDetail["text"]) ){
+                                    continue;
+                                }
                                 $username   = isset($friends_info["username"]) ? $friends_info["username"] : '';
                                 $postId     = (string)$postDetail["_id"];
                                 $result[$postId]["post_id"]             = (string)$postDetail["_id"];
@@ -889,23 +880,10 @@ class SettingsController
                                 $result[$postId]["is_liked"]            = $isLiked;
                                 $result[$postId]["is_disliked"]         = $isDisliked;
                                 $result[$postId]["multiple"]            = 0;
-                                if( is_array($postDetail["text"]) ){
-                                    $postGroups[$postId] = $postDetail["text"];
-                                    $result[$postId]["multiple"]        = 1; // type| 3 for group of images
-                                }
                             }
                         }
                      }
                  }
-                foreach( $postGroups As $postId=>$postGroup ){
-                    $result[$postId]["text"]    = array();
-                    foreach( $postGroup as $childPost ){
-                        if( isset($result[$childPost]) ){
-                            $result[$postId]["text"][]  = $result[$childPost];
-                            unset( $result[$childPost] );
-                        }
-                    }
-                }
              } else {
                  Library::output(false, '0', WRONG_TYPE, null);
              }
