@@ -950,6 +950,118 @@ class SettingsController
             
         }
     }
+    
+    public function uploadMultipleImagesAction($header_data,$post_data)
+    {
+        $post_data  = array_merge( $post_data, $_FILES );
+        if( !isset($post_data['images']) ) {
+            Library::logging('alert',"API : sharePhotos : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                $post                   = new Posts();
+                $post->user_id          = $header_data["id"];
+                $post->text             = array();
+                $post->total_comments   = 0;
+                $post->likes            = 0;
+                $post->dislikes         = 0;
+                $post->date             = time();
+                $post->type             = 2;    // type| 1 for text posts, 2 for images
+                if ($post->save() == false) {
+                    foreach ($post->getMessages() as $message) {
+                        $errors[] = $message->getMessage();
+                    }
+                    Library::logging('error',"API : uploadMultipleImages : ".$errors." user_id : ".$header_data["id"]);
+                    Library::output(false, '0', $errors, null);
+                }
+                $result["post_id"]             = (string)$post->_id;
+                $result["user_id"]             = $post->user_id;
+                $result["image"]               = $post->text;
+                $result["date"]                = $post->date;
+                $result["likes"]               = $post->likes;
+                $result["dislikes"]            = $post->dislikes;
+                $result["total_comments"]      = $post->total_comments;
+                $result["is_liked"]            = false;
+                $result["is_disliked"]         = false;
+                $result["post_type"]           = 2;
+                $db     = Library::getMongo();
+                foreach( $_FILES As $image ){
+                   // $image_name = $image["file"];
+                    $uploadFile = rand().$image["name"];
+                    $amazon     = new AmazonsController();
+                    $amazonSign = $amazon->createsignatureAction($header_data,10);
+                    $url        = $amazonSign['form_action'];
+                    $headers    = array("Content-Type:multipart/form-data"); // cURL headers for file uploading
+                    $ext        = explode(".", $uploadFile);
+                    $extension  = trim(end($ext));
+                    if( !in_array($extension, array("jpeg", "png", "gif"))){
+                        $extension  = "jpeg";
+                    }
+                    $postfields = array(
+                        "key"                       => "uploaded/".$uploadFile,
+                        "AWSAccessKeyId"            => $amazonSign["AWSAccessKeyId"],
+                        "acl"                       => $amazonSign["acl"],
+                        "success_action_redirect"   => $amazonSign["success_action_redirect"],
+                        "policy"                    => $amazonSign["policy"],
+                        "signature"                 => $amazonSign["signature"],
+                        "Content-Type"              => "image/$extension",
+                        "file"                      => file_get_contents($image["tmp_name"])
+                    );
+//                    print_r($post_data);
+//                    print_r($postfields); exit;
+                    $ch = curl_init();
+                    $options = array(
+                        CURLOPT_URL         => $url,
+                        //CURLOPT_HEADER      => true,
+                        CURLOPT_POST        => 1,
+                        CURLOPT_HTTPHEADER  => $headers,
+                        CURLOPT_POSTFIELDS  => $postfields,
+                        CURLOPT_FOLLOWLOCATION => true,
+                        CURLOPT_RETURNTRANSFER => true
+                    ); // cURL options
+                    curl_setopt_array($ch, $options);
+                    $imageName      = curl_exec($ch);
+                    $result['image']    = FORM_ACTION.$imageName;
+                    curl_close($ch);
+                    $createdAt  = time();
+                    $update = $db->execute('db.posts.insert( { "user_id" : "'.$header_data["id"].'", text: "'.$imageName.'", total_comments:0, likes:0, dislikes:0, date: "'.$createdAt.'", type:2 } )');
+                    if( $update['ok'] == 0 ){
+                        Library::logging('error',"API : uploadMultipleImages, mongodb error: ".$update['errmsg']." : user_id : ".$header_data["id"]);
+                        Library::output(false, '0', "Unable to update images", null);
+                    }
+                    $res    = $db->execute('return db.posts.find( { "user_id" : "'.$header_data["id"].'", text: "'.$imageName.'", total_comments:0, likes:0, dislikes:0, date: "'.$createdAt.'", type:2 } ).toArray()');
+                    if( $res['ok'] == 0 ){
+                        Library::logging('error',"API : uploadMultipleImages, mongodb error: ".$res['errmsg']." : user_id : ".$header_data["id"]);
+                        Library::output(false, '0', "Unable to update images", null);
+                    }
+                    $postId = (string)$res["retval"][0]["_id"];
+                    $post->text[]   = $postId;
+                    $postArr["post_id"]         = $postId;
+                    $postArr["user_id"]         = $header_data["id"];
+                    $postArr["image"]           = $imageName;
+                    $postArr["date"]            = $createdAt;
+                    $postArr["likes"]           = 0;
+                    $postArr["dislikes"]        = 0;
+                    $postArr["total_comments"]  = 0;
+                    $postArr["is_liked"]        = false;
+                    $postArr["is_disliked"]     = false;
+                    $postArr["post_type"]       = 2;
+                    $result["image"][]          = $postArr;
+                    if ($post->save() == false) {
+                        foreach ($post->getMessages() as $message) {
+                            $errors[] = $message->getMessage();
+                        }
+                        Library::logging('error',"API : uploadMultipleImages : ".$errors." user_id : ".$header_data["id"]);
+                        Library::output(false, '0', $errors, null);
+                    }
+                }
+                Library::output(true, '1', POST_SAVED, $result);
+            } catch (Exception $e) {
+                Library::logging('error',"API : createPost : ".$e." ".": user_id : ".$header_data["id"]);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        }
+    }
 
     function sendNotifications( $deviceToken, $message, $os ){
         if( !is_array($deviceToken) ){
@@ -1014,8 +1126,9 @@ class SettingsController
             curl_setopt( $ch,CURLOPT_POSTFIELDS, json_encode( $fields ) );
             $result = curl_exec($ch );
             curl_close( $ch );
-            if( empty($result["success"]) ){
-                    Library::logging('error',"API : sendNotifications : Unable to send push notification : message : ".$message["message"]);
+            $resultArr  = (array)json_decode($result);
+            if( empty($resultArr["success"]) ){
+                    Library::logging('error',"API : sendNotifications : Unable to send push notification : ($result) : message : ".$message["message"]);
            }
         }
     }

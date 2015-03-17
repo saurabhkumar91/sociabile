@@ -303,11 +303,16 @@ $app->get('/getFriendsInfo/{user_id}', function ($user_id) use ( $app ) {
     $settings->getFriendsInfoAction($header_data,$user_id);
 });
 
-
 $app->get('/getImages/{type}', function ($type) use ( $app ) {
     $header_data = Library::getallheaders();
     $settings = new SettingsController();
     $settings->getImagesAction($header_data,$type);
+});
+
+$app->post('/uploadMultipleImages', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $settings = new SettingsController();
+    $settings->uploadMultipleImagesAction( $header_data, $app->request->getPost() );
 });
 
 $app->post('/editUniqueId', function () use ( $app ) {
