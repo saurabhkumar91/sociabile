@@ -482,17 +482,18 @@ class GroupsController
                     $from       = new XMPPJid($stanza->from);
                     // self-stanza received, we now have complete room roster
                     if( strtolower($from->to_string()) == strtolower( $roomJid->to_string() ) ) {
+                        exit("test");
                         if(($x = $stanza->exists('x', NS_MUC.'#user')) !== false) {
                             if(($status = $x->exists('status', null, array('code'=>'110'))) !== false) {
-                                    $request = 'return db.chat_groups.update({"_id" :ObjectId("'.$groupId.'"), "members.member_id":"'.$userId.'" }, {$set:{"members.$.is_active":1}})';
-                                    $db = Library::getMongo();
-                                    $result =  $db->execute($request);
-                                    if($result['ok'] == 0) {
-                                        Library::logging('error',"API : joinChatGroup, error_msg: ".$result['errmsg']." ".": user_id : ".$userId);
-                                        Library::output(false, '0', JAXL_ERR_JOIN_MUC, null);
-                                    }
-                                    
-                                    Library::output(true, '1', JAXL_MUC_JOINED, null);
+                                $request = 'return db.chat_groups.update({"_id" :ObjectId("'.$groupId.'")}, {$pull:{"members":{ "member_id" : "'.$userId.'", "is_active" : 1 }},$pull:{"members":{ "member_id" : "'.$userId.'", "is_active" : 0 }}})';
+                                $db = Library::getMongo();
+                                $result =  $db->execute($request);
+                                if($result['ok'] == 0) {
+                                    Library::logging('error',"API : joinChatGroup, error_msg: ".$result['errmsg']." ".": user_id : ".$userId);
+                                    Library::output(false, '0', JAXL_ERR_JOIN_MUC, null);
+                                }
+
+                                Library::output(true, '1', JAXL_MUC_JOINED, null);
                             }
                             else {
                                 $userId = $_SESSION["userId"];
@@ -507,6 +508,12 @@ class GroupsController
                     }
                 });
             
+                $client->add_cb('on_disconnect', function() {
+                    $userId         = $_SESSION["userId"];
+                    $chatGroupID    = $_SESSION["chatGroupID"];
+                    Library::logging('error',"API : createChatGroup : ".JAXL_ERR_CREATE_MUC."(disconnected) : user_id : ".$userId." group_jid : ".$chatGroupID);
+                    Library::output(false, '0', JAXL_ERR_CREATE_MUC, null);
+                });
                 $_SESSION["client"]         = $client;
                 $_SESSION["roomFullJid"]    = $roomFullJid;
                 $_SESSION["chatGroupID"]    = $chatGroupID;

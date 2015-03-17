@@ -182,6 +182,12 @@ $app->post('/addMembersInChatGroup', function () use ( $app ) {
     $group->addMembersInChatGroupAction( $header_data, $app->request->getPost() );
 });
 
+$app->post('/leaveChatGroup', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $group = new GroupsController();
+    $group->leaveChatGroupAction( $header_data, $app->request->getPost() );
+});
+
 $app->post('/sendRequest', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $friends = new FriendsController();

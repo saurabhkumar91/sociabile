@@ -953,11 +953,14 @@ class SettingsController
     
     public function uploadMultipleImagesAction($header_data,$post_data)
     {
-        $post_data  = array_merge( $post_data, $_FILES );
-        if( !isset($post_data['images']) ) {
+//        print_r($_FILES); exit;
+        if( empty($_FILES["images"]['name']) ) {
             Library::logging('alert',"API : sharePhotos : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
+            foreach( $_FILES["images"]['name'] As $key=>$value ){
+                $post_data['images'][]  = array( "name"=>$value, "tmp_name"=>$_FILES["images"]["tmp_name"][$key]) ;
+            }
             try {
                 $post                   = new Posts();
                 $post->user_id          = $header_data["id"];
@@ -985,7 +988,7 @@ class SettingsController
                 $result["is_disliked"]         = false;
                 $result["post_type"]           = 2;
                 $db     = Library::getMongo();
-                foreach( $_FILES As $image ){
+                foreach( $post_data['images'] As $image ){
                    // $image_name = $image["file"];
                     $uploadFile = rand().$image["name"];
                     $amazon     = new AmazonsController();
@@ -1007,8 +1010,6 @@ class SettingsController
                         "Content-Type"              => "image/$extension",
                         "file"                      => file_get_contents($image["tmp_name"])
                     );
-//                    print_r($post_data);
-//                    print_r($postfields); exit;
                     $ch = curl_init();
                     $options = array(
                         CURLOPT_URL         => $url,
@@ -1021,7 +1022,6 @@ class SettingsController
                     ); // cURL options
                     curl_setopt_array($ch, $options);
                     $imageName      = curl_exec($ch);
-                    $result['image']    = FORM_ACTION.$imageName;
                     curl_close($ch);
                     $createdAt  = time();
                     $update = $db->execute('db.posts.insert( { "user_id" : "'.$header_data["id"].'", text: "'.$imageName.'", total_comments:0, likes:0, dislikes:0, date: "'.$createdAt.'", type:2 } )');
@@ -1038,7 +1038,7 @@ class SettingsController
                     $post->text[]   = $postId;
                     $postArr["post_id"]         = $postId;
                     $postArr["user_id"]         = $header_data["id"];
-                    $postArr["image"]           = $imageName;
+                    $postArr["image"]           = FORM_ACTION.$imageName;
                     $postArr["date"]            = $createdAt;
                     $postArr["likes"]           = 0;
                     $postArr["dislikes"]        = 0;
