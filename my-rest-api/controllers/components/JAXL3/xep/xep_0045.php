@@ -103,11 +103,12 @@ class XEP_0045 extends XMPPXep {
         public function setRoomConfig( $room_full_jid, $fields, $callback=false) {
             $query = new JAXLXml('query', "http://jabber.org/protocol/muc#owner");
             $x      = $query->c("x", "jabber:x:data", array("type"=>"submit"), null);  
-            $field  = $x->c("field", null, array("var"=>"FORM_TYPE"), null);  
-            $field->c("value", null, array(), "http://jabber.org/protocol/muc#roomconfig")->up()->up();  
-            
-            $field  = $x->c("field", null, array("var"=>$fields["var"]), null);  
-            $field->c("value", null, array(), $fields["value"]);  
+            $x->c("field", null, array("var"=>"FORM_TYPE"), null);  
+            $x->c("value", null, array(), "http://jabber.org/protocol/muc#roomconfig")->up()->up();  
+            foreach( $fields AS $field ){
+                $x->c("field", null, array("var"=>$field["var"]), null);
+                $x->c("value", null, array(), $field["value"])->up()->up();
+            }
             $pkt        = $this->jaxl->get_iq_pkt(
                                 array('type'=>'set', 'from'=>$this->jaxl->full_jid->to_string(), 'to'=>(($room_full_jid instanceof XMPPJid) ? $room_full_jid->to_string() : $room_full_jid)),
                                 $query	
@@ -119,6 +120,21 @@ class XEP_0045 extends XMPPXep {
 //            return XMPPSend::iq($jaxl, "set", $payload, $roomJid, $jid, $callback);
         }
         
+        
+        public function destroyRoom( $room_full_jid, $callback=false) {
+            $query = new JAXLXml('query', "http://jabber.org/protocol/muc#owner");
+           // $x      = $query->c("x", "jabber:x:data", array("type"=>"submit"), null);  
+            $query->c("destroy", null, array(), null);  
+            $pkt        = $this->jaxl->get_iq_pkt(
+                                array('type'=>'set', 'from'=>$this->jaxl->full_jid->to_string(), 'to'=>(($room_full_jid instanceof XMPPJid) ? $room_full_jid->to_string() : $room_full_jid)),
+                                $query	
+                        );
+            if($callback){
+                $this->jaxl->add_cb('on_stanza_id_'.$pkt->id, $callback);
+            }
+            $this->jaxl->send($pkt);
+//            return XMPPSend::iq($jaxl, "set", $payload, $roomJid, $jid, $callback);
+        }
 	//
 	// api methods (moderator use case)
 	//

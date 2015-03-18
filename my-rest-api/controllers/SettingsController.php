@@ -955,17 +955,8 @@ class SettingsController
                     Library::logging('error',"API : uploadMultipleImages : ".$errors." user_id : ".$header_data["id"]);
                     Library::output(false, '0', $errors, null);
                 }
-                $result["post_id"]             = (string)$post->_id;
-                $result["user_id"]             = $post->user_id;
-                $result["image"]               = $post->text;
-                $result["date"]                = $post->date;
-                $result["likes"]               = $post->likes;
-                $result["dislikes"]            = $post->dislikes;
-                $result["total_comments"]      = $post->total_comments;
-                $result["is_liked"]            = false;
-                $result["is_disliked"]         = false;
-                $result["post_type"]           = 2;
                 $db     = Library::getMongo();
+                $result = array();
                 foreach( $post_data['images'] As $image ){
                    // $image_name = $image["file"];
                     $uploadFile = rand().$image["name"];
@@ -1012,11 +1003,12 @@ class SettingsController
                         Library::logging('error',"API : uploadMultipleImages, mongodb error: ".$res['errmsg']." : user_id : ".$header_data["id"]);
                         Library::output(false, '0', "Unable to update images", null);
                     }
-                    $postId = (string)$res["retval"][0]["_id"];
+                    $postId         = (string)$res["retval"][0]["_id"];
                     $post->text[]   = $postId;
+                    $postArr        = array();
                     $postArr["post_id"]         = $postId;
                     $postArr["user_id"]         = $header_data["id"];
-                    $postArr["image"]           = FORM_ACTION.$imageName;
+                    $postArr["text"]            = FORM_ACTION.$imageName;
                     $postArr["date"]            = $createdAt;
                     $postArr["likes"]           = 0;
                     $postArr["dislikes"]        = 0;
@@ -1024,7 +1016,7 @@ class SettingsController
                     $postArr["is_liked"]        = false;
                     $postArr["is_disliked"]     = false;
                     $postArr["post_type"]       = 2;
-                    $result["image"][]          = $postArr;
+                    $result[]                   = $postArr;
                     if ($post->save() == false) {
                         foreach ($post->getMessages() as $message) {
                             $errors[] = $message->getMessage();
