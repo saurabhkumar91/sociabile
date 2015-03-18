@@ -102,12 +102,24 @@ class FriendsController
                         Library::output(false, '0', ERROR_REQUEST, null);
                     }
                     /**************************************code for db entry of request ends ************************/
+                    $os             = $_SESSION["os"];
+                    $deviceToken    = $_SESSION["deviceToken"];
+                    if( in_array($os, array("1", "2")) && !empty($deviceToken) ){
+                        $userMobileNo   = $_SESSION["userMobileNo"];
+                        $message        = array( "message"=>"You received friend request from $userMobileNo", "type"=>NOTIFY_FRIEND_REQUEST_RECEIVED );
+                        $sendTo     = ($os == "1") ? "android" : "ios";
+                        $settings   = new SettingsController();
+                        $settings->sendNotifications( array($deviceToken), array("message"=>json_encode($message)), $sendTo );
+                    }
 
                     Library::output(true, '1', USER_REQUEST_SENT, null);
                 });                    
 
                 $_SESSION["client"]             = $client;
                 $_SESSION["requestedId"]        = $requestedUser->jaxl_id;
+                $_SESSION["os"]                 = empty($requestedUser->os) ? '' : $requestedUser->os ;
+                $_SESSION["deviceToken"]        = empty($requestedUser->device_token) ? '' : $requestedUser->device_token;
+                $_SESSION["userMobileNo"]       = $user->mobile_no;
                 $_SESSION["userId"]             = $header_data['id'];
                 $_SESSION["requestedUserId"]    = $post_data['request_user_id'];
                 $_SESSION["groupIds"]           = $groupIds;
@@ -271,6 +283,17 @@ class FriendsController
                         Library::logging('error',"API : requestAccept (delete pending query) mongodb error: ".$delete_pending['errmsg']." ".": user_id : ".$userId);
                         Library::output(false, '0', ERROR_REQUEST, null);
                     }
+                    
+                    $os             = $_SESSION["os"];
+                    $deviceToken    = $_SESSION["deviceToken"];
+                    if( in_array($os, array("1", "2")) && !empty($deviceToken) ){
+                        $userMobileNo   = $_SESSION["userMobileNo"];
+                        $message        = array( "message"=>"$userMobileNo accepted your friend request.", "type"=>NOTIFY_FRIEND_REQUEST_ACCEPTED );
+                        $sendTo     = ($os == "1") ? "android" : "ios";
+                        $settings   = new SettingsController();
+                        $settings->sendNotifications( array($deviceToken), array("message"=>json_encode($message)), $sendTo );
+                    }
+                    
                     Library::output(true, '1', USER_ACCEPT, null);
                 });                    
 
@@ -280,6 +303,9 @@ class FriendsController
                 $_SESSION["accept_user_id"] = $post_data['accept_user_id'];
                 $_SESSION["groupIds"]       = $groupIds;
                 $_SESSION["requestGroups"]  = $requestGroups;
+                $_SESSION["os"]             = empty($acceptUser->os) ? '' : $acceptUser->os ;
+                $_SESSION["deviceToken"]    = empty($acceptUser->device_token) ? '' : $acceptUser->device_token;
+                $_SESSION["userMobileNo"]   = $user->mobile_no;
                 $client->start();
                 /******* code for subscribe(add) user end **************************************/
             }

@@ -176,7 +176,7 @@ class GroupsController
                                     Library::output(false, '0', JAXL_ERR_CREATE_MUC, null);
                                 }
                                 $settings   = new SettingsController();
-                                $message    = array( "message"=>"You are added to group", "type"=>NOTIFY_JOIN_GROUP_CHAT, "group_name"=>$groupName, "group_jid"=>$chatGroupID, "admin_id"=>$userId, "members"=>$members );
+                                $message    = array( "message"=>"You are added to group $groupName", "type"=>NOTIFY_JOIN_GROUP_CHAT, "group_name"=>$groupName, "group_jid"=>$chatGroupID, "admin_id"=>$userId, "members"=>$members );
                                 if( $iosDevices ){
                                     $settings->sendNotifications( $iosDevices, array("message"=>json_encode($message)), "ios" );
                                 }

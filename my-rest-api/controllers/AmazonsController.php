@@ -233,7 +233,7 @@ class AmazonsController
                     }
                     $timeCapsules->capsule_image[]  = $image_name;
                     if ( $timeCapsules->save() == false ) {
-                        foreach ($user->getMessages() as $message) {
+                        foreach ($timeCapsules->getMessages() as $message) {
                             $errors[] = $message->getMessage();
                         }
                         Library::logging('error',"API : getStatus amazon controller : ".$errors." : user_id : ".$id);

@@ -10,7 +10,7 @@ class TimeCapsuleController {
      * @return json
      */
     
-    function createTimeCapsuleAction( $header_data, $post_data ){
+    public function createTimeCapsuleAction( $header_data, $post_data ){
         if( !isset($post_data["capsule_text"]) || !isset($post_data["capsule_recipients"]) || !isset($post_data["capsule_time"]) ){
             Library::logging('alert',"API : createTimeCapsule : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
@@ -52,7 +52,7 @@ class TimeCapsuleController {
      * @return json
      */
     
-    function getTimeCapsuleAction( $header_data ){
+    public function getTimeCapsuleAction( $header_data ){
         try{
             $result         = array();
             $capsuleCount   = 0;
@@ -68,7 +68,7 @@ class TimeCapsuleController {
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
             if( empty($timeCapsules["retval"]) ){
-                    Library::output(false, '0', "No Result Found.", null);
+                    Library::output(true, '0', "No Result Found.", null);
             }
             foreach( $timeCapsules["retval"] AS $timeCapsule ){
                 if( $timeCapsule["user_id"] == $header_data["id"] ){
@@ -114,7 +114,7 @@ class TimeCapsuleController {
      * @return json
      */
     
-    function openTimeCapsuleAction( $header_data, $post_data ){
+    public function openTimeCapsuleAction( $header_data, $post_data ){
         if( !isset($post_data["capsule_id"]) ){
             Library::logging('alert',"API : openTimeCapsule : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
@@ -151,7 +151,7 @@ class TimeCapsuleController {
      * @return json
      */
     
-    function deleteTimeCapsuleAction( $header_data, $post_data ){
+    public function deleteTimeCapsuleAction( $header_data, $post_data ){
         if( !isset($post_data["capsule_id"]) ){
             Library::logging('alert',"API : deleteTimeCapsule : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
@@ -208,6 +208,79 @@ class TimeCapsuleController {
         } catch (Exception $e) {
             Library::logging('alert',"API : deleteTimeCapsule : ".$e." : user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
+        }
+    }
+    
+    /**
+     * Method to set multiple images on a Time Capsule
+     * @param $header_data array of header data
+     * @param $post_data array of post data(capsule_id) 
+     * @author Saurabh Kumar
+     * @return json
+     */
+    
+    public function setTimeCapsuleImagesAction($header_data,$post_data)
+    {
+        if( empty($_FILES["images"]['name']) || !isset($post_data["capsule_id"]) ) {
+            Library::logging('alert',"API : setTimeCapsuleImages : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            $timeCapsules   = TimeCapsules::findById($post_data["capsule_id"]);
+            if( !$timeCapsules ){
+                Library::logging('error',"API : setTimeCapsuleImages : ".INVALID_CAPSULE." : user_id : ".$header_data['id']);
+                Library::output(false, '0', INVALID_CAPSULE, null);
+            }
+            foreach( $_FILES["images"]['name'] As $key=>$value ){
+                $post_data['images'][]  = array( "name"=>$value, "tmp_name"=>$_FILES["images"]["tmp_name"][$key]) ;
+            }
+            try {
+                foreach( $post_data['images'] As $image ){
+                    $uploadFile = rand().$image["name"];
+                    $amazon     = new AmazonsController();
+                    $amazonSign = $amazon->createsignatureAction($header_data,10);
+                    $url        = $amazonSign['form_action'];
+                    $headers    = array("Content-Type:multipart/form-data"); // cURL headers for file uploading
+                    $ext        = explode(".", $uploadFile);
+                    $extension  = trim(end($ext));
+                    if( !in_array($extension, array("jpeg", "png", "gif"))){
+                        $extension  = "jpeg";
+                    }
+                    $postfields = array(
+                        "key"                       => "uploaded/".$uploadFile,
+                        "AWSAccessKeyId"            => $amazonSign["AWSAccessKeyId"],
+                        "acl"                       => $amazonSign["acl"],
+                        "success_action_redirect"   => $amazonSign["success_action_redirect"],
+                        "policy"                    => $amazonSign["policy"],
+                        "signature"                 => $amazonSign["signature"],
+                        "Content-Type"              => "image/$extension",
+                        "file"                      => file_get_contents($image["tmp_name"])
+                    );
+                    $ch = curl_init();
+                    $options = array(
+                        CURLOPT_URL         => $url,
+                        CURLOPT_POST        => 1,
+                        CURLOPT_HTTPHEADER  => $headers,
+                        CURLOPT_POSTFIELDS  => $postfields,
+                        CURLOPT_FOLLOWLOCATION => true,
+                        CURLOPT_RETURNTRANSFER => true
+                    ); // cURL options
+                    curl_setopt_array($ch, $options);
+                    $imageName      = curl_exec($ch);
+                    curl_close($ch);
+                    $timeCapsules->capsule_image[]  = $imageName;
+                }
+                if ( $timeCapsules->save() == false ) {
+                    foreach ($timeCapsules->getMessages() as $message) {
+                        $errors[] = $message->getMessage();
+                    }
+                    Library::logging('error',"API : setTimeCapsuleImages : ".$errors." : user_id : ".$header_data['id']);
+                    Library::output(false, '0', $errors, null);
+                }
+                Library::output(true, '1', TIME_CAPSULE_IMAGE, null);
+            } catch (Exception $e) {
+                Library::logging('error',"API : setTimeCapsuleImages : ".$e." ".": user_id : ".$header_data["id"]);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
         }
     }
     

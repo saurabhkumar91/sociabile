@@ -114,5 +114,6 @@ define( 'GCM_API_ACCESS_KEY', 'AIzaSyBFBU3JBafjDBREqBFgn2m_M-FuepLZG8c' );
 define( 'PUSH_NOTIFICATION_FAILED', 'Unable to send notifications.' );
 
 // push notifications types
-define( 'NOTIFY_FRIEND_REQUEST', '1' );
+define( 'NOTIFY_FRIEND_REQUEST_RECEIVED', '1' );
 define( 'NOTIFY_JOIN_GROUP_CHAT', '2' );
+define( 'NOTIFY_FRIEND_REQUEST_ACCEPTED', '3' );
