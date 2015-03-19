@@ -364,12 +364,22 @@ class PostsController
         }
     }
     
+    
+    /**
+     * Method to delete a post
+     * @param $header_data: user and device details
+     * @param $post_data: post request data containing:
+     * - post_id: which is being liked
+     * @author Saurabh Kumar
+     * @return json
+     */
+    
     public function deletePostAction( $header_data, $post_data ){
         if(!isset($post_data['post_id'])) {
             Library::logging('alert',"API : deletePost : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
-            try { 
+            try {
                 $post   = Posts::findById( $post_data['post_id'] );
                 if($post){
                     $db     = Library::getMongo();
@@ -436,6 +446,95 @@ class PostsController
             }
         }
         
+    }
+    
+    /**
+     * Method to dislike a post
+     * @param $header_data: user and device details
+     * @param $post_data: post request data containing:
+     * - post_id: which is being liked
+     * @author Saurabh Kumar
+     * @return json
+     */
+    
+    public function getPostDetailsAction( $header_data, $post_data ){
+        if(!isset($post_data['post_id'])) {
+            Library::logging('alert',"API : getPostDetails : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                $post   = Posts::findById( $post_data['post_id'] );
+                if($post){
+                    $user       = Users::findById( $post->user_id );
+                    $isLiked    = false;
+                    $isDisliked = false;
+                    if( !empty($post->liked_by) && in_array( $header_data['id'], $post->liked_by) ){
+                        $isLiked    = true;
+                    }
+                    if( !empty($post->disliked_by) && in_array( $header_data['id'], $post->disliked_by) ){
+                        $isDisliked = true;
+                    }
+                    $result["post_id"]              = (string)$post->_id;
+                    $result["user_id"]              = (string)$user->_id;
+                    $result["user_name"]            = $user->user_name;
+                    $result["user_profile_image"]   = FORM_ACTION.$user->profile_image;
+                    $result["text"]                 = ($post->type=="1") ? $post->text : '';
+                    $result["image"]                = array();
+                    $result["date"]                 = $post->date;
+                    $result["likes"]                = $post->likes;
+                    $result["dislikes"]             = $post->dislikes;
+                    $result["total_comments"]       = $post->total_comments;
+                    $result["is_liked"]             = $isLiked;
+                    $result["is_disliked"]          = $isDisliked;
+                    $result["post_type"]            = $post->type; // type| 1 for text posts, 2 for images ,3 for group of images
+                    $result["multiple"]             = 0;
+                    if( is_array($post->text) ){
+                        $db                 = Library::getMongo();
+                        $result["multiple"] = 1;
+                        foreach ($post->text AS $childPostId ){
+                            $childPostRes   = $db->execute('return db.posts.find({ "_id" : ObjectId("'.$childPostId.'") }).toArray()');
+                            if($childPostRes['ok'] == 0) {
+                                Library::logging('error',"API : getPostDetails , mongodb error: ".$childPostRes['errmsg']." ".": user_id : ".$header_data['id']);
+                                Library::output(false, '0', ERROR_REQUEST, null);
+                            }
+                            $childPost  = $childPostRes["retval"][0];
+                            $isLiked    = false;
+                            $isDisliked = false;
+                            if( !empty($childPost["liked_by"]) && in_array( $header_data['id'], $childPost["liked_by"]) ){
+                                $isLiked    = true;
+                            }
+                            if( !empty($childPost["disliked_by"]) && in_array( $header_data['id'], $childPost["disliked_by"]) ){
+                                $isDisliked = true;
+                            }
+                            $res["post_id"]             = (string)$childPost["_id"];
+                            $res["user_id"]             = (string)$user->_id;
+                            $res["user_name"]           = $user->user_name;
+                            $res["user_profile_image"]  = FORM_ACTION.$user->profile_image;
+                            $res["text"]                = ($childPost["type"]=="1") ? $childPost["text"] : '';
+                            $res["image"]               = ($childPost["type"]=="2") ? array(FORM_ACTION.$childPost["text"]):'';
+                            $res["date"]                = $childPost["date"];
+                            $res["likes"]               = $childPost["likes"];
+                            $res["dislikes"]            = $childPost["dislikes"];
+                            $res["total_comments"]      = $childPost["total_comments"];
+                            $res["is_liked"]            = $isLiked;
+                            $res["is_disliked"]         = $isDisliked;
+                            $res["post_type"]           = $childPost["type"];
+                            $res["multiple"]            = 0;
+                            $result["image"][]          = $res;
+                        }
+                    }else{
+                        $result["image"][]  = $result;
+                    }
+                    Library::output(true, '1', "No Error", $result);
+                }else{
+                    Library::logging('error',"API : getPostDetails : Invalid Post Id : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+            } catch (Exception $ex) {
+                Library::logging('error',"API : getPostDetails : ".$ex." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        }
     }
 }
 ?>

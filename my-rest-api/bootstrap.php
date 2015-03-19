@@ -117,3 +117,4 @@ define( 'PUSH_NOTIFICATION_FAILED', 'Unable to send notifications.' );
 define( 'NOTIFY_FRIEND_REQUEST_RECEIVED', '1' );
 define( 'NOTIFY_JOIN_GROUP_CHAT', '2' );
 define( 'NOTIFY_FRIEND_REQUEST_ACCEPTED', '3' );
+define( 'NOTIFY_COMMENT_RECEIVED', '4' );

@@ -107,6 +107,12 @@ $app->post('/deletePost', function () use ( $app ) {
     $post->deletePostAction($header_data,$app->request->getPost());
 });
 
+$app->post('/getPostDetails', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $post = new PostsController();
+    $post->getPostDetailsAction($header_data,$app->request->getPost());
+});
+
 $app->post('/postComment', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $comment = new CommentsController();

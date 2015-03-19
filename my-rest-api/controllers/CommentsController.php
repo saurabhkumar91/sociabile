@@ -41,12 +41,28 @@ class CommentsController
                     } else {
                         $post->total_comments = $post->total_comments+1;
                         $post->save();
-                        $result['username'] = $user->username;
-                        $result['comment_id'] = (string)$comment->_id;
-                        $result['comment_text'] = $post_data['comment'];
-                        $result['post_id'] = $comment->post_id;
-                        $result['comment_timestamp'] = $comment->date;
-                        $result['profile_pic'] = isset($user->profile_image) ? FORM_ACTION.$user->profile_image : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
+                        $result['username']             = $user->username;
+                        $result['comment_id']           = (string)$comment->_id;
+                        $result['comment_text']         = $post_data['comment'];
+                        $result['post_id']              = $comment->post_id;
+                        $result['comment_timestamp']    = $comment->date;
+                        $result['profile_pic']          = $user->profile_image;
+                        
+                        if( $post->user_id != $header_data["id"]){
+                            $db     = Library::getMongo();
+                            $res    = $db->execute('return db.users.find( { "_id" : ObjectId("'.$post->user_id.'") }, {} ).toArray()');
+                            if( $res['ok'] == 0 ){
+                                Library::logging('error',"API : postComments, mongodb error: ".$res['errmsg']." : user_id : ".$header_data["id"]);
+                                Library::output(false, '0', ERROR_REQUEST, null);
+                            }
+                            if( !empty($res['retval'][0]["os"]) && in_array($res['retval'][0]["os"], array("1", "2")) && !empty($res['retval'][0]["device_token"]) ){
+                                $postType   = ($post->type==2 || $post->type==3) ? "photo" : "my mind";
+                                $message    = array( "message"=>$user->mobile_no." commented on your $postType.", "type"=>NOTIFY_COMMENT_RECEIVED, "post_id" );
+                                $sendTo     = ($res['retval'][0]["os"] == "1") ? "android" : "ios";
+                                $settings   = new SettingsController();
+                                $settings->sendNotifications( array($res['retval'][0]["device_token"]), array("message"=>json_encode($message)), $sendTo );
+                            }
+                        }
                         Library::output(true, '1', COMMENT_SAVED, $result);
                     }
                 }

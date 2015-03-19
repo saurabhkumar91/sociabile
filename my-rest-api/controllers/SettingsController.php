@@ -936,10 +936,10 @@ class SettingsController
             Library::logging('alert',"API : sharePhotos : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
-            foreach( $_FILES["images"]['name'] As $key=>$value ){
-                $post_data['images'][]  = array( "name"=>$value, "tmp_name"=>$_FILES["images"]["tmp_name"][$key]) ;
-            }
             try {
+                foreach( $_FILES["images"]['name'] As $key=>$value ){
+                    $post_data['images'][]  = array( "name"=>$value, "tmp_name"=>$_FILES["images"]["tmp_name"][$key]) ;
+                }
                 $post                   = new Posts();
                 $post->user_id          = $header_data["id"];
                 $post->text             = array();
