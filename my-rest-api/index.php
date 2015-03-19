@@ -386,10 +386,11 @@ $app->post( "/deleteTimeCapsule", function() use ($app) {
     $timeCapsule    = new TimeCapsuleController();
     $timeCapsule->deleteTimeCapsuleAction( $header_data, $app->request->getPost() );
 } );
-$app->post( "/sendNotification", function() use ($app) {
+
+$app->post( "/setTimeCapsuleImages", function() use ($app) {
     $header_data    = Library::getallheaders();
-    $timeCapsule    = new SettingsController();
-    $timeCapsule->sendNotification( $app->request->getPost() );
+    $timeCapsule    = new TimeCapsuleController();
+    $timeCapsule->setTimeCapsuleImagesAction( $header_data, $app->request->getPost() );
 } );
 
 $app->notFound(
