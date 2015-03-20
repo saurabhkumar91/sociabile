@@ -57,7 +57,9 @@ class CommentsController
                             }
                             if( !empty($res['retval'][0]["os"]) && in_array($res['retval'][0]["os"], array("1", "2")) && !empty($res['retval'][0]["device_token"]) ){
                                 $postType   = ($post->type==2 || $post->type==3) ? "photo" : "my mind";
-                                $message    = array( "message"=>$user->mobile_no." commented on your $postType.", "type"=>NOTIFY_COMMENT_RECEIVED, "post_id"=>(string)$post->_id );
+                                $post       = new PostsController();
+                                $postDetail = $post->getPostDetail( $header_data["id"], $post_data['post_id'] );
+                                $message    = array( "message"=>$user->mobile_no." commented on your $postType.", "type"=>NOTIFY_COMMENT_RECEIVED, "postDetail"=>  json_encode($postDetail) );
                                 $sendTo     = ($res['retval'][0]["os"] == "1") ? "android" : "ios";
                                 $settings   = new SettingsController();
                                 $settings->sendNotifications( array($res['retval'][0]["device_token"]), array("message"=>json_encode($message)), $sendTo );
