@@ -536,5 +536,99 @@ class PostsController
             }
         }
     }
+    
+    /**
+     * Method to remove like from a post
+     * @param $header_data: user and device details
+     * @param $post_data: post request data containing:
+     * - post_id: which is being liked
+     * @author Saurabh Kumar
+     * @return json
+     */
+    
+    public function removeLikePostAction( $header_data, $post_data ){
+        if(!isset($post_data['post_id'])) {
+            Library::logging('alert',"API : removelikePost : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                $post   = Posts::findById( $post_data['post_id'] );
+                if($post){
+                    if( ! in_array( $header_data['id'], $post->liked_by) ){
+                        Library::logging('error',"API : removelikePost : ".POST_NOT_LIKED." ".": user_id : ".$header_data['id']);
+                        Library::output(false, '0', POST_NOT_LIKED, null);
+                    }
+                    $post->likes    -= 1;
+                    foreach($post->liked_by AS $key=>$likedBy ){
+                        if( $likedBy == $header_data['id'] ){
+                            unset( $post->liked_by[$key] );
+                        }
+                    }
+                    if($post->save()){
+                        Library::output(true, '1', POST_LIKE_REMOVED, null);
+                    }else{
+                        foreach ($post->getMessages() as $message) {
+                            $errors[] = $message->getMessage();
+                        }
+                        Library::logging('error',"API : removelikePost : ".$errors." user_id : ".$header_data['id']);
+                        Library::output(false, '0', $errors, null);
+                    }
+                }else{
+                    Library::logging('error',"API : removelikePost : Invalid Post Id : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+            } catch (Exception $ex) {
+                Library::logging('error',"API : removelikePost : ".$ex." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        }
+    }
+    
+    /**
+     * Method to remoive dislike from a post
+     * @param $header_data: user and device details
+     * @param $post_data: post request data containing:
+     * - post_id: which is being liked
+     * @author Saurabh Kumar
+     * @return json
+     */
+    
+    public function removeDislikePostAction( $header_data, $post_data ){
+        if(!isset($post_data['post_id'])) {
+            Library::logging('alert',"API : removeDislikePost : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                $post   = Posts::findById( $post_data['post_id'] );
+                if($post){
+                    if( ! in_array( $header_data['id'], $post->disliked_by) ){
+                        Library::logging('error',"API : removeDislikePost : ".POST_NOT_DISLIKED." : user_id : ".$header_data['id']);
+                        Library::output(false, '0', POST_NOT_DISLIKED, null);
+                    }
+                    $post->dislikes    -= 1;
+                    foreach($post->disliked_by AS $key=>$dislikedBy ){
+                        if( $dislikedBy == $header_data['id'] ){
+                            unset( $post->disliked_by[$key] );
+                        }
+                    }
+                    if($post->save()){
+                        Library::output(true, '1', POST_DISLIKE_REMOVED, null);
+                    }else{
+                        foreach ($post->getMessages() as $message) {
+                            $errors[] = $message->getMessage();
+                        }
+                        Library::logging('error',"API : removeDislikePost : ".$errors." user_id : ".$header_data['id']);
+                        Library::output(false, '0', $errors, null);
+                    }
+                }else{
+                    Library::logging('error',"API : removeDislikePost : Invalid Post Id : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+            } catch (Exception $ex) {
+                Library::logging('error',"API : removeDislikePost : ".$ex." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        }
+    }
 }
 ?>

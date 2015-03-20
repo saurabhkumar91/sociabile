@@ -113,6 +113,18 @@ $app->post('/getPostDetails', function () use ( $app ) {
     $post->getPostDetailsAction($header_data,$app->request->getPost());
 });
 
+$app->post('/removeLikePost', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $post = new PostsController();
+    $post->removeLikePostAction($header_data,$app->request->getPost());
+});
+
+$app->post('/removeDislikePost', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $post = new PostsController();
+    $post->removeDislikePostAction($header_data,$app->request->getPost());
+});
+
 $app->post('/postComment', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $comment = new CommentsController();
