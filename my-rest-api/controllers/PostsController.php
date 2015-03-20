@@ -183,7 +183,7 @@ class PostsController
                     }
                 }
                 usort($result, function($a, $b){
-                    if ($a == $b) {
+                    if ($a["date"] == $b["date"]) {
                         return 0;
                     }
                     return ($a["date"] < $b["date"]) ? 1 : -1;
@@ -235,7 +235,7 @@ class PostsController
 
                             if( !empty($res['retval'][0]["os"]) && in_array($res['retval'][0]["os"], array("1", "2")) && !empty($res['retval'][0]["device_token"]) ){
                                 $postType   = ($post->type==2 || $post->type==3) ? "photo" : "my mind";
-                                $message    = array( "message"=>$user->mobile_no." liked your $postType.", "type"=>NOTIFY_POST_LIKED, "post_id" );
+                                $message    = array( "message"=>$user->mobile_no." liked your $postType.", "type"=>NOTIFY_POST_LIKED, "post_id"=>(string)$post->_id );
                                 $sendTo     = ($res['retval'][0]["os"] == "1") ? "android" : "ios";
                                 $settings   = new SettingsController();
                                 $settings->sendNotifications( array($res['retval'][0]["device_token"]), array("message"=>json_encode($message)), $sendTo );
@@ -300,7 +300,7 @@ class PostsController
 
                             if( !empty($res['retval'][0]["os"]) && in_array($res['retval'][0]["os"], array("1", "2")) && !empty($res['retval'][0]["device_token"]) ){
                                 $postType   = ($post->type==2 || $post->type==3) ? "photo" : "my mind";
-                                $message    = array( "message"=>$user->mobile_no." liked your $postType.", "type"=>NOTIFY_POST_DISLIKED, "post_id" );
+                                $message    = array( "message"=>$user->mobile_no." liked your $postType.", "type"=>NOTIFY_POST_DISLIKED, "post_id"=>(string)$post->_id );
                                 $sendTo     = ($res['retval'][0]["os"] == "1") ? "android" : "ios";
                                 $settings   = new SettingsController();
                                 $settings->sendNotifications( array($res['retval'][0]["device_token"]), array("message"=>json_encode($message)), $sendTo );

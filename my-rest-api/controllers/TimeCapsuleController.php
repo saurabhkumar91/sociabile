@@ -99,6 +99,38 @@ class TimeCapsuleController {
                 $result[$capsuleCount]['capsule_type']          = $capsuleType;
                 $capsuleCount++;
             }
+            usort($result, function($a, $b){
+                $openTimeA  = $a["date"];
+                $openTimeB  = $b["date"];
+                if( empty($a['capsule_opened_by']) && !empty($b['capsule_opened_by']) ){
+                    $openTimeB  = 0; 
+                }elseif( empty($b['capsule_opened_by']) && !empty($a['capsule_opened_by']) ){
+                    $openTimeA  = 0;
+                }elseif( !empty($b['capsule_opened_by']) && !empty($a['capsule_opened_by']) ){
+                    foreach( $a['capsule_opened_by'] AS $openedBy ){
+                        usort($openedBy, function($x, $y){
+                            if ($x["time"] == $y["time"]) {
+                                return 0;
+                            }
+                            return ($x["time"] < $y["time"]) ? -1 : 1;
+                        });  
+                        $openTimeA  = $openedBy[0]["time"];
+                    }
+                    foreach( $b['capsule_opened_by'] AS $openedBy ){
+                        usort($openedBy, function($x, $y){
+                            if ($x["time"] == $y["time"]) {
+                                return 0;
+                            }
+                            return ($x["time"] < $y["time"]) ? -1 : 1;
+                        });  
+                        $openTimeB  = $openedBy[0]["time"];
+                    }
+                }
+                if ($openTimeA == $openTimeB) {
+                    return 0;
+                }
+                return ($openTimeA < $openTimeB) ? -1 : 1;
+            });       
             Library::output(true, '1', "No Error", $result);
         } catch (Exception $ex) {
             Library::logging('alert',"API : createTimeCapsule : ".$ex." : user_id : ".$header_data['id']);

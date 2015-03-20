@@ -1039,11 +1039,10 @@ class SettingsController
         }
         // prep the bundle
         if($os=='ios'){
-            $passphrase = '123456'; 
             $file_path = dirname(__FILE__).'/certificates/OxyFryerFinalProd.pem';
             $ctx = stream_context_create();
             stream_context_set_option($ctx, 'ssl', 'local_cert', $file_path);
-            stream_context_set_option($ctx, 'ssl', 'passphrase', $passphrase);
+            stream_context_set_option($ctx, 'ssl', 'passphrase', APN_PASSPHRASE);
             $body["aps"] = array(
               "alert"=>$message['message'],
               "apnsType"=>2

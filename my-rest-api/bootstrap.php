@@ -115,6 +115,8 @@ define('JAXL_ERR_DELETE_MUC', "Some error occurred while deleting the chat group
 define('JAXL_MUC_DELETED', "Chat group successfully deleted."); 
 
 define( 'GCM_API_ACCESS_KEY', 'AIzaSyBFBU3JBafjDBREqBFgn2m_M-FuepLZG8c' );
+define( 'APN_PASSPHRASE', '123456' );
+
 define( 'PUSH_NOTIFICATION_FAILED', 'Unable to send notifications.' );
 
 // push notifications types
