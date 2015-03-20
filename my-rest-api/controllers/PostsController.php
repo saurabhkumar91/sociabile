@@ -182,7 +182,13 @@ class PostsController
                         }
                     }
                 }
-                Library::output(true, '1', "No Error", array_values($result));
+                usort($result, function($a, $b){
+                    if ($a == $b) {
+                        return 0;
+                    }
+                    return ($a["date"] < $b["date"]) ? 1 : -1;
+                });       
+                Library::output(true, '1', "No Error", $result);
 
             } catch (Exception $e) {
                 Library::logging('error',"API : createPost : ".$e." ".": user_id : ".$header_data['id']);
