@@ -242,7 +242,7 @@ class PostsController
                     $result[$postId]["image"]   = array();
                     foreach( $postGroup as $childPost ){
                         if( isset($result[$childPost]) ){
-                            $result[$postId]["image"][]  = $result[$childPost];
+                            $result[$postId]["image"][]  = $result[$childPost]["image"];
                             unset( $result[$childPost] );
                         }
                     }

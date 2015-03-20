@@ -925,8 +925,23 @@ class UsersController
         }  
      }
      
-     public function removeUserAction( $header_data )
-     { 
+     public function deactivateAccountAction( $header_data )
+     {
+         try{
+             $user  = Users::findById( $header_data["id"] );
+             $user->is_active   = 0;
+             if( $user->save() ){
+                Library::output(true, '0', USER_DEACTIVATED, null);
+             }else{
+                foreach ($post->getMessages() as $message) {
+                    $errors[] = $message->getMessage();
+                }
+                Library::logging('error',"API : likePost : ".$errors." user_id : ".$header_data['id']);
+                Library::output(false, '0', $errors, null);
+             }
+         } catch (Exception $ex) {
+
+         }
      }
   
 }

@@ -39,6 +39,7 @@ define('NO_PROFILE_IMAGE', 'You did not set your profile image yet.');
 define('PROFILE_IMAGE_NOT_DELETED', 'Your profile image could not be deleted now. Please Try again later.');
 define('PROFILE_IMAGE_DELETED', 'Your profile image has been deleted successfully.');
 define('DEVICE_TOKEN_UPDATED', 'Device token updated successfully.');
+define('USER_DEACTIVATED', 'Account deactivated sucessfully.');
 
 
 // otp relaed messages

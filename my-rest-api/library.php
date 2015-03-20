@@ -71,7 +71,7 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
 
                 } catch(Exception $e) {
                     self::logging('error',"API : Middleware: ".$e->getMessage());
-                    self::output(false, '0', "worng user id", null);
+                    self::output(false, '0', "wrong user id", null);
                 }
             }
         } else {
