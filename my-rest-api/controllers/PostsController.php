@@ -218,7 +218,23 @@ class PostsController
                     }
                     $post->liked_by[]   = $header_data['id'];
                     if($post->save()){
-                        
+                        if( $post->user_id != $header_data["id"]){
+                            $user   = Users::findById($header_data['id']);
+                            $db     = Library::getMongo();
+                            $res    = $db->execute('return db.users.find( { "_id" : ObjectId("'.$post->user_id.'") }, {} ).toArray()');
+                            if( $res['ok'] == 0 ){
+                                Library::logging('error',"API : likePost, mongodb error: ".$res['errmsg']." : user_id : ".$header_data["id"]);
+                                Library::output(false, '0', ERROR_REQUEST, null);
+                            }
+
+                            if( !empty($res['retval'][0]["os"]) && in_array($res['retval'][0]["os"], array("1", "2")) && !empty($res['retval'][0]["device_token"]) ){
+                                $postType   = ($post->type==2 || $post->type==3) ? "photo" : "my mind";
+                                $message    = array( "message"=>$user->mobile_no." liked your $postType.", "type"=>NOTIFY_POST_LIKED, "post_id" );
+                                $sendTo     = ($res['retval'][0]["os"] == "1") ? "android" : "ios";
+                                $settings   = new SettingsController();
+                                $settings->sendNotifications( array($res['retval'][0]["device_token"]), array("message"=>json_encode($message)), $sendTo );
+                            }
+                        }
                         Library::output(true, '1', POST_LIKED, null);
                         
                     }else{
@@ -267,7 +283,23 @@ class PostsController
                     $post->disliked_by[]    = $header_data['id'];
                     
                     if($post->save()){
-                        
+                        if( $post->user_id != $header_data["id"]){
+                            $user   = Users::findById($header_data['id']);
+                            $db     = Library::getMongo();
+                            $res    = $db->execute('return db.users.find( { "_id" : ObjectId("'.$post->user_id.'") }, {} ).toArray()');
+                            if( $res['ok'] == 0 ){
+                                Library::logging('error',"API : dislikePost, mongodb error: ".$res['errmsg']." : user_id : ".$header_data["id"]);
+                                Library::output(false, '0', ERROR_REQUEST, null);
+                            }
+
+                            if( !empty($res['retval'][0]["os"]) && in_array($res['retval'][0]["os"], array("1", "2")) && !empty($res['retval'][0]["device_token"]) ){
+                                $postType   = ($post->type==2 || $post->type==3) ? "photo" : "my mind";
+                                $message    = array( "message"=>$user->mobile_no." liked your $postType.", "type"=>NOTIFY_POST_DISLIKED, "post_id" );
+                                $sendTo     = ($res['retval'][0]["os"] == "1") ? "android" : "ios";
+                                $settings   = new SettingsController();
+                                $settings->sendNotifications( array($res['retval'][0]["device_token"]), array("message"=>json_encode($message)), $sendTo );
+                            }
+                        }
                         Library::output(true, '1', POST_DISLIKED, null);
                         
                     }else{
