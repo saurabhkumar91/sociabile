@@ -100,31 +100,30 @@ class TimeCapsuleController {
                 $capsuleCount++;
             }
             usort($result, function($a, $b){
-                $openTimeA  = $a["date"];
-                $openTimeB  = $b["date"];
+                $openTimeA  = $a["creation_time"];
+                $openTimeB  = $b["creation_time"];
                 if( empty($a['capsule_opened_by']) && !empty($b['capsule_opened_by']) ){
                     $openTimeB  = 0; 
                 }elseif( empty($b['capsule_opened_by']) && !empty($a['capsule_opened_by']) ){
                     $openTimeA  = 0;
                 }elseif( !empty($b['capsule_opened_by']) && !empty($a['capsule_opened_by']) ){
-                    foreach( $a['capsule_opened_by'] AS $openedBy ){
-                        usort($openedBy, function($x, $y){
-                            if ($x["time"] == $y["time"]) {
-                                return 0;
-                            }
-                            return ($x["time"] < $y["time"]) ? -1 : 1;
-                        });  
-                        $openTimeA  = $openedBy[0]["time"];
-                    }
-                    foreach( $b['capsule_opened_by'] AS $openedBy ){
-                        usort($openedBy, function($x, $y){
-                            if ($x["time"] == $y["time"]) {
-                                return 0;
-                            }
-                            return ($x["time"] < $y["time"]) ? -1 : 1;
-                        });  
-                        $openTimeB  = $openedBy[0]["time"];
-                    }
+                    $openedByA  = $a['capsule_opened_by'];
+                    usort($openedByA, function($x, $y){
+                        if ($x["time"] == $y["time"]) {
+                            return 0;
+                        }
+                        return ($x["time"] < $y["time"]) ? -1 : 1;
+                    });  
+                    $openTimeA  = $openedByA[0]["time"];
+                    
+                    $openedByB  = $b['capsule_opened_by'];
+                    usort($openedByB, function($x, $y){
+                        if ($x["time"] == $y["time"]) {
+                            return 0;
+                        }
+                        return ($x["time"] < $y["time"]) ? -1 : 1;
+                    });  
+                    $openTimeB  = $openedByB[0]["time"];
                 }
                 if ($openTimeA == $openTimeB) {
                     return 0;
