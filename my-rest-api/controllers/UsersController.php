@@ -920,10 +920,53 @@ class UsersController
         }
         try{
             $user  = Users::findById( $header_data["id"] );
+            
+            $query      = "return db.users.find( { '_id' : ObjectId('".$post_data['user_id']."'), 'is_active' : 1 } ).toArray()" ;
+            $db         = Library::getMongo();
+            $user_info  = $db->execute( $query );
+            if($user_info['ok'] == 0) {
+                Library::logging('error',"API : hideUser , mongodb error: ".$user_info['errmsg']." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+            if( empty($user_info["retval"][0]) ){
+               Library::logging('error',"API : hideUser : Invalid user to hide : user_id : ".$header_data['id']);
+               Library::output(false, '0', "Invalid user to hide.", null);
+            }
             if( empty($user->hidden_contacts) ){
                $user->hidden_contacts = array();
             }
-            $user->hidden_contacts[]    = $post_data['user_id'];
+            if( ! array_search($post_data['user_id'], $user->hidden_contacts ) ){
+                $user->hidden_contacts[]    = $post_data['user_id'];
+            }
+            if( $user->save() ){
+               Library::output(true, '0', USER_HIDDEN, null);
+            }else{
+               foreach ($user->getMessages() as $message) {
+                   $errors[] = $message->getMessage();
+               }
+               Library::logging('error',"API : hideUser : ".$errors." user_id : ".$header_data['id']);
+               Library::output(false, '0', $errors, null);
+            }
+        } catch (Exception $e) {
+            Library::logging('error',"API : hideUser, error message : ".$e->getMessage(). ": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+     }
+  
+     public function unhideUserAction( $header_data, $post_data ){
+        if( empty($post_data['user_id']) ) {
+            Library::logging('alert',"API : hideUser : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        }
+        try{
+            $user  = Users::findById( $header_data["id"] );
+            if( empty($user->hidden_contacts) ){
+               $user->hidden_contacts = array();
+            }
+            if( ($key = array_search($post_data['user_id'], $user->hidden_contacts )) ){
+                unset( $user->hidden_contacts[$key] );
+                $user->hidden_contacts  = array_values( $user->hidden_contacts );
+            }
             if( $user->save() ){
                Library::output(true, '0', USER_HIDDEN, null);
             }else{
@@ -945,6 +988,25 @@ class UsersController
             if( empty($user->hidden_contacts) ){
                $user->hidden_contacts = array();
             }
+            $result = array();
+            $i      = 0;
+            foreach($user->hidden_contacts AS $hiddenContact ){
+                $query      = "return db.users.find( { '_id' : ObjectId('$hiddenContact'), 'is_active' : 1 } ).toArray()" ;
+                $db         = Library::getMongo();
+                $user_info  = $db->execute( $query );
+                if($user_info['ok'] == 0) {
+                    Library::logging('error',"API : getHiddenUsers , mongodb error: ".$user_info['errmsg']." ".": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+                if( isset($user_info["retval"][0]) ){
+                    $contact                        = $user_info["retval"][0];
+                    $result[$i]['user_id']          = $hiddenContact;
+                    $result[$i]['username']         = isset($contact["username"]) ? $contact["username"] : '' ;
+                    $result[$i]['profile_image']    = $contact["profile_image"];
+                    $i++;
+                }
+            }
+            Library::output(true, '0', "No error", $result);
         } catch (Exception $e) {
             Library::logging('error',"API : hideUser, error message : ".$e->getMessage(). ": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_REQUEST, null);

@@ -77,6 +77,24 @@ $app->get('/deactivateAccount', function () {
     $user->deactivateAccountAction($header_data);
 });
 
+$app->post('/hideUser', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $user = new UsersController();
+    $user->hideUserAction($header_data,$app->request->getPost());
+});
+
+$app->post('/unhideUser', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $user = new UsersController();
+    $user->unhideUserAction($header_data,$app->request->getPost());
+});
+
+$app->get('/getHiddenUsers', function () {
+    $header_data = Library::getallheaders();
+    $user = new UsersController();
+    $user->getHiddenUsersAction($header_data);
+});
+
 $app->post('/createPost', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $post = new PostsController();
@@ -292,6 +310,13 @@ $app->post('/resetPassword', function () use ( $app ) {
     $settings->resetPasswordAction($header_data,$app->request->getPost());
 });
 
+//
+//$app->post('/sendNotification', function () use ( $app ) {
+//    $header_data = Library::getallheaders();
+//    $settings = new SettingsController();
+//    $settings->sendNotification($header_data,$app->request->getPost());
+//});
+//
 $app->get('/getEmail', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $user = new UsersController();

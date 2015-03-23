@@ -1039,7 +1039,7 @@ class SettingsController
         }
         // prep the bundle
         if($os=='ios'){
-            $file_path = dirname(__FILE__).'/certificates/OxyFryerFinalProd.pem';
+            $file_path = dirname(__FILE__).'/certificates/ScblFinal.pem';
             $ctx = stream_context_create();
             stream_context_set_option($ctx, 'ssl', 'local_cert', $file_path);
             stream_context_set_option($ctx, 'ssl', 'passphrase', APN_PASSPHRASE);
@@ -1102,8 +1102,9 @@ class SettingsController
         }
     }
 
-    function sendNotification($post_data){
-        $this->sendNotifications( $post_data["token"], array("message"=>$post_data["message"]), $post_data["os"] );
+    function sendNotification($headerdata, $post_data){
+        //print_r($post_data); exit("test");
+            $this->sendNotifications( $post_data["token"], array("message"=>$post_data["message"]), $post_data["os"] );
     }
     
 }
