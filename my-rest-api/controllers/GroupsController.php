@@ -119,7 +119,7 @@ class GroupsController
                         if( $result['retval'][0]["os"] == 1 ){
                             $androidDevices[] = $result['retval'][0]["device_token"];
                         }elseif( $result['retval'][0]["os"] == 2 ){
-                            $iosDevices = $result['retval'][0]["device_token"];
+                            $iosDevices[] = $result['retval'][0]["device_token"];
                         }
                     }
                 }

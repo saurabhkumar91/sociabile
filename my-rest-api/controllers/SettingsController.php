@@ -1049,7 +1049,7 @@ class SettingsController
                     );
             foreach($deviceToken as $token){
                 $err    = $errstr   = '';
-                $fp = stream_socket_client('ssl://gateway.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT, $ctx);
+                $fp = stream_socket_client('ssl://gateway.sandbox.push.apple.com:2195', $err, $errstr, 120, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT, $ctx);
                 if(!$fp){
                     Library::logging('error',"API : sendNotifications : Unable to send push notification(Failed to connect $err $errstr) : message : ".$message["message"]);
                 } 
