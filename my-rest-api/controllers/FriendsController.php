@@ -39,23 +39,6 @@ class FriendsController
                     foreach($user->request_sent as $request_sent) {
                         if($post_data['request_user_id'] == $request_sent['user_id']) {
                             Library::output(false, '0', "Request Already Sent To This User.", null);
-                            
-                            // code for delete rqst if it was rejected
-//                            if( $request_sent['is_active'] == "-1" ){
-//                                    $db     = Library::getMongo();
-//                                    $delete = 'db.users.update(
-//                                                {_id:ObjectId("'.$header_data['id'].'") },
-//                                                { $pull: { request_sent: { user_id: "'.$post_data['request_user_id'].'" } } },
-//                                                { multi: true }
-//                                              )';
-//                                    $delete_pending = $db->execute($delete);
-//                                    if($delete_pending['ok'] == 0) {
-//                                        Library::logging('error',"API : requestAccept (delete pending query) mongodb error: ".$delete_pending['errmsg']." ".": user_id : ".$userId);
-//                                        Library::output(false, '0', ERROR_REQUEST, null);
-//                                    }
-//                            }else{
-//                                Library::output(false, '0', "Request Already Sent To This User.", null);
-//                            }
                         }
                     }
                 }
@@ -371,7 +354,7 @@ class FriendsController
                         // query for delete pending request
                         $delete = 'db.users.update(
                                     {_id:ObjectId("'.$userId.'") },
-                                    { $pull: { request_pending: { user_id: "'.$rejectUserId.'" } } },
+                                    { $pull: { request_pending: { user_id: "'.$rejectUserId.'" } }, $push:{hidden_contacts:"'.$rejectUserId.'"} },
                                     { multi: true }
                                   )';
                         $delete_pending = $db->execute($delete);

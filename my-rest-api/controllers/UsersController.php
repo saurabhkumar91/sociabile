@@ -62,8 +62,7 @@ class UsersController
      * @return json
      */
     
-    public function registrationAction($data)
-    {   
+    public function registrationAction($data){   
         try {
             if(!isset($data['mobile_no']) || !isset($data['device_id'])) {
                 Library::logging('alert',"API : registration : ".ERROR_INPUT);
@@ -125,7 +124,6 @@ class UsersController
         }
     }
     
-    
     /**
      * Method for generate token
      *
@@ -136,8 +134,7 @@ class UsersController
      * @return json
      */
     
-    public function generateTokenAction($header_data,$data)
-    {    
+    public function generateTokenAction($header_data,$data){    
         if( !isset($data['device_id']) ) {
             Library::logging('alert',"API : generateToken : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
@@ -168,7 +165,6 @@ class UsersController
         }
     }
     
-    
     /**
      * Method for code verification
      *
@@ -179,8 +175,7 @@ class UsersController
      * @return json
      */
     
-    public function codeVerificationAction($header_data,$data)
-    {
+    public function codeVerificationAction($header_data,$data){
        if( !isset($data['otp_no'])) {
             Library::logging('alert',"API : codeVerification : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
@@ -237,8 +232,7 @@ class UsersController
      * @return json
      */
     
-    public function setDeviceTokenAction($header_data,$data)
-    {
+    public function setDeviceTokenAction($header_data,$data){
        if( !isset($data['device_token']) ) {
             Library::logging('alert',"API : setDeviceToken : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
@@ -262,7 +256,6 @@ class UsersController
         }
     }
     
-    
     /**
      * Method for send contacts
      *
@@ -273,8 +266,7 @@ class UsersController
      * @return json
      */
     
-    public function sendContactsAction($header_data,$post_data)
-    {   
+    public function sendContactsAction($header_data,$post_data){   
        if(!isset($post_data['contact_numbers'])) {
             Library::logging('alert',"API : sendContacts : ".ERROR_INPUT.": user_id : ".$header_data['id'].' '.$post_data['contact_numbers']);
             Library::output(false, '0', ERROR_INPUT, null);
@@ -291,7 +283,6 @@ class UsersController
         }
     }
     
-    
     /**
      * Method for set display name
      *
@@ -302,8 +293,7 @@ class UsersController
      * @return json
      */
     
-    public function setDisplayNameAction($header_data,$name)
-    { 
+    public function setDisplayNameAction($header_data,$name){ 
         try {
             $user = Users::findById($header_data['id']);
             if(empty($name)) {
@@ -319,7 +309,6 @@ class UsersController
         }
     }
     
-    
     /**
      * Method for get profile
      *
@@ -330,8 +319,7 @@ class UsersController
      * @return json
      */
     
-    public function getProfileAction($header_data)
-    { 
+    public function getProfileAction($header_data){ 
         $user_id = $header_data['id'];
         try {
             $result = array();
@@ -389,7 +377,6 @@ class UsersController
         }   
     }
     
-    
     /**
      * Method for get listing of indicators
      *
@@ -400,14 +387,12 @@ class UsersController
      * @return json
      */
     
-    public function getIndicatorsAction()
-    { 
+    public function getIndicatorsAction(){ 
         $result = array();
         $indicator = Indicators :: find();
         $result['indicator'] = $indicator[0]->indicators;
         Library::output(true, '1', "No Error", $result);
     }
-    
     
     /**
      * Method for set display name
@@ -419,8 +404,7 @@ class UsersController
      * @return json
      */
     
-     public function setProfileAction($header_data,$post_data)
-     { 
+     public function setProfileAction($header_data,$post_data){ 
         if( !isset($post_data['username']) || !isset($post_data['birthday']) || !isset($post_data['gender']) || !isset($post_data['hobbies']) || !isset($post_data['about_me'])) {
             Library::logging('alert',"API : setProfile : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
@@ -448,7 +432,6 @@ class UsersController
         }
      }
      
-     
     /**
      * Method for set context indicator
      *
@@ -459,8 +442,7 @@ class UsersController
      * @return json
      */
     
-     public function setContextIndicatorAction($header_data,$context)
-     {
+     public function setContextIndicatorAction($header_data,$context){
         try {
             $user = Users::findById($header_data['id']);
             $user->context_indicator = $context;
@@ -480,7 +462,6 @@ class UsersController
            
      }
      
-     
     /**
      * Method for get registered numbers
      *
@@ -491,8 +472,7 @@ class UsersController
      * @return json
      */
     
-     public function getRegisteredNumbersAction($header_data)
-     {
+     public function getRegisteredNumbersAction($header_data){
          try {
             $user = Users::findById($header_data['id']);
             if($header_data['os'] == 1) {
@@ -517,7 +497,10 @@ class UsersController
                 $record = Users::find(array("conditions" =>array("mobile_no"=>$filter_contacts,"is_active"=>1)));
                 if(!empty($record)) {
                     
-                    if(empty($user->is_mobile_searchable)) {
+                    if( !empty($user->hidden_contacts) && in_array((string)$record[0]->_id, $user->hidden_contacts) ){
+                        continue;
+                    }
+                    if(empty($record[0]->is_mobile_searchable)) {
                         continue;
                     }
                     if(isset($user->running_groups)) {
@@ -566,7 +549,6 @@ class UsersController
         }
      }
      
-     
     /**
      * Method for get email
      *
@@ -577,8 +559,7 @@ class UsersController
      * @return json
      */
     
-     public function getEmailAction($header_data)
-     {
+     public function getEmailAction($header_data){
         try {
              $db = Library::getMongo();
              $email = $db->execute('return db.users.find({_id:ObjectId("'.$header_data['id'].'")},{email_id:1}).toArray()');
@@ -599,7 +580,6 @@ class UsersController
         }
      }
      
-     
     /**
      * Method for edit unique user id
      *
@@ -610,8 +590,7 @@ class UsersController
      * @return json
      */
     
-     public function editUniqueIdAction($header_data,$post_data)
-     {
+     public function editUniqueIdAction($header_data,$post_data){
          if(!isset($post_data['unique_id'])) {
             Library::logging('alert',"API : editUniqueId : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
@@ -658,7 +637,6 @@ class UsersController
         }
      }
      
-     
     /**
      * Method for set searchable unique id
      *
@@ -669,8 +647,7 @@ class UsersController
      * @return json
      */
     
-     public function isSearchableAction($header_data,$type)
-     {
+     public function isSearchableAction($header_data,$type){
          try {
              $db = Library::getMongo();
              if($type == 1) { // is searchable true
@@ -709,8 +686,7 @@ class UsersController
      * @return json
      */
     
-     public function isMobileSearchableAction($header_data,$type)
-     {
+     public function isMobileSearchableAction($header_data,$type){
          try {
              $db = Library::getMongo();
              if($type == 1) { // is searchable true
@@ -738,7 +714,6 @@ class UsersController
         }
      }
      
-     
     /**
      * Method for searching user based on unique id
      *
@@ -749,8 +724,7 @@ class UsersController
      * @return json
      */
     
-     public function searchUserAction($header_data,$unique_id)
-     {
+     public function searchUserAction($header_data,$unique_id){
          try {
              if(empty($unique_id)) {
                  Library::output(false, '0', WRONG_UNIQUE_ID, null);
@@ -776,7 +750,6 @@ class UsersController
             Library::output(false, '0', ERROR_REQUEST, null);
         }
      }
-         
      
     /**
      * Method for searching user based on mobile no
@@ -788,8 +761,7 @@ class UsersController
      * @return json
      */
     
-     public function searchUserByMobileAction($header_data,$mobileNo)
-     {
+     public function searchUserByMobileAction($header_data,$mobileNo){
          try {
              if(empty($mobileNo)) {
                  Library::output(false, '0', ERROR_INPUT, null);
@@ -815,7 +787,6 @@ class UsersController
         }
      }
      
-    
     /**
      * Method for set display name
      *
@@ -826,8 +797,7 @@ class UsersController
      * @return json
      */
     
-     public function setProfileImageAction( $header_data, $post_data )
-     { 
+     public function setProfileImageAction( $header_data, $post_data ){ 
         if( empty($post_data['image']) ) {
             Library::logging('alert',"API : setProfileImage : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
@@ -894,8 +864,7 @@ class UsersController
         }
      }
     
-     public function deleteProfileImageAction( $header_data )
-     { 
+     public function deleteProfileImageAction( $header_data ){ 
         try {
                 $user = Users::findById($header_data['id']);
                 if($user->profile_image    == DEFAULT_PROFILE_IMAGE){
@@ -925,8 +894,7 @@ class UsersController
         }  
      }
      
-     public function deactivateAccountAction( $header_data )
-     {
+     public function deactivateAccountAction( $header_data ){
          try{
              $user  = Users::findById( $header_data["id"] );
              $user->is_active   = 0;
@@ -945,9 +913,7 @@ class UsersController
          }
      }
   
-     
-     public function hideUserAction( $header_data, $post_data )
-     {
+     public function hideUserAction( $header_data, $post_data ){
         if( empty($post_data['user_id']) ) {
             Library::logging('alert',"API : hideUser : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
@@ -959,13 +925,25 @@ class UsersController
             }
             $user->hidden_contacts[]    = $post_data['user_id'];
             if( $user->save() ){
-               Library::output(true, '0', USER_DEACTIVATED, null);
+               Library::output(true, '0', USER_HIDDEN, null);
             }else{
                foreach ($user->getMessages() as $message) {
                    $errors[] = $message->getMessage();
                }
                Library::logging('error',"API : hideUser : ".$errors." user_id : ".$header_data['id']);
                Library::output(false, '0', $errors, null);
+            }
+        } catch (Exception $e) {
+            Library::logging('error',"API : hideUser, error message : ".$e->getMessage(). ": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+     }
+  
+     public function getHiddenUsersAction( $header_data ){
+        try{
+            $user  = Users::findById( $header_data["id"] );
+            if( empty($user->hidden_contacts) ){
+               $user->hidden_contacts = array();
             }
         } catch (Exception $e) {
             Library::logging('error',"API : hideUser, error message : ".$e->getMessage(). ": user_id : ".$header_data['id']);
