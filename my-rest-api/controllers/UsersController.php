@@ -826,7 +826,7 @@ class UsersController
      * @return json
      */
     
-     public function setProfileImageAction($header_data,$post_data)
+     public function setProfileImageAction( $header_data, $post_data )
      { 
         if( empty($post_data['image']) ) {
             Library::logging('alert',"API : setProfileImage : ".ERROR_INPUT.": user_id : ".$header_data['id']);
@@ -936,7 +936,7 @@ class UsersController
                 foreach ($user->getMessages() as $message) {
                     $errors[] = $message->getMessage();
                 }
-                Library::logging('error',"API : likePost : ".$errors." user_id : ".$header_data['id']);
+                Library::logging('error',"API : deactivateAccount : ".$errors." user_id : ".$header_data['id']);
                 Library::output(false, '0', $errors, null);
              }
          } catch (Exception $e) {
@@ -945,4 +945,31 @@ class UsersController
          }
      }
   
+     
+     public function hideUserAction( $header_data, $post_data )
+     {
+        if( empty($post_data['user_id']) ) {
+            Library::logging('alert',"API : hideUser : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        }
+        try{
+            $user  = Users::findById( $header_data["id"] );
+            if( empty($user->hidden_contacts) ){
+               $user->hidden_contacts = array();
+            }
+            $user->hidden_contacts[]    = $post_data['user_id'];
+            if( $user->save() ){
+               Library::output(true, '0', USER_DEACTIVATED, null);
+            }else{
+               foreach ($user->getMessages() as $message) {
+                   $errors[] = $message->getMessage();
+               }
+               Library::logging('error',"API : hideUser : ".$errors." user_id : ".$header_data['id']);
+               Library::output(false, '0', $errors, null);
+            }
+        } catch (Exception $e) {
+            Library::logging('error',"API : hideUser, error message : ".$e->getMessage(). ": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+     }
 }

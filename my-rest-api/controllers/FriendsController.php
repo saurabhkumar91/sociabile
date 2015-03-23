@@ -206,49 +206,12 @@ class FriendsController
                 $acceptUser     = Users::findById($post_data['accept_user_id']);
                 $request_pending_ids = $user->request_pending;
                 
-                $posts      = Posts::find(array(array('user_id' => $header_data['id'], "type"=>1)));
-                $profile    = array();
-                $my_mind    = array();
-                $about_me   = array();
-                $email_id   = array();
-                
-                $profile['mobile_no']               = $user->mobile_no;
-                $profile['username']                = $user->username;
-                $profile['context_indicator']       = $user->context_indicator;
-                $profile['birthday']                = isset($user->birthday) ? $user->birthday : '';
-                $profile['profile_pic']             = FORM_ACTION.$user->profile_image;
-                $profile['email_id']                = isset($user->email_id) ? $user->email_id : $email_id;
-                $profile['password']                = isset($user->password) ? $user->password : '';
-                $profile['unique_id']               = isset($user->unique_id) ? $user->unique_id : '';
-                $profile['is_edit']                 = isset($user->is_edit) ? $user->is_edit : '';
-                $profile['is_searchable']           = isset($user->is_searchable) ? $user->is_searchable : '';
-                $profile['is_mobile_searchable']    = isset($user->is_mobile_searchable) ? $user->is_mobile_searchable : '';
-
-                $i = 0; 
-                foreach($posts as $post) {
-                    $isLiked    = false;
-                    $isDisliked = false;
-                    if( !empty($post->liked_by) && in_array( $header_data['id'], $post->liked_by) ){
-                        $isLiked    = true;
-                    }
-                    if( !empty($post->disliked_by) && in_array( $header_data['id'], $post->disliked_by) ){
-                        $isDisliked = true;
-                    }
-                    $my_mind[$i]['post_id']             = (string)$post->_id;
-                    $my_mind[$i]['post_text']           = $post->text;
-                    $my_mind[$i]['post_timestamp']      = $post->date;
-                    $my_mind[$i]['post_like_count']     = $post->likes;
-                    $my_mind[$i]['post_dislike_count']  = $post->dislikes;
-                    $my_mind[$i]['post_comment_count']  = $post->total_comments;
-                    $my_mind[$i]["is_liked"]            = $isLiked;
-                    $my_mind[$i]["is_disliked"]         = $isDisliked;
-                    $i++;
-                }
-
-                $about_me['gender'] = isset($user->gender) ? $user->gender : '';
-                $about_me['hobbies'] = isset($user->hobbies) ? $user->hobbies : '';
-                $about_me['description'] = isset($user->about_me) ? $user->about_me : '';
-                $userDetails    = array( 'profile' => $profile, 'my_mind' => $my_mind, 'about_me' => $about_me );
+                $userDetails                = array();
+                $userDetails['friends_id']  = $header_data['id'];
+                $userDetails['username']    = $user->username;
+                $userDetails['group_id']    = json_decode($groupIds);
+                $userDetails['jaxl_id']     = $user->jaxl_id;
+                $userDetails['profile_pic'] = FORM_ACTION.$user->profile_image;
                 
                 $requestFound   = false;
                 foreach($request_pending_ids as $request_ids) {

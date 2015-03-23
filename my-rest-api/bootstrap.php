@@ -40,6 +40,7 @@ define('PROFILE_IMAGE_NOT_DELETED', 'Your profile image could not be deleted now
 define('PROFILE_IMAGE_DELETED', 'Your profile image has been deleted successfully.');
 define('DEVICE_TOKEN_UPDATED', 'Device token updated successfully.');
 define('USER_DEACTIVATED', 'Account deactivated sucessfully.');
+define('USER_HIDDEN', 'User successfully added to hidden list.');
 
 
 // otp relaed messages
