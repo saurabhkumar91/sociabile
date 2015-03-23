@@ -1043,27 +1043,19 @@ class SettingsController
             $ctx = stream_context_create();
             stream_context_set_option($ctx, 'ssl', 'local_cert', $file_path);
             stream_context_set_option($ctx, 'ssl', 'passphrase', APN_PASSPHRASE);
-            $body["aps"] = array(
-              "alert"=>$message['message'],
-              "apnsType"=>2
-            );
-            if(isset($message['rp_id']) && !empty($message['rp_id']) && ($message['rp_id']!=-1)) {
-                $body["aps"] = array(  
-                  "alert"=>$message['message'],
-                  "apnsType"=>1,
-                  "result" => array("rp_id"=>$message['rp_id'])
-                );
-            }
+            $body['aps'] = array(
+                    'alert' => $message["message"],
+                    'sound' => 'default'
+                    );
             foreach($deviceToken as $token){
                 $err    = $errstr   = '';
-                $fp = stream_socket_client('ssl://gateway.push.apple.com:2195', $err, $errstr, 120, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT, $ctx);
+                $fp = stream_socket_client('ssl://gateway.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT, $ctx);
                 if(!$fp){
-                    print "Failed to connect $err $errstr\n";
-                    return;
+                    Library::logging('error',"API : sendNotifications : Unable to send push notification(Failed to connect $err $errstr) : message : ".$message["message"]);
                 } 
-                $payload = json_encode($body);
-                $msg = chr(0) . chr(0) . chr(32) . pack('H*', str_replace(' ', '', $token)) . chr(0) . chr(strlen($payload)) . $payload;
-                $res = fwrite($fp, $msg);
+                $payload    = json_encode($body);
+                $msg        = chr(0) . pack('n', 32) . pack('H*', $token) . pack('n', strlen($payload)) . $payload;
+                $res        = fwrite($fp, $msg);
                 fclose($fp);
                 if($res != 0 && $res != FALSE){
                 } else {
