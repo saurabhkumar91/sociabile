@@ -1062,7 +1062,6 @@ class SettingsController
                     return;
                 } 
                 $payload = json_encode($body);
-                $token = '';
                 $msg = chr(0) . chr(0) . chr(32) . pack('H*', str_replace(' ', '', $token)) . chr(0) . chr(strlen($payload)) . $payload;
                 $res = fwrite($fp, $msg);
                 fclose($fp);

@@ -864,6 +864,13 @@ class UsersController
         }
      }
     
+    
+    /**
+     * Method to remove profile image of user
+     * @param $header_data: user and device details
+     * @author Saurabh Kumar
+     * @return json
+     */
      public function deleteProfileImageAction( $header_data ){ 
         try {
                 $user = Users::findById($header_data['id']);
@@ -894,6 +901,13 @@ class UsersController
         }  
      }
      
+    
+    /**
+     * Method to deactivate user,s account
+     * @param $header_data: user and device details
+     * @author Saurabh Kumar
+     * @return json
+     */
      public function deactivateAccountAction( $header_data ){
          try{
              $user  = Users::findById( $header_data["id"] );
@@ -913,6 +927,15 @@ class UsersController
          }
      }
   
+    
+    /**
+     * Method to hide a user
+     * @param $header_data: user and device details
+     * @param $post_data: post request data containing:
+     * - user_id: which user to hide
+     * @author Saurabh Kumar
+     * @return json
+     */
      public function hideUserAction( $header_data, $post_data ){
         if( empty($post_data['user_id']) ) {
             Library::logging('alert',"API : hideUser : ".ERROR_INPUT.": user_id : ".$header_data['id']);
@@ -953,6 +976,15 @@ class UsersController
         }
      }
   
+    
+    /**
+     * Method to unhide a user
+     * @param $header_data: user and device details
+     * @param $post_data: post request data containing:
+     * - user_id: which user to unhide
+     * @author Saurabh Kumar
+     * @return json
+     */
      public function unhideUserAction( $header_data, $post_data ){
         if( empty($post_data['user_id']) ) {
             Library::logging('alert',"API : hideUser : ".ERROR_INPUT.": user_id : ".$header_data['id']);
@@ -982,6 +1014,13 @@ class UsersController
         }
      }
   
+    
+    /**
+     * Method to get list of hidden user
+     * @param $header_data: user and device details
+     * @author Saurabh Kumar
+     * @return json
+     */
      public function getHiddenUsersAction( $header_data ){
         try{
             $user  = Users::findById( $header_data["id"] );
