@@ -583,7 +583,7 @@ class UsersController
              $db = Library::getMongo();
              $email = $db->execute('return db.users.find({_id:ObjectId("'.$header_data['id'].'")},{email_id:1}).toArray()');
              if($email['ok'] == 0) {
-                Library::logging('error',"API : getEmail , mongodb error: ".$email['errmsg']." ".": user_id : ".$header_data['id']);
+                Library::logging('error',"API : getEmail , mongodb error: ".$email['errmsg']." : user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_REQUEST, null);
              }
             if(isset($email['retval'][0]['email_id'])) {
@@ -757,7 +757,7 @@ class UsersController
              } else {
                 $db = Library::getMongo();
                 
-                $user_info = $db->execute('return db.users.find({"unique_id" : "'.$unique_id.'", is_searchable : 1 }).toArray()');
+                $user_info = $db->execute('return db.users.find({"unique_id" : "'.$unique_id.'", is_searchable : 1, is_active:1 }).toArray()');
                 if($user_info['ok'] == 0) {
                     Library::logging('error',"API : searchUser (user info) , mongodb error: ".$user_info['errmsg']." ".": user_id : ".$header_data['id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
@@ -795,7 +795,7 @@ class UsersController
                  Library::output(false, '0', ERROR_INPUT, null);
              } else {
                 $db = Library::getMongo();
-                $user_info = $db->execute('return db.users.find({"mobile_no" : "'.$mobileNo.'", is_mobile_searchable : 1 }).toArray()');
+                $user_info = $db->execute('return db.users.find({"mobile_no" : "'.$mobileNo.'", is_mobile_searchable : 1, is_active : 1 }).toArray()');
                 if($user_info['ok'] == 0) {
                     Library::logging('error',"API : searchUserByMobileNo (user info) , mongodb error: ".$user_info['errmsg']." ".": user_id : ".$header_data['id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
@@ -933,14 +933,15 @@ class UsersController
              if( $user->save() ){
                 Library::output(true, '0', USER_DEACTIVATED, null);
              }else{
-                foreach ($post->getMessages() as $message) {
+                foreach ($user->getMessages() as $message) {
                     $errors[] = $message->getMessage();
                 }
                 Library::logging('error',"API : likePost : ".$errors." user_id : ".$header_data['id']);
                 Library::output(false, '0', $errors, null);
              }
-         } catch (Exception $ex) {
-
+         } catch (Exception $e) {
+            Library::logging('error',"API : deactivateAccount, error message : ".$e->getMessage(). ": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
          }
      }
   

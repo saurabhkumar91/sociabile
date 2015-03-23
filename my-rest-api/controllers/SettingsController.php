@@ -605,7 +605,7 @@ class SettingsController
         } else {
             try {
                 $user = Users::findById($user_id);
-                if($user->running_groups) {
+                if(  !empty($user) && $user->is_active && $user->running_groups) {
 
                     // loop for finding particular groups 
                     foreach ($user->running_groups as $group) {

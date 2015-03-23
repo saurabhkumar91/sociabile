@@ -71,6 +71,12 @@ $app->put('/setContextIndicator/{context}', function ($context) use ( $app ) {
     $user->setContextIndicatorAction($header_data,$context);
 });
 
+$app->get('/deactivateAccount', function () {
+    $header_data = Library::getallheaders();
+    $user = new UsersController();
+    $user->deactivateAccountAction($header_data);
+});
+
 $app->post('/createPost', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $post = new PostsController();
