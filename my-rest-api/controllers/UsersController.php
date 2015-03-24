@@ -1000,7 +1000,7 @@ class UsersController
                 $user->hidden_contacts  = array_values( $user->hidden_contacts );
             }
             if( $user->save() ){
-               Library::output(true, '0', USER_HIDDEN, null);
+               Library::output(true, '0', USER_UNHIDDEN, null);
             }else{
                foreach ($user->getMessages() as $message) {
                    $errors[] = $message->getMessage();

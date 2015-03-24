@@ -689,6 +689,13 @@ class SettingsController
                                 }
                             }
                         }
+                        usort($user_post, function($postA, $postB){
+                            if ($postA["date"] == $postB["date"]) {
+                                return 0;
+                            }
+                            return ($postA["date"] < $postB["date"]) ? 1 : -1;
+                        });       
+                        
                         if($about_me == 1) {
                             $about_me_info['gender'] = isset($user->gender) ? $user->gender : '';
                             $about_me_info['hobbies'] = isset($user->hobbies) ? $user->hobbies : '';
@@ -741,6 +748,12 @@ class SettingsController
                                 }
                             }
                         }
+                        usort($my_pictures_info, function($postA, $postB){
+                            if ($postA["date"] == $postB["date"]) {
+                                return 0;
+                            }
+                            return ($postA["date"] < $postB["date"]) ? 1 : -1;
+                        });       
                         
                         $profile['image_url'] = FORM_ACTION;
                         $profile['mobile_no'] = $user->mobile_no;
@@ -749,10 +762,10 @@ class SettingsController
                         $profile['birthday'] = isset($user->birthday) ? $user->birthday : '';
                         $profile['profile_pic'] = isset($user->profile_image) ? FORM_ACTION.$user->profile_image : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
 
-                        $result['profile'] = $profile;
-                        $result['my_mind'] = $user_post;
-                        $result['about_me'] = isset($about_me_info) ? $about_me_info : '';
-                        $result['my_pictures'] = array_values($my_pictures_info);
+                        $result['profile']      = $profile;
+                        $result['my_mind']      = $user_post;
+                        $result['about_me']     = isset($about_me_info) ? $about_me_info : '';
+                        $result['my_pictures']  = array_values($my_pictures_info);
 
                         Library::output(true, '1', "No Error", $result);
                     } else {
