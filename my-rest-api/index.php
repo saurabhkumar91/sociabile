@@ -95,6 +95,12 @@ $app->get('/getHiddenUsers', function () {
     $user->getHiddenUsersAction($header_data);
 });
 
+$app->get('/removeAccount', function () {
+    $header_data = Library::getallheaders();
+    $user = new UsersController();
+    $user->removeAccountAction($header_data);
+});
+
 $app->post('/createPost', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $post = new PostsController();

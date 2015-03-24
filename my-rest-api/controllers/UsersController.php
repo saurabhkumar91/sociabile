@@ -934,12 +934,12 @@ class UsersController
      * @author Saurabh Kumar
      * @return json
      */
-     public function deleteAccountAction( $header_data ){
+     public function removeAccountAction( $header_data ){
          try{
              $user  = Users::findById( $header_data["id"] );
              $user->is_deleted   = 1;
              if( $user->save() ){
-                Library::output(true, '0', USER_DEACTIVATED, null);
+                Library::output(true, '0', USER_REMOVED, null);
              }else{
                 foreach ($user->getMessages() as $message) {
                     $errors[] = $message->getMessage();
