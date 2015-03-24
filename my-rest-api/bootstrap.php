@@ -117,6 +117,8 @@ define('JAXL_MUC_LEAVED', "Successfully leaved the Chat Group");
 define('JAXL_DELETE_AUTH_ERR', "You are not a authorized to delete this chat group."); 
 define('JAXL_ERR_DELETE_MUC', "Some error occurred while deleting the chat group."); 
 define('JAXL_MUC_DELETED', "Chat group successfully deleted."); 
+define('JAXL_ADMIN_ID', "admin"); 
+define('JAXL_ADMIN_PASS', "12345"); 
 
 define( 'GCM_API_ACCESS_KEY', 'AIzaSyBFBU3JBafjDBREqBFgn2m_M-FuepLZG8c' );
 define( 'APN_PASSPHRASE', '123456' );

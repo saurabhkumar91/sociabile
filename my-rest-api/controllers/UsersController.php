@@ -74,17 +74,19 @@ class UsersController
                 $record = Users::find( array(array("mobile_no"=>$mobile_no, "is_deleted"=>"0")) );
                 $jaxlPassword           = "12345";
                 if(count($record) > 0) {
-                    $result['user_id'] = $record[0]->_id;
-                    $result['otp'] = 1234;
+                    $result['user_id']  = $record[0]->_id;
+                    $result['token']    = $record[0]->hash;
+                   // $result['otp'] = 1234;
                     if( empty($record[0]->jaxl_id) ){
-                        $jaxlCredentials        = $this->registerOnEjabberd( $mobile_no, $jaxlPassword );
-                        $db         = Library::getMongo();
+                        $jaxlCredentials    = $this->registerOnEjabberd( $mobile_no, $jaxlPassword );
+                        $db                 = Library::getMongo();
                         $db->execute('return db.users.update({"_id" :ObjectId("'.$record[0]->_id.'") },{$set:{jaxl_id : "'.$jaxlCredentials["jaxl_id"].'",jaxl_password:"'.$jaxlCredentials["jaxl_password"].'"}})');
                         $result = array_merge( $result, $jaxlCredentials ); 
                     }else{
                         $result["jaxl_id"]          = $record[0]->jaxl_id;
                         $result["jaxl_password"]    = $jaxlPassword;
                     }
+                    $result["created"]  = 0;
                     Library::output(true, '1', OTP_SENT, $result);
                 } else {
                     $user   = new Users();
@@ -113,8 +115,9 @@ class UsersController
                         $result = array_merge( $result, $jaxlCredentials);
                         /************* register code end ********************************/
                         
-                        $result['user_id'] = $user->_id;
-                        $result['otp'] = 1234;
+                        $result['user_id']  = $user->_id;
+                        $result['otp']      = 1234;
+                        $result["created"]  = 1;
                         Library::output(true, '1', OTP_SENT, $result);
                     }
                 }
@@ -927,7 +930,6 @@ class UsersController
          }
      }
   
-    
     /**
      * Method to soft delete account
      * @param $header_data: user and device details
