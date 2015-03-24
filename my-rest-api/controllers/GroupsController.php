@@ -138,7 +138,7 @@ class GroupsController
                         '0045'     // group chat
                 ));
                 $groupname      = $post_data["groupname"];
-                $chatGroupID    = $groupname.uniqid()."@conference.".JAXL_HOST_NAME;
+                $chatGroupID    = str_replace(" ", '_', $groupname).uniqid()."@conference.".JAXL_HOST_NAME;
                 $roomFullJid    = new XMPPJid( $chatGroupID. "/" .$user->mobile_no );
                 
                 $client->add_cb('on_auth_success', function() {
@@ -155,6 +155,7 @@ class GroupsController
                 $client->add_cb('on_presence_stanza', function($stanza) {
                     $from       = new XMPPJid($stanza->from);
                     $roomJid    = $_SESSION["roomFullJid"];
+                    $userId     = $_SESSION["userId"];
                     // self-stanza received, we now have complete room roster
                     if( strtolower($from->to_string()) == strtolower( $roomJid->to_string() ) ) {
                         if(($x = $stanza->exists('x', NS_MUC.'#user')) !== false) {
@@ -162,7 +163,6 @@ class GroupsController
                                 //$item = $x->exists('item');
                                 //exit("xmlns #user exists with x ".$x->ns." status ".$status->attrs['code'].", affiliation:".$item->attrs['affiliation'].", role:".$item->attrs['role']);\
                                 $chatGroupID    = $_SESSION["chatGroupID"];
-                                $userId         = $_SESSION["userId"];
                                 $groupName      = $_SESSION["groupName"];
                                 $members        = $_SESSION["members"];
                                 $androidDevices = $_SESSION["androidDevices"];

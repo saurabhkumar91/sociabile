@@ -247,11 +247,11 @@ class PostsController
                         }
                     }
                 }
-                usort($result, function($a, $b){
-                    if ($a["date"] == $b["date"]) {
+                usort($result, function($postA, $postB){
+                    if ($postA["date"] == $postB["date"]) {
                         return 0;
                     }
-                    return ($a["date"] < $b["date"]) ? 1 : -1;
+                    return ($postA["date"] < $postB["date"]) ? 1 : -1;
                 });       
                 Library::output(true, '1', "No Error", $result);
 

@@ -99,6 +99,8 @@ class TimeCapsuleController {
                 $result[$capsuleCount]['capsule_type']          = $capsuleType;
                 $capsuleCount++;
             }
+            
+            // Time capsule sorted by Open Date. Oldest dates appearing first. This means that opened capsules will be at the top and then yet to be open capsules will be displayed
             usort($result, function($a, $b){
                 $openTimeA  = $a["creation_time"];
                 $openTimeB  = $b["creation_time"];
@@ -108,20 +110,20 @@ class TimeCapsuleController {
                     $openTimeA  = 0;
                 }elseif( !empty($b['capsule_opened_by']) && !empty($a['capsule_opened_by']) ){
                     $openedByA  = $a['capsule_opened_by'];
-                    usort($openedByA, function($x, $y){
-                        if ($x["time"] == $y["time"]) {
+                    usort($openedByA, function($openDetailx, $openDetaily){
+                        if ($openDetailx["time"] == $openDetaily["time"]) {
                             return 0;
                         }
-                        return ($x["time"] < $y["time"]) ? -1 : 1;
+                        return ($openDetailx["time"] < $openDetaily["time"]) ? -1 : 1;
                     });  
                     $openTimeA  = $openedByA[0]["time"];
                     
                     $openedByB  = $b['capsule_opened_by'];
-                    usort($openedByB, function($x, $y){
-                        if ($x["time"] == $y["time"]) {
+                    usort($openedByB, function($openDetailx, $openDetaily){
+                        if ($openDetailx["time"] == $openDetaily["time"]) {
                             return 0;
                         }
-                        return ($x["time"] < $y["time"]) ? -1 : 1;
+                        return ($openDetailx["time"] < $openDetaily["time"]) ? -1 : 1;
                     });  
                     $openTimeB  = $openedByB[0]["time"];
                 }
@@ -129,7 +131,8 @@ class TimeCapsuleController {
                     return 0;
                 }
                 return ($openTimeA < $openTimeB) ? -1 : 1;
-            });       
+            });    
+            
             Library::output(true, '1', "No Error", $result);
         } catch (Exception $ex) {
             Library::logging('alert',"API : createTimeCapsule : ".$ex." : user_id : ".$header_data['id']);
