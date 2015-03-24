@@ -882,7 +882,7 @@ class UsersController
                 $s3         = new S3(AUTHKEY, SECRETKEY);
                 $bucketName = S3BUCKET;
                 if ( ! $s3->deleteObject($bucketName, $user->profile_image) ) {
-                    Library::logging('error',"API : deleteProfileImage : PROFILE IMAGE's FILE NOT DELETED FROM S3 Server : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
+                    Library::logging('error',"API : deleteProfileImage : PROFILE IMAGE's FILE NOT DELETED FROM S3 Server : user_id : ".$header_data['id']);
                     Library::output(false, '0', PROFILE_IMAGE_NOT_DELETED, null);
                 }
                 $user->profile_image = DEFAULT_PROFILE_IMAGE;
@@ -1041,7 +1041,7 @@ class UsersController
                     $contact                        = $user_info["retval"][0];
                     $result[$i]['user_id']          = $hiddenContact;
                     $result[$i]['username']         = isset($contact["username"]) ? $contact["username"] : '' ;
-                    $result[$i]['profile_image']    = $contact["profile_image"];
+                    $result[$i]['profile_image']    = FORM_ACTION.$contact["profile_image"];
                     $i++;
                 }
             }
