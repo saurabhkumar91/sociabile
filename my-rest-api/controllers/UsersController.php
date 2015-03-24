@@ -958,7 +958,7 @@ class UsersController
             if( empty($user->hidden_contacts) ){
                $user->hidden_contacts = array();
             }
-            if( ! array_search($post_data['user_id'], $user->hidden_contacts ) ){
+            if( array_search($post_data['user_id'], $user->hidden_contacts ) === false ){
                 $user->hidden_contacts[]    = $post_data['user_id'];
             }
             if( $user->save() ){
@@ -995,7 +995,7 @@ class UsersController
             if( empty($user->hidden_contacts) ){
                $user->hidden_contacts = array();
             }
-            if( ($key = array_search($post_data['user_id'], $user->hidden_contacts )) ){
+            if( ($key = array_search($post_data['user_id'], $user->hidden_contacts ) === true ) ){
                 unset( $user->hidden_contacts[$key] );
                 $user->hidden_contacts  = array_values( $user->hidden_contacts );
             }
