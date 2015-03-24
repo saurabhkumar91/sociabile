@@ -43,6 +43,7 @@ define('USER_DEACTIVATED', 'Account deactivated sucessfully.');
 define('USER_HIDDEN', 'User successfully added to hidden list.');
 define('USER_UNHIDDEN', 'User successfully removed from hidden list.');
 define('USER_REMOVED', 'Account removed sucessfully.');
+define('GROUP_CHANGED', "Friend's group changed successfully.");
 
 
 // otp relaed messages

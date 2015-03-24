@@ -428,6 +428,54 @@ class FriendsController
             Library::output(false, '0', ERROR_REQUEST, null);
         }
     }
+    
+    
+    /**
+     * Method to change friend's groups
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Saurabh kumar
+     * @return json
+     */
+    public function changeFriendsGroupAction( $header_data, $post_data ){
+        try {
+            if( !isset($post_data['friend_id']) || !isset($post_data['groups'])) {
+                Library::logging('alert',"API : changeFriendsGroup : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_INPUT, null);
+            } else {
+                if($header_data['os'] == 1) {
+                    $post_data["groups"] =  json_decode($post_data["groups"]);
+                }
+                $user   = Users::findById( $header_data["id"] );
+                $groupUpdated   = false;
+                if( isset($user->running_groups) && is_array($user->running_groups) ){
+                    foreach( $user->running_groups AS $key=>$runningGroup ){
+                        if( $runningGroup["user_id"] == $post_data['friend_id'] ){
+                            $user->running_groups[$key]["group_id"] = $post_data['groups'];
+                            if( $user->save() ){
+                                Library::output(true, '0', GROUP_CHANGED, null);
+                                $groupUpdated   = true;
+                            }else{
+                                foreach ($user->getMessages() as $message) {
+                                    $errors[] = $message->getMessage();
+                                }
+                                Library::logging('error',"API : changeFriendsGroup : ".$errors." user_id : ".$header_data['id']);
+                                Library::output(false, '0', $errors, null);
+                            }
+                        }
+                    }
+                }
+                if( !$groupUpdated ){
+                    Library::logging('alert',"API : changeFriendsGroup : Invalid friend id(".$post_data['friend_id'].") : user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+            }
+        } catch (Exception $e) {
+            Library::logging('error',"API : changeFriendsGroup : ".$e->getMessage()." ".": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+    }
 }
 
 ?>

@@ -1041,7 +1041,6 @@ class UsersController
         }
      }
   
-    
     /**
      * Method to get list of hidden user
      * @param $header_data: user and device details
