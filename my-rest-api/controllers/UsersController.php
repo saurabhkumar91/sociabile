@@ -71,7 +71,7 @@ class UsersController
                 $result = array();
                 $mobile_no = $data['mobile_no'];
                 $device_id = $data['device_id'];
-                $record = Users::find(array(array("mobile_no"=>$mobile_no)));
+                $record = Users::find( array(array("mobile_no"=>$mobile_no, "is_deleted"=>"0")) );
                 $jaxlPassword           = "12345";
                 if(count($record) > 0) {
                     $result['user_id'] = $record[0]->_id;
@@ -94,6 +94,7 @@ class UsersController
                     $user->device_id        = $device_id;
                     $user->date             = time();
                     $user->is_active        = 0;
+                    $user->is_deleted       = 0;
                     $user->profile_image    = DEFAULT_PROFILE_IMAGE;
                     
                     if ($user->save() == false) {
@@ -494,7 +495,7 @@ class UsersController
                 if( $user->mobile_no == $filter_contacts ){
                     continue;
                 }
-                $record = Users::find(array("conditions" =>array("mobile_no"=>$filter_contacts,"is_active"=>1)));
+                $record = Users::find(array("conditions" =>array("mobile_no"=>$filter_contacts,"is_active"=>1,"is_deleted"=>0)));
                 if(!empty($record)) {
                     
                     if( !empty($user->hidden_contacts) && in_array((string)$record[0]->_id, $user->hidden_contacts) ){
@@ -731,7 +732,7 @@ class UsersController
              } else {
                 $db = Library::getMongo();
                 
-                $user_info = $db->execute('return db.users.find({"unique_id" : "'.$unique_id.'", is_searchable : 1, is_active:1 }).toArray()');
+                $user_info = $db->execute('return db.users.find({"unique_id" : "'.$unique_id.'", is_searchable : 1, is_active:1, is_deleted : 0 }).toArray()');
                 if($user_info['ok'] == 0) {
                     Library::logging('error',"API : searchUser (user info) , mongodb error: ".$user_info['errmsg']." ".": user_id : ".$header_data['id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
@@ -767,7 +768,7 @@ class UsersController
                  Library::output(false, '0', ERROR_INPUT, null);
              } else {
                 $db = Library::getMongo();
-                $user_info = $db->execute('return db.users.find({"mobile_no" : "'.$mobileNo.'", is_mobile_searchable : 1, is_active : 1 }).toArray()');
+                $user_info = $db->execute('return db.users.find({"mobile_no" : "'.$mobileNo.'", is_mobile_searchable : 1, is_active : 1, is_deleted : 0 }).toArray()');
                 if($user_info['ok'] == 0) {
                     Library::logging('error',"API : searchUserByMobileNo (user info) , mongodb error: ".$user_info['errmsg']." ".": user_id : ".$header_data['id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
@@ -901,7 +902,6 @@ class UsersController
         }  
      }
      
-    
     /**
      * Method to deactivate user,s account
      * @param $header_data: user and device details
@@ -928,6 +928,31 @@ class UsersController
      }
   
     
+    /**
+     * Method to soft delete account
+     * @param $header_data: user and device details
+     * @author Saurabh Kumar
+     * @return json
+     */
+     public function deleteAccountAction( $header_data ){
+         try{
+             $user  = Users::findById( $header_data["id"] );
+             $user->is_deleted   = 1;
+             if( $user->save() ){
+                Library::output(true, '0', USER_DEACTIVATED, null);
+             }else{
+                foreach ($user->getMessages() as $message) {
+                    $errors[] = $message->getMessage();
+                }
+                Library::logging('error',"API : deactivateAccount : ".$errors." user_id : ".$header_data['id']);
+                Library::output(false, '0', $errors, null);
+             }
+         } catch (Exception $e) {
+            Library::logging('error',"API : deactivateAccount, error message : ".$e->getMessage(). ": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+         }
+     }
+  
     /**
      * Method to hide a user
      * @param $header_data: user and device details
@@ -1030,7 +1055,7 @@ class UsersController
             $result = array();
             $i      = 0;
             foreach($user->hidden_contacts AS $hiddenContact ){
-                $query      = "return db.users.find( { '_id' : ObjectId('$hiddenContact'), 'is_active' : 1 } ).toArray()" ;
+                $query      = "return db.users.find( { '_id' : ObjectId('$hiddenContact'), 'is_active' : 1, is_deleted : 0 } ).toArray()" ;
                 $db         = Library::getMongo();
                 $user_info  = $db->execute( $query );
                 if($user_info['ok'] == 0) {

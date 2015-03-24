@@ -54,7 +54,7 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
                     if(isset($param['token']) && isset($param['id'])) {
                         $token = $param['token'];
                         $user = Users::findById($param['id']);
-                        if( $user && (in_array($api_name, array("codeVerification", "setDeviceToken")) || $user->is_active) ) {
+                        if( $user && (in_array($api_name, array("codeVerification", "setDeviceToken")) || ($user->is_active && $user->is_deleted==0)) ) {
                              if($user->hash == $token) {
                             //echo "ok";die;    
                             } else {

@@ -408,7 +408,7 @@ class FriendsController
             if(isset($user->running_groups)) {
                 foreach($user->running_groups as $user_ids) {
                     $friends_info = Users::findById($user_ids['user_id']);
-                    if( empty($friends_info->is_active) ){
+                    if( empty($friends_info->is_active) || $friends_info->is_deleted == 1 ){
                         continue;
                     }
                     $friends_list[$i]['friends_id'] = (string)$friends_info->_id;
