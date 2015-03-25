@@ -408,6 +408,13 @@ class PostsController
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
+                $user       = Users::findById( $header_data["id"] );
+                $friends    = array( $header_data['id']=>$header_data['id'] );
+                if(isset($user->running_groups)) {
+                    foreach( $user->running_groups as $friend ) {
+                        $friends[$friend["user_id"]]    = $friend["user_id"];
+                    }
+                }
                 $post   = Posts::findById( $post_data['post_id'] );
                 if($post){
                     if( empty($post->liked_by) ){
@@ -420,7 +427,11 @@ class PostsController
                             if( !isset($friend->username) ){
                                 $friend->username   = "";
                             }
-                            $likedBy[]  = array( "name"=> $friend->username, "profile_image"=>FORM_ACTION.$friend->profile_image );
+                            if( empty($friends[$friendId]) || $friend->is_deleted == 1 ){
+                                $likedBy[]  = array( "name"=> "user", "profile_image"=>FORM_ACTION.DEFAULT_PROFILE_IMAGE );
+                            }else{
+                                $likedBy[]  = array( "name"=> $friend->username, "profile_image"=>FORM_ACTION.$friend->profile_image );
+                            }
                         }
                     }
                     if( empty($post->disliked_by) ){
@@ -433,9 +444,20 @@ class PostsController
                             if( !isset($friend->username) ){
                                 $friend->username   = "";
                             }
-                            $dislikedBy[]   = array( "name"=> $friend->username, "profile_image"=>FORM_ACTION.$friend->profile_image );
+                            if( empty($friends[$friendId]) || $friend->is_deleted == 1 ){
+                                $likedBy[]  = array( "name"=> "user", "profile_image"=>FORM_ACTION.DEFAULT_PROFILE_IMAGE );
+                            }else{
+                                $dislikedBy[]   = array( "name"=> $friend->username, "profile_image"=>FORM_ACTION.$friend->profile_image );
+                            }
                         }
                     }
+                    //sort details by username who liked/disliked
+                    usort($likedBy, function($postA, $postB){
+                        return strcmp($postA["name"], $postB["name"]);
+                    });       
+                    usort($dislikedBy, function($postA, $postB){
+                        return strcmp($postA["name"], $postB["name"]);
+                    });  
                     
                     $result = array("likes"=>$post->likes, "liked_by"=>$likedBy, "dislikes"=>$post->dislikes, "disliked_by"=>$dislikedBy);
                     Library::output(true, '1', "No Error", $result);

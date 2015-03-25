@@ -93,11 +93,12 @@ class CommentsController
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
-                $db = Library::getMongo();
-                $comments = $db->execute('var comments = [] ;
+                $user       = Users::findById( $header_data["id"] );
+                $db         = Library::getMongo();
+                $comments   = $db->execute('var comments = [] ;
                 db.comments.find({"post_id":"'.$post_id.'"}).forEach(
                 function (newComments) { 
-                    newComments.user = db.users.findOne({"_id":ObjectId(newComments.user_id)},{username:1,profile_image:1});
+                    newComments.user = db.users.findOne({"_id":ObjectId(newComments.user_id)},{username:1,profile_image:1, is_deleted:1});
                     comments.push(newComments);
                     }
                     ); 
@@ -105,16 +106,33 @@ class CommentsController
                 ');
                
                 if(count($comments['retval'])> 0) {
+                    $friends    = array( $header_data['id']=>$header_data['id'] );
+                    if(isset($user->running_groups)) {
+                        foreach( $user->running_groups as $friend ) {
+                            $friends[$friend["user_id"]]    = $friend["user_id"];
+                        }
+                    }
                     $i          =   0;
                     $listing    = array();
                     foreach ($comments['retval'] as $comment) {
-                        $listing[$i]['username'] = isset($comment['user']['username']) ? $comment['user']['username'] : '';
                         $listing[$i]['comment_id'] = (string)$comment['_id'];
                         $listing[$i]['comment_text'] = $comment['comment_text'];
                         $listing[$i]['comment_timestamp'] = $comment['date'];
-                        $listing[$i]['profile_pic'] = $comment['user']['profile_image'];
+                        if( empty($friends[$comment['user_id']]) || $comment['user']['is_deleted'] == 1 ){
+                            $listing[$i]['username']    = 'user';
+                            $listing[$i]['profile_pic'] = DEFAULT_PROFILE_IMAGE;
+                        }else{
+                            $listing[$i]['username'] = isset($comment['user']['username']) ? $comment['user']['username'] : 'user';
+                            $listing[$i]['profile_pic'] = $comment['user']['profile_image'];
+                        }
                         $i++;
                     }
+                    usort($listing, function($commentA, $commentB){
+                        if ($commentA["comment_timestamp"] == $commentB["comment_timestamp"]) {
+                            return 0;
+                        }
+                        return ($commentA["comment_timestamp"] < $commentB["comment_timestamp"]) ? 1 : -1;
+                    });       
                     $result['comments'] = $listing;
                     Library::output(true, '1', "No Error", $result);
                 } else {
