@@ -707,7 +707,6 @@ class SettingsController
                         }
 
                         $my_pictures_info   = array();
-                        $postGroups         = array(); // posts having multiple images
                         if($my_pictures == 1) {
                             $posts = Posts::find(array(array("user_id" => $user_id, "type"=>2)));
                             if(is_array($posts)) {
@@ -721,9 +720,11 @@ class SettingsController
                                     if( !empty($post->disliked_by) && in_array( $header_data['id'], $post->disliked_by) ){
                                         $isDisliked = true;
                                     }
-                                    $post->text = (!is_array($post->text)) ? FORM_ACTION.$post->text : $post->text;
+                                    if( is_array($post->text) ){
+                                        continue;
+                                    }
                                     $my_pictures_info[$postId]['post_id']           = $postId;
-                                    $my_pictures_info[$postId]['text']              = $post->text;
+                                    $my_pictures_info[$postId]['text']              = FORM_ACTION.$post->text;
                                     $my_pictures_info[$postId]['user_name']         = $user->username;
                                     $my_pictures_info[$postId]['total_comments']    = $post->total_comments;
                                     $my_pictures_info[$postId]['likes']             = $post->likes;
@@ -732,19 +733,6 @@ class SettingsController
                                     $my_pictures_info[$postId]['is_liked']          = $isLiked;
                                     $my_pictures_info[$postId]['is_disliked']       = $isDisliked;
                                     $my_pictures_info[$postId]['multiple']          = 0;
-                                    if( is_array($post->text) ){
-                                        $postGroups[$postId]                = $post->text;
-                                        $my_pictures_info[$postId]['multiple']  = 1;
-                                    }
-                                }
-                            }
-                        }
-                        foreach( $postGroups As $postId=>$postGroup ){
-                            $my_pictures_info[$postId]["text"]    = array();
-                            foreach( $postGroup as $childPost ){
-                                if( isset($my_pictures_info[$childPost]) ){
-                                    $my_pictures_info[$postId]["text"][]  = $my_pictures_info[$childPost];
-                                    unset( $my_pictures_info[$childPost] );
                                 }
                             }
                         }
@@ -939,6 +927,68 @@ class SettingsController
                 Library::output(false, '0', ERROR_REQUEST, null);
             }
             
+        }
+    }
+    
+    public function uploadChatImageAction($header_data,$post_data)
+    {
+        if( empty($_FILES["images"]['name']) ) {
+            Library::logging('alert',"API : uploadChatImage : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                foreach( $_FILES["images"]['name'] As $key=>$value ){
+                    $post_data['images'][]  = array( "name"=>$value, "tmp_name"=>$_FILES["images"]["tmp_name"][$key]) ;
+                }
+                $result = array();
+                $amazon = new AmazonsController();
+                foreach( $post_data['images'] As $image ){
+                    $uploadFile = rand().$image["name"];
+                    $amazonSign = $amazon->createsignatureAction($header_data,10);
+                    $url        = $amazonSign['form_action'];
+                    $headers    = array("Content-Type:multipart/form-data"); // cURL headers for file uploading
+                    $ext        = explode(".", $uploadFile);
+                    $extension  = trim(end($ext));
+                    if( !in_array($extension, array("jpeg", "png", "gif"))){
+                        $extension  = "jpeg";
+                    }
+                    $postfields = array(
+                        "key"                       => "uploaded/".$uploadFile,
+                        "AWSAccessKeyId"            => $amazonSign["AWSAccessKeyId"],
+                        "acl"                       => $amazonSign["acl"],
+                        "success_action_redirect"   => $amazonSign["success_action_redirect"],
+                        "policy"                    => $amazonSign["policy"],
+                        "signature"                 => $amazonSign["signature"],
+                        "Content-Type"              => "image/$extension",
+                        "file"                      => file_get_contents($image["tmp_name"])
+                    );
+                    $ch = curl_init();
+                    $options = array(
+                        CURLOPT_URL         => $url,
+                        CURLOPT_POST        => 1,
+                        CURLOPT_HTTPHEADER  => $headers,
+                        CURLOPT_POSTFIELDS  => $postfields,
+                        CURLOPT_FOLLOWLOCATION => true,
+                        CURLOPT_RETURNTRANSFER => true
+                    ); // cURL options
+                    curl_setopt_array($ch, $options);
+                    $imageName      = curl_exec($ch);
+                    curl_close($ch);
+                    
+                    $postfields["key"] = "thumbnail/".$uploadFile;
+                    $postfields["file"] = $amazon->createThumbnail(FORM_ACTION.$imageName);
+                    $ch = curl_init();
+                    $options[CURLOPT_POSTFIELDS]    = $postfields;
+                    curl_setopt_array($ch, $options);
+                    $thumbnailName  = curl_exec($ch);
+                    curl_close($ch);
+                    $result[]   = array( "image"=>FORM_ACTION.$imageName, "thumbnail"=>FORM_ACTION.$thumbnailName );
+                }
+                Library::output(true, '1', POST_SAVED, $result);
+            } catch (Exception $e) {
+                Library::logging('error',"API : uploadChatImage : ".$e." ".": user_id : ".$header_data["id"]);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
         }
     }
     

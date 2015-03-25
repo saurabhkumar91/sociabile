@@ -394,6 +394,12 @@ $app->post('/uploadMultipleImages', function () use ( $app ) {
     $settings->uploadMultipleImagesAction( $header_data, $app->request->getPost() );
 });
 
+$app->post('/uploadChatImage', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $settings = new SettingsController();
+    $settings->uploadChatImageAction( $header_data, $app->request->getPost() );
+});
+
 $app->post('/editUniqueId', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $users = new UsersController();

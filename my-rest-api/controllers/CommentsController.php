@@ -46,7 +46,7 @@ class CommentsController
                         $result['comment_text']         = $post_data['comment'];
                         $result['post_id']              = $comment->post_id;
                         $result['comment_timestamp']    = $comment->date;
-                        $result['profile_pic']          = $user->profile_image;
+                        $result['profile_pic']          = FORM_ACTION.$user->profile_image;
                         
                         if( $post->user_id != $header_data["id"]){
                             $db     = Library::getMongo();

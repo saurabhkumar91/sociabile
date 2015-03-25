@@ -802,19 +802,28 @@ class UsersController
      */
     
      public function setProfileImageAction( $header_data, $post_data ){ 
-        if( empty($post_data['image']) ) {
+        if( empty($post_data['image']) && empty($_FILES["images"]) ) {
             Library::logging('alert',"API : setProfileImage : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
-                $uploadFile = $post_data['image'];
-
+                if( !empty($_FILES["images"]['name']) && !empty($_FILES["images"]['tmp_name']) && empty($_FILES["images"]['error']) ){
+                    $imgName = rand().$_FILES["images"]['name'];
+                    $uploadFile= $_FILES["images"]['tmp_name'];
+                    
+                }elseif( empty($post_data['image']) ){
+                    $uploadFile = $post_data['image'];
+                    $img        = explode("/", $uploadFile);
+                    $imgName    = end($img);
+                }else{
+                    Library::logging('alert',"API : setProfileImage : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_INPUT, null);
+                }
+                
                 $amazon     = new AmazonsController();
                 $amazonSign = $amazon->createsignatureAction($header_data,10);
                 $url        = $amazonSign['form_action'];
                 $headers    = array("Content-Type:multipart/form-data"); // cURL headers for file uploading
-                $img        = explode("/", $uploadFile);
-                $imgName    = end($img);
                 $ext        = explode(".", $imgName);
                 $extension  = trim(end($ext));
                 if( !in_array($extension, array("jpeg", "png", "gif"))){
