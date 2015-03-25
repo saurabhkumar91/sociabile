@@ -278,6 +278,12 @@ $app->post('/changeFriendsGroup', function () use ( $app ) {
     $friends->changeFriendsGroupAction($header_data,$app->request->getPost());
 });
 
+$app->post('/unfriend', function () use ( $app ) {
+    $header_data    = Library::getallheaders();
+    $friends        = new FriendsController();
+    $friends->unfriendAction( $header_data, $app->request->getPost() );
+});
+
 $app->post('/generateOTP', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $settings = new SettingsController();

@@ -428,9 +428,9 @@ class PostsController
                                 $friend->username   = "";
                             }
                             if( empty($friends[$friendId]) || $friend->is_deleted == 1 ){
-                                $likedBy[]  = array( "name"=> "user", "profile_image"=>FORM_ACTION.DEFAULT_PROFILE_IMAGE );
+                                $likedBy[]  = array( "user_id"=>"" ,"name"=> "user", "profile_image"=>FORM_ACTION.DEFAULT_PROFILE_IMAGE );
                             }else{
-                                $likedBy[]  = array( "name"=> $friend->username, "profile_image"=>FORM_ACTION.$friend->profile_image );
+                                $likedBy[]  = array( "user_id"=>$friendId, "name"=> $friend->username, "profile_image"=>FORM_ACTION.$friend->profile_image );
                             }
                         }
                     }
@@ -445,9 +445,9 @@ class PostsController
                                 $friend->username   = "";
                             }
                             if( empty($friends[$friendId]) || $friend->is_deleted == 1 ){
-                                $likedBy[]  = array( "name"=> "user", "profile_image"=>FORM_ACTION.DEFAULT_PROFILE_IMAGE );
+                                $dislikedBy[]   = array( "user_id"=>"" , "name"=> "user", "profile_image"=>FORM_ACTION.DEFAULT_PROFILE_IMAGE );
                             }else{
-                                $dislikedBy[]   = array( "name"=> $friend->username, "profile_image"=>FORM_ACTION.$friend->profile_image );
+                                $dislikedBy[]   = array( "user_id"=>$friendId , "name"=> $friend->username, "profile_image"=>FORM_ACTION.$friend->profile_image );
                             }
                         }
                     }

@@ -179,7 +179,6 @@ class FriendsController
                 Library::logging('alert',"API : requestAccept : ".ERROR_INPUT.": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_INPUT, null);
             } else {
-                
                 if($header_data['os'] == 2) {
                     $groupIds =  json_encode($post_data['group_id']);
                 } else {
@@ -429,7 +428,124 @@ class FriendsController
         }
     }
     
-    
+    /**
+     * Method to unfriend a user
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Saurabh kumar
+     * @return json
+     */
+    public function unfriendAction( $header_data, $post_data ){
+        try {
+            if( !isset($post_data['friend_id']) ) {
+                Library::logging('alert',"API : unfriend : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_INPUT, null);
+            } else {
+                $user   = Users::findById($header_data['id']);
+                $friend = Users::findById($post_data['friend_id']);
+                /******* code for subscribe(add) user on jabber server **************************************/
+                require 'components/JAXL3/jaxl.php';
+                $client = new JAXL(array(
+                    'jid'       => $user->jaxl_id,
+                    'pass'      => $user->jaxl_password,
+                    'log_level' => JAXL_ERROR
+                ));
+                $client->add_cb('on_auth_success', function() {
+                    $client     = $_SESSION["client"];
+                    $friendJid  = $_SESSION["friendJid"];
+                    $client->unsubscribed( $friendJid);
+                    $client->send_end_stream();
+                });
+                $client->add_cb('on_auth_failure', function() {
+                    $userId = $_SESSION["userId"];
+                    Library::logging('error',"API : unfriend : ".JAXL_AUTH_FAILURE." : user_id : ".$userId);
+                    Library::output(false, '0', JAXL_AUTH_FAILURE, null);
+                });
+                
+                $client->add_cb('on_disconnect', function() {
+                    $userId     = $_SESSION["userId"];
+                    $user       = $_SESSION["user"];
+                    $friend     = $_SESSION["friend"];
+                    $friendId   = $_SESSION["friendId"];
+                    $isModified = 0;
+                    if( isset($user->running_groups) && is_array($user->running_groups) ){
+                        foreach( $user->running_groups AS $key=>$runningGroup ){
+                            if( $runningGroup["user_id"] == $friendId ){
+                                unset($user->running_groups[$key]);
+                                $user->running_groups   = array_values( $user->running_groups );
+                                $isModified = 1;
+                                break;
+                            }
+                        }
+                    }
+                    if( isset($user->request_sent) && is_array($user->request_sent) ){
+                        foreach( $user->request_sent AS $key=>$requestSent ){
+                            if( $requestSent["user_id"] == $friendId ){
+                                unset($user->request_sent[$key]);
+                                $user->request_sent   = array_values( $user->request_sent );
+                                $isModified = 1;
+                                break;
+                            }
+                        }
+                    }
+                    if( $isModified ){
+                        $isModified = 0;
+                        if( !$user->save() ){
+                            foreach ($user->getMessages() as $message) {
+                                $errors[] = $message->getMessage();
+                            }
+                            Library::logging('error',"API : unfriend : ".$errors." user_id : ".$userId);
+                            Library::output(false, '0', $errors, null);
+                        }
+                    }
+                    if( isset($friend->running_groups) && is_array($friend->running_groups) ){
+                        foreach( $friend->running_groups AS $key=>$runningGroup ){
+                            if( $runningGroup["user_id"] == $userId ){
+                                unset($friend->running_groups[$key]);
+                                $friend->running_groups   = array_values( $friend->running_groups );
+                                $isModified = 1;
+                                break;
+                            }
+                        }
+                    }
+                    if( isset($friend->request_sent) && is_array($friend->request_sent) ){
+                        foreach( $friend->request_sent AS $key=>$requestSent ){
+                            if( $requestSent["user_id"] == $userId ){
+                                unset($friend->request_sent[$key]);
+                                $friend->request_sent   = array_values( $friend->request_sent );
+                                $isModified = 1;
+                                break;
+                            }
+                        }
+                    }
+                    if( $isModified ){
+                        if( !$friend->save() ){
+                            foreach ($friend->getMessages() as $message) {
+                                $errors[] = $message->getMessage();
+                            }
+                            Library::logging('error',"API : unfriend : ".$errors." user_id : ".$userId);
+                            Library::output(false, '0', $errors, null);
+                        }
+                    }
+                    Library::output(true, '1', USER_UNFRIENDED, null);
+                });                    
+
+                $_SESSION["client"]     = $client;
+                $_SESSION["friendJid"]  = $friend->jaxl_id;
+                $_SESSION["friendId"]   = $post_data['friend_id'];
+                $_SESSION["userId"]     = $header_data['id'];
+                $_SESSION["user"]       = $user;
+                $_SESSION["friend"]     = $friend;
+                $client->start();
+                /******* code for subscribe(add) user end **************************************/
+            }
+        } catch (Exception $e) {
+            Library::logging('error',"API : unfriend : ".$e->getMessage()." ".": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+    }
+
     /**
      * Method to change friend's groups
      * @param object request params

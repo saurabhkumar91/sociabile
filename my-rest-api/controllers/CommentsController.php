@@ -119,11 +119,13 @@ class CommentsController
                         $listing[$i]['comment_text'] = $comment['comment_text'];
                         $listing[$i]['comment_timestamp'] = $comment['date'];
                         if( empty($friends[$comment['user_id']]) || $comment['user']['is_deleted'] == 1 ){
+                            $listing[$i]['user_id']     = '';
                             $listing[$i]['username']    = 'user';
-                            $listing[$i]['profile_pic'] = DEFAULT_PROFILE_IMAGE;
+                            $listing[$i]['profile_pic'] = FORM_ACTION.DEFAULT_PROFILE_IMAGE;
                         }else{
-                            $listing[$i]['username'] = isset($comment['user']['username']) ? $comment['user']['username'] : 'user';
-                            $listing[$i]['profile_pic'] = $comment['user']['profile_image'];
+                            $listing[$i]['user_id']     = $comment['user_id'];
+                            $listing[$i]['username']    = isset($comment['user']['username']) ? $comment['user']['username'] : 'user';
+                            $listing[$i]['profile_pic'] = FORM_ACTION.$comment['user']['profile_image'];
                         }
                         $i++;
                     }
