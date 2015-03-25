@@ -132,7 +132,7 @@ class GroupsController
                 $client = new JAXL(array(
                     'jid'       => $user->jaxl_id,
                     'pass'      => $user->jaxl_password,
-                    'log_level' => JAXL_DEBUG
+                    'log_level' => JAXL_ERROR
                 ));
                 $client->require_xep(array(
                         '0045'     // group chat
@@ -334,7 +334,7 @@ class GroupsController
                 $client = new JAXL(array(
                     'jid' => $user->jaxl_id,
                     'pass' => $user->jaxl_password,
-                    'log_level' => JAXL_DEBUG
+                    'log_level' => JAXL_ERROR
                 ));
                 $client->require_xep(array(
                         '0045',     // group chat
@@ -442,7 +442,7 @@ class GroupsController
                 $client = new JAXL(array(
                     'jid' => $user->jaxl_id,
                     'pass' => $user->jaxl_password,
-                    'log_level' => JAXL_DEBUG
+                    'log_level' => JAXL_ERROR
                 ));
                 $client->require_xep(array(
                         '0045',     // group chat
@@ -557,7 +557,7 @@ class GroupsController
                 $client = new JAXL(array(
                     'jid' => $user->jaxl_id,
                     'pass' => $user->jaxl_password,
-                    'log_level' => JAXL_DEBUG
+                    'log_level' => JAXL_ERROR
                 ));
                 $client->require_xep(array(
                         '0045',     // group chat

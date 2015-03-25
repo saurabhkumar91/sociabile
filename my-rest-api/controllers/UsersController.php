@@ -17,7 +17,7 @@ class UsersController
         require 'components/JAXL3/register.php';
         $client = new JAXL(array(
                 'jid' => JAXL_HOST_NAME,
-                'log_level' => JAXL_DEBUG
+                'log_level' => JAXL_ERROR
         ));
 
         $client->require_xep(array(
@@ -71,8 +71,9 @@ class UsersController
                 $result = array();
                 $mobile_no = $data['mobile_no'];
                 $device_id = $data['device_id'];
-                $record = Users::find( array(array("mobile_no"=>$mobile_no, "is_deleted"=>"0")) );
+                $record = Users::find( array(array("mobile_no"=>$mobile_no, "is_deleted"=>0)) );
                 $jaxlPassword           = "12345";
+                exit( var_dump(count($record)) );
                 if(count($record) > 0) {
                     $result['user_id']  = $record[0]->_id;
                     $result['token']    = $record[0]->hash;

@@ -47,7 +47,7 @@ class FriendsController
                 $client = new JAXL(array(
                     'jid' => $user->jaxl_id,
                     'pass' => $user->jaxl_password,
-                    'log_level' => JAXL_DEBUG
+                    'log_level' => JAXL_ERROR
                 ));
                 $client->add_cb('on_auth_success', function() {
                     $client         = $_SESSION["client"];
@@ -213,7 +213,7 @@ class FriendsController
                 $client = new JAXL(array(
                     'jid' => $user->jaxl_id,
                     'pass' => $user->jaxl_password,
-                    'log_level' => JAXL_DEBUG
+                    'log_level' => JAXL_ERROR
                 ));
                 $client->add_cb('on_auth_success', function() {
                     $client         = $_SESSION["client"];
@@ -332,7 +332,7 @@ class FriendsController
                 $client = new JAXL(array(
                     'jid'       => $user->jaxl_id,
                     'pass'      => $user->jaxl_password,
-                    'log_level' => JAXL_DEBUG
+                    'log_level' => JAXL_ERROR
                 ));
                 $client->add_cb('on_auth_success', function() {
                     $client      = $_SESSION["client"];
