@@ -138,7 +138,7 @@ class GroupsController
                         '0045'     // group chat
                 ));
                 $groupname      = $post_data["groupname"];
-                $chatGroupID    = str_replace(" ", '_', $groupname).uniqid()."@conference.".JAXL_HOST_NAME;
+                $chatGroupID    = strtolower( str_replace(" ", '_', $groupname).uniqid()."@conference.".JAXL_HOST_NAME );
                 $roomFullJid    = new XMPPJid( $chatGroupID. "/" .$user->mobile_no );
                 
                 $client->add_cb('on_auth_success', function() {
