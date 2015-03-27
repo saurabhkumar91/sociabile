@@ -1107,10 +1107,13 @@ class SettingsController
             $ctx = stream_context_create();
             stream_context_set_option($ctx, 'ssl', 'local_cert', $file_path);
             stream_context_set_option($ctx, 'ssl', 'passphrase', APN_PASSPHRASE);
+            
+            $tmpMessage    = json_decode($message["message"]);
             $body['aps'] = array(
-                    'alert' => $message["message"],
+                    'alert' => $tmpMessage["message"],
                     'sound' => 'default'
                     );
+            $body["data"]   = $message["message"];
             foreach($deviceToken as $token){
                 $err    = $errstr   = '';
                 $fp = stream_socket_client('ssl://gateway.sandbox.push.apple.com:2195', $err, $errstr, 120, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT, $ctx);
