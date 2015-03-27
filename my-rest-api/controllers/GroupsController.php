@@ -525,8 +525,20 @@ class GroupsController
                 $_SESSION["chatGroupID"]    = $chatGroupID;
                 $_SESSION["groupId"]        = $groupId;
                 $_SESSION["userId"]         = $header_data['id'];
-                $client->start();
+              //  $client->start();
                 /******* code for subscribe(add) user end **************************************/
+                
+                /*** code if ejabberd is not involved */
+                $request = 'return db.chat_groups.update({"_id" :ObjectId("'.$groupId.'")}, {$pull:{"members":{ "member_id" : "'.$header_data['id'].'", "is_active" : 1 }},$pull:{"members":{ "member_id" : "'.$header_data['id'].'", "is_active" : 0 }}})';
+                $db = Library::getMongo();
+                $result =  $db->execute($request);
+                if($result['ok'] == 0) {
+                    Library::logging('error',"API : leaveChatGroup, error_msg: ".$result['errmsg']." ".": user_id : ".$header_data['id']);
+                    Library::output(false, '0', JAXL_ERR_LEAVE_MUC, null);
+                }
+                /*****************************/
+                
+                Library::output(true, '1', JAXL_MUC_LEAVED, null);
                     
                 
         } catch(Exception $e) {
