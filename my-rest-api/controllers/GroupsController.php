@@ -421,10 +421,12 @@ class GroupsController
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
                 $groupId    = $post_data["group_id"];
-                $chatGroup  = ChatGroups::findById($groupId);
+                $chatGroup  = ChatGroups::find(array(array("group_jid" => $groupId)));
                 if( !$chatGroup ){
                     Library::logging('error',"API : leaveChatGroup : invalid parameters recieved(group id): user_id : ".$header_data['id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
+                }else{
+                    $chatGroup  = $chatGroup[0];
                 }
                 $isMember   = false;
                 foreach( $chatGroup->members AS $member ){
@@ -542,10 +544,12 @@ class GroupsController
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
                 $groupId    = $post_data["group_id"];
-                $chatGroup  = ChatGroups::findById($groupId);
+                $chatGroup  = ChatGroups::find(array(array("group_jid" => $groupId)));
                 if( !$chatGroup ){
                     Library::logging('error',"API : deleteChatGroup : invalid parameters recieved(group id): user_id : ".$header_data['id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
+                }else{
+                    $chatGroup  = $chatGroup[0];
                 }
                 
                 if( $chatGroup->created_by != $header_data['id'] ){
