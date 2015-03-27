@@ -942,6 +942,7 @@ class SettingsController
                 }
                 $result = array();
                 $amazon = new AmazonsController();
+                $count  = 0;
                 foreach( $post_data['images'] As $image ){
                     $uploadFile = rand().$image["name"];
                     $amazonSign = $amazon->createsignatureAction($header_data,10);
@@ -953,7 +954,7 @@ class SettingsController
                         $extension  = "jpeg";
                     }
                     $postfields = array(
-                        "key"                       => "uploaded/".$uploadFile,
+                        "key"                       => "chat/".$uploadFile,
                         "AWSAccessKeyId"            => $amazonSign["AWSAccessKeyId"],
                         "acl"                       => $amazonSign["acl"],
                         "success_action_redirect"   => $amazonSign["success_action_redirect"],
@@ -975,14 +976,14 @@ class SettingsController
                     $imageName      = curl_exec($ch);
                     curl_close($ch);
                     
-                    $postfields["key"] = "thumbnail/".$uploadFile;
-                    $postfields["file"] = $amazon->createThumbnail(FORM_ACTION.$imageName);
-                    $ch = curl_init();
-                    $options[CURLOPT_POSTFIELDS]    = $postfields;
-                    curl_setopt_array($ch, $options);
-                    $thumbnailName  = curl_exec($ch);
-                    curl_close($ch);
-                    $result[]   = array( "image"=>FORM_ACTION.$imageName, "thumbnail"=>FORM_ACTION.$thumbnailName );
+//                    $postfields["key"] = "thumbnail/".$uploadFile;
+//                    $postfields["file"] = $amazon->createThumbnail(FORM_ACTION.$imageName);
+//                    $ch = curl_init();
+//                    $options[CURLOPT_POSTFIELDS]    = $postfields;
+//                    curl_setopt_array($ch, $options);
+//                    $thumbnailName  = curl_exec($ch);
+//                    curl_close($ch);
+                    $result[]   = array( "image"=>FORM_ACTION.$imageName/*, "thumbnail"=>FORM_ACTION.$thumbnailName*/ );
                 }
                 Library::output(true, '1', POST_SAVED, $result);
             } catch (Exception $e) {
