@@ -420,14 +420,14 @@ class GroupsController
                     Library::logging('error',"API : leaveChatGroup : invalid parameters recieved(group id): user_id : ".$header_data['id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
-                $groupId    = $post_data["group_id"];
-                $chatGroup  = ChatGroups::find(array(array("group_jid" => $groupId)));
+                $chatGroup  = ChatGroups::find(array(array("group_jid" => $post_data["group_id"])));
                 if( !$chatGroup ){
                     Library::logging('error',"API : leaveChatGroup : invalid parameters recieved(group id): user_id : ".$header_data['id']);
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }else{
                     $chatGroup  = $chatGroup[0];
                 }
+                $groupId    = (string)$chatGroup->_id; 
                 $isMember   = false;
                 foreach( $chatGroup->members AS $member ){
                     if( $member["member_id"] == $header_data['id'] ){
