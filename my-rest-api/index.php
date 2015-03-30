@@ -101,6 +101,12 @@ $app->get('/removeAccount', function () {
     $user->removeAccountAction($header_data);
 });
 
+$app->post('/setRecoveryEMailId', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $user = new UsersController();
+    $user->setRecoveryEMailIdAction($header_data,$app->request->getPost());
+});
+
 $app->post('/createPost', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $post = new PostsController();
