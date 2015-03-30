@@ -1111,4 +1111,32 @@ class UsersController
             Library::output(false, '0', ERROR_REQUEST, null);
         }
      }
+     
+    public function sendRecoveryEmailAction( $header_data ){
+        try{
+            $user   = Users::findById( $header_data["id"] );
+            $emails = array();
+            if( isset($user->recovery_email_id) ){
+                $emails[]   = $user->recovery_email_id;
+            }
+            if( isset($user->email_id) ){
+                $emails[]   = $user->email_id;
+            }
+            if( empty($emails) ){
+                Library::logging('error',"API : sendRecoveryEmail : No email registered user_id : ".$header_data['id']);
+                Library::output(false, '0', "No email id has been registered to recover account.", null);
+            }
+            $otp    = Library::getOTP();
+            $message    = "Use code $otp top activate recover your sociabile account.";
+            if( Library::sendMail($emails, $message, "Sociabile Account Recovery") ){
+                Library::output( true, '0', "OTP successfully sent to registered email id.", array("otp"=>$otp) );
+            }else{
+                Library::logging('error',"API : sendRecoveryEmail :  Unable to send email. : user_id : ".$header_data['id']);
+                Library::output(false, '0', "Unable to send email.", null);
+            }
+        } catch (Exception $e) {
+            Library::logging('error',"API : sendRecoveryEmail, error message : ".$e->getMessage(). ": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+    }
 }
