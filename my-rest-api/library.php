@@ -145,6 +145,10 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
         $db = $mongo->Sociabile;
         return $db;
     }
+    
+    static function getOTP( $digits='4' ){
+        return rand(pow(10, $digits-1), pow(10, $digits)-1);        
+    }
 
 }
 

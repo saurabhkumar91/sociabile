@@ -836,7 +836,7 @@ class UsersController
                     $imgName = rand().$_FILES["images"]['name'];
                     $uploadFile= $_FILES["images"]['tmp_name'];
                     
-                }elseif( empty($post_data['image']) ){
+                }elseif( !empty($post_data['image']) ){
                     $uploadFile = $post_data['image'];
                     $img        = explode("/", $uploadFile);
                     $imgName    = end($img);
