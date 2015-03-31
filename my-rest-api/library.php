@@ -163,17 +163,13 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
         
         ini_set("SMTP", "smtp.gmail.com");            
         ini_set("smtp_port", 465);
-        ini_set("auth_username", "shubham150@gmail.com");
-        ini_set("sendmail_from", "shubham150@gmail.com");
-        ini_set("auth_password", "");
+        ini_set("auth_username", "test.sociabile@gmail.com");
+        ini_set("sendmail_from", "test.sociabile@gmail.com");
+        ini_set("auth_password", "sociabile@1");
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
         //$headers .= 'From: <support@cafegive.com>' . "\r\n";
-
- //       $message = "Your OTP is : 1234";
-
-//        mail($post_data['email_id'], "Forgot Password | Sociabile", $message,$headers);
         
         return mail( $receiver[0], $subject, $message, $headers );
         

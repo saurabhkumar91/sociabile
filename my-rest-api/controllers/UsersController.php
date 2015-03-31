@@ -235,8 +235,8 @@ class UsersController
                         $user->my_pictures_groups = $group;
                         $user->unique_id = uniqid();
                         $user->is_edit = 0;
-                        $user->is_searchable = 0;
-                        $user->is_mobile_searchable = 0;
+                        $user->is_searchable = 1;
+                        $user->is_mobile_searchable = 1;
                         $user->save();
                     }
                     Library::output(true, '1', OTP_VERIFIED, null);
