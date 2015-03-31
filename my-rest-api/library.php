@@ -169,7 +169,7 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
 
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-        //$headers .= 'From: <support@cafegive.com>' . "\r\n";
+        $headers .= 'From: <test.sociabile@gmail.com>' . "\r\n";
         
         return mail( $receiver[0], $subject, $message, $headers );
         
