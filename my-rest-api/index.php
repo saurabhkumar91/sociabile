@@ -107,10 +107,10 @@ $app->post('/setRecoveryEMailId', function () use ( $app ) {
     $user->setRecoveryEMailIdAction($header_data,$app->request->getPost());
 });
 
-$app->post('/sendRecoveryEmail', function () use ( $app ) {
+$app->get('/sendRecoveryEmail', function (){
     $header_data = Library::getallheaders();
     $user = new UsersController();
-    $user->sendRecoveryEmailAction($header_data,$app->request->getPost());
+    $user->sendRecoveryEmailAction($header_data);
 });
 
 $app->post('/createPost', function () use ( $app ) {

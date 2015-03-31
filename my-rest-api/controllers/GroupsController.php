@@ -429,8 +429,10 @@ class GroupsController
                 }
                 $groupId    = (string)$chatGroup->_id; 
                 $isMember   = false;
-                foreach( $chatGroup->members AS $member ){
+                foreach( $chatGroup->members AS $key=>$member ){
                     if( $member["member_id"] == $header_data['id'] ){
+                        unset($chatGroup->members[$key]);
+                        $chatGroup->members = array_values($chatGroup->members);
                         $isMember   = true;
                         break;
                     }
@@ -439,7 +441,20 @@ class GroupsController
                     Library::logging('error',"API : leaveChatGroup : ".JAXL_NOT_A_MUC_MEMBER." : user_id : ".$header_data['id']);
                     Library::output(false, '0', JAXL_NOT_A_MUC_MEMBER, null);
                 }
+                
+                /*** code if ejabberd is not involved */
+                if ($chatGroup->save() == false) {
+                    foreach ($chatGroup->getMessages() as $message) {
+                        $errors[] = $message->getMessage();
+                    }
+                    Library::logging('error',"API : setProfile : ".$errors." : user_id : ".$header_data['id']);
+                    Library::output(false, '0', $errors, null);
+                }
+                Library::output(true, '1', JAXL_MUC_LEAVED, null);
+                /*****************************/
+                
                 $user       = Users::findById($header_data['id']);
+                
                 require 'components/JAXL3/jaxl.php';
                 $client = new JAXL(array(
                     'jid' => $user->jaxl_id,
@@ -527,19 +542,6 @@ class GroupsController
                 $_SESSION["userId"]         = $header_data['id'];
               //  $client->start();
                 /******* code for subscribe(add) user end **************************************/
-                
-                /*** code if ejabberd is not involved */
-                $request = 'return db.chat_groups.update({"_id" :ObjectId("'.$groupId.'")}, {$pull:{"members":{ "member_id" : "'.$header_data['id'].'", "is_active" : 1 }},$pull:{"members":{ "member_id" : "'.$header_data['id'].'", "is_active" : 0 }}})';
-                $db = Library::getMongo();
-                $result =  $db->execute($request);
-                if($result['ok'] == 0) {
-                    Library::logging('error',"API : leaveChatGroup, error_msg: ".$result['errmsg']." ".": user_id : ".$header_data['id']);
-                    Library::output(false, '0', JAXL_ERR_LEAVE_MUC, null);
-                }
-                /*****************************/
-                
-                Library::output(true, '1', JAXL_MUC_LEAVED, null);
-                    
                 
         } catch(Exception $e) {
             Library::logging('error',"API : leaveChatGroup : ".$e." ".": user_id : ".$header_data['id']);

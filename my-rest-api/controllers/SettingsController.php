@@ -67,19 +67,8 @@ class SettingsController
                                 Library::logging('error',"API : generateOTP, error_msg : ".$errors." : user_id : ".$header_data['id']);
                                 Library::output(false, '0', $errors, null);
                             } else {
-                                ini_set("SMTP", "smtp.gmail.com");            
-                                ini_set("smtp_port", 465);
-                                ini_set("auth_username", "shubham150@gmail.com");
-                                ini_set("sendmail_from", "shubham150@gmail.com");
-                                ini_set("auth_password", "");
-
-                                $headers = "MIME-Version: 1.0" . "\r\n";
-                                $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-                                //$headers .= 'From: <support@cafegive.com>' . "\r\n";
-
                                 $message = "Your OTP is : 1234";
-
-                                mail($post_data['email_id'], "Forgot Password | Sociabile", $message,$headers);
+                                Library::sendMail( $post_data['email_id'], $message, "Forgot Password | Sociabile" );
                                 Library::output(true, '1', "OTP Sent Successfully", null);
                             }
                         } else {
@@ -238,21 +227,10 @@ class SettingsController
                 if($result['ok'] == 0) {
                     Library::logging('error',"API : contactUs, error_msg: ".$result['errmsg']." ".": user_id : ".$header_data['id']);
                 }
-
-                ini_set("SMTP", "smtp.gmail.com");            
-                ini_set("smtp_port", 465);
-                ini_set("auth_username", "shubham150@gmail.com");
-                ini_set("sendmail_from", "shubham150@gmail.com");
-                ini_set("auth_password", "");
-
-            
-                $headers = "MIME-Version: 1.0" . "\r\n";
-                $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-                //$headers .= 'From: <support@cafegive.com>' . "\r\n";
                                 
                 $email_id = "shubham150@gmail.com";
                 
-                mail($email_id, "Contact Us", $post_data['message'],$headers);
+                Library::sendMail( $email_id, $post_data['message'], "Contact Us" );
                 
                 Library::output(true, '1', "Post Sent Successfully.",null);
             } catch(Exception $e) {

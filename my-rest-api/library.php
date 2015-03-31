@@ -151,16 +151,6 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
     }
     
     static function sendMail( $receiver, $message, $subject='' ){
-//        ini_set("smtp_server", "smtp.gmail.com");            
-//        ini_set("smtp_port", 465);
-//        ini_set("auth_username", "test.sociabile@gmail.com");
-//        ini_set("sendmail_from", "test.sociabile@gmail.com");
-//        ini_set("auth_password", "sociabile@1");
-//
-//
-//        $headers = "MIME-Version: 1.0" . "\r\n";
-//        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-        
         ini_set("SMTP", "smtp.gmail.com");            
         ini_set("smtp_port", 465);
         ini_set("auth_username", "test.sociabile@gmail.com");
@@ -172,7 +162,6 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
         $headers .= 'From: <test.sociabile@gmail.com>' . "\r\n";
         
         return mail( $receiver[0], $subject, $message, $headers );
-        
     }
 
 }
