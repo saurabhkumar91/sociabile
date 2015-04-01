@@ -72,7 +72,11 @@ class TimeCapsuleController {
             }
             foreach( $timeCapsules["retval"] AS $timeCapsule ){
                 if( $timeCapsule["user_id"] == $header_data["id"] ){
-                    $capsuleType    = 0;
+                    if(in_array($header_data["id"], $timeCapsule["capsule_recipients"])){
+                        $capsuleType    = 1;  // user is receipent
+                    }else{
+                        $capsuleType    = 0;  // user is sender
+                    }
                     $sender         = $users->username;
                 }else{
                     $senderRes  = $db->execute('return db.users.find({"_id" : ObjectId("'.$timeCapsule["user_id"].'")}, {username:1}).toArray()');

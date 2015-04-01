@@ -32,6 +32,11 @@ class SettingsController
                         Library::output(false, '0', ERROR_INPUT, null);
                     } else {
                         if($user) {
+                            $mobileNo   = Users::find(array( array("mobile_no"=>$post_data['mobile_no']) ));
+                            if( !empty($mobileNo[0]) && ($mobileNo[0]->is_deleted == 0) ){
+                                Library::logging('alert',"API : generateOTP : mobile no exists : user_id : ".$header_data['id']);
+                                Library::output(false, '0', "This mobile no already exists.", null);
+                            }
                             $user->change_mobile_no = $post_data['mobile_no'];
                             $user->otp = 1234;
 
