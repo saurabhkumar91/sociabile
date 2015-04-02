@@ -449,7 +449,7 @@ class SettingsController
     
     public function setPrivacySettingsAction($header_data,$post_data)
     {
-        if( !isset($post_data['group_ids']) || !isset($post_data['type'])) {
+        if( (!isset($post_data['group_ids']) && $header_data['os'] == 1) || !isset($post_data['type'])) {
             Library::logging('alert',"API : setPrivacySettings : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
@@ -457,7 +457,11 @@ class SettingsController
                 if($header_data['os'] == 1) {
                     $group_ids = json_decode($post_data['group_ids']);
                 } else {
-                    $group_ids = $post_data['group_ids'];
+                    if( empty($post_data['group_ids']) ){
+                        $group_ids = array();
+                    }else{
+                        $group_ids = $post_data['group_ids'];
+                    }
                 }
                 $user = Users::findById($header_data['id']);
                 if($post_data['type'] == 1) {
@@ -469,6 +473,7 @@ class SettingsController
                 } else {
                     Library::output(false, '0', "Wrong Type", null);
                 }
+               // print_r($user->my_mind_groups); exit();
                 if ($user->save() == false) {
                     foreach ($user->getMessages() as $message) {
                         $errors[] = $message->getMessage();
