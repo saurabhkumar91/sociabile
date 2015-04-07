@@ -233,7 +233,7 @@ class UsersController
                         $user->my_mind_groups = $group;
                         $user->about_me_groups = $group;
                         $user->my_pictures_groups = $group;
-                        $user->unique_id = uniqid();
+                        $user->unique_id = strtolower( uniqid() );
                         $user->is_edit = 0;
                         $user->is_searchable = 1;
                         $user->is_mobile_searchable = 0;
@@ -364,6 +364,7 @@ class UsersController
             $profile['birthday'] = isset($user->birthday) ? $user->birthday : '';
             $profile['profile_pic'] = FORM_ACTION.$user->profile_image;
             $profile['email_id'] = isset($user->email_id) ? $user->email_id : $email_id;
+            $profile['recovery_email_id'] = isset($user->recovery_email_id) ? $user->recovery_email_id : '';
             $profile['password'] = isset($user->password) ? $user->password : '';
             $profile['unique_id'] = isset($user->unique_id) ? $user->unique_id : '';
             $profile['is_edit'] = isset($user->is_edit) ? $user->is_edit : '';
@@ -625,6 +626,7 @@ class UsersController
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
+                $post_data['unique_id']  = strtolower($post_data['unique_id']);
                 $db = Library::getMongo();
                 
                 $user_info = $db->execute('return db.users.find({"_id" :ObjectId("'.$header_data['id'].'") }).toArray()');
@@ -758,6 +760,7 @@ class UsersController
              if(empty($unique_id)) {
                  Library::output(false, '0', WRONG_UNIQUE_ID, null);
              } else {
+                 $unique_id = strtolower($unique_id);
                 $db = Library::getMongo();
                 
                 $user_info = $db->execute('return db.users.find({"unique_id" : "'.$unique_id.'", is_searchable : 1, is_active:1, is_deleted : 0 }).toArray()');

@@ -902,6 +902,7 @@ class SettingsController
             Library::logging('alert',"API : userLogin : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
+            $post_data['unique_id'] = strtolower($post_data['unique_id']);
             try {
                 $security = new \Phalcon\Security();
                 $user = Users::findById($header_data['id']);
