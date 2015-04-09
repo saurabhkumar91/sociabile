@@ -14,6 +14,7 @@ define('USER_PROFILE_IMAGE', 'Profile Image Changed Successfully.');
 define('CONTEXT_INDICATOR', 'Context Indicator Set Successfully.');
 define('USER_REQUEST_SENT', 'Request Sent Successfully.');
 define('REQUEST_TO_SELF', 'You Can Not Send Request To Yourself.');
+define('REQUEST_TO_HIDDEN', 'You Can Not Send Request To Hidden Users.');
 define('USER_ACCEPT', 'Request Accepted Successfully.');
 define('USER_REJECT', 'Request Rejected Successfully.');
 define('WRONG_USER_ID', 'Wrong User Id To Accept.');

@@ -35,6 +35,11 @@ class FriendsController
                 
                 $user           = Users::findById($header_data['id']);
                 $requestedUser  = Users::findById($post_data['request_user_id']);
+                
+                if( !empty($user->hidden_contacts) && in_array($post_data['request_user_id'], $user->hidden_contacts) ) {
+                    Library::logging('error',"API : sendRequest : ".REQUEST_TO_HIDDEN." : user_id : ".$header_data['id']);
+                    Library::output(false, '0', REQUEST_TO_HIDDEN, null);
+                }
                 if(isset($user->request_sent)) {
                     foreach($user->request_sent as $request_sent) {
                         if($post_data['request_user_id'] == $request_sent['user_id']) {
