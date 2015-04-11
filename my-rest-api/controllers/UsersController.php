@@ -267,6 +267,12 @@ class UsersController
             Library::output(false, '0', ERROR_INPUT, null);
         }
         try{
+            $db = Library::getMongo();
+            $query  = $db->execute('db.users.update({"device_token" :"'.$data["device_token"].'" }, {$set:{"device_token" :""}}, {multi:true} )');
+            if($query['ok'] == 0) {
+                Library::logging('error',"API : setDeviceToken (request sent query) mongodb error: ".$query['errmsg']." ".": user_id : ".$userId);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
             $user = Users::findById($header_data['id']);
             $user->device_token = $data['device_token']; // token used to send push notification to device
             $user->os           = $header_data["os"];
