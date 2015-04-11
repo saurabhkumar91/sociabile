@@ -212,11 +212,55 @@ class SettingsController
     
     public function contactUsAction($header_data,$post_data)
     {
-        if( !isset($post_data['cat_id']) || !isset($post_data['message']) || !isset($post_data['email_id']) || !isset($post_data['user_device']) || !isset($post_data['device_model']) || !isset($post_data['image'])) {
+        if( !isset($post_data['cat_id']) || !isset($post_data['message']) || !isset($post_data['email_id']) || !isset($post_data['user_device']) || !isset($post_data['device_model'])) {
             Library::logging('alert',"API : contactUs : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
+                
+                /**** upload image ************************/
+                if( !empty($_FILES["image"]['name']) && !empty($_FILES["image"]['tmp_name']) && empty($_FILES["image"]['error']) ){
+                    $imgName    = rand().$_FILES["image"]['name'];
+                    $uploadFile = $_FILES["image"]['tmp_name'];
+                    $amazon     = new AmazonsController();
+                    $amazonSign = $amazon->createsignatureAction($header_data,10);
+                    $url        = $amazonSign['form_action'];
+                    $headers    = array("Content-Type:multipart/form-data"); // cURL headers for file uploading
+                    $ext        = explode(".", $imgName);
+                    $extension  = trim(end($ext));
+                    if( !in_array($extension, array("jpeg", "png", "gif"))){
+                        $extension  = "jpeg";
+                    }
+                    $postfields = array(
+                        "key"                       =>  "profiles/".$imgName,//$amazonSign["key"],
+                        "AWSAccessKeyId"            => $amazonSign["AWSAccessKeyId"],
+                        "acl"                       => $amazonSign["acl"],
+                        "success_action_redirect"   => $amazonSign["success_action_redirect"],
+                        "policy"                    => $amazonSign["policy"],
+                        "signature"                 => $amazonSign["signature"],
+                        "Content-Type"              => "image/$extension",
+                        "file"                      => file_get_contents($uploadFile)
+                    );
+                    $ch = curl_init();
+                    $options = array(
+                        CURLOPT_URL         => $url,
+                        //CURLOPT_HEADER      => true,
+                        CURLOPT_POST        => 1,
+                        CURLOPT_HTTPHEADER  => $headers,
+                        CURLOPT_POSTFIELDS  => $postfields,
+                        CURLOPT_FOLLOWLOCATION => true,
+                        CURLOPT_RETURNTRANSFER => true
+                    ); // cURL options
+                    curl_setopt_array($ch, $options);
+                    $imageName              = curl_exec($ch);
+                    $post_data['image']     = FORM_ACTION.$imageName;
+                }
+            /**************************upload image code ends************************/                
+                
+                if( empty($post_data['image']) ){
+                    $post_data['image'] = '';
+                }   
+                
                  $request = 'db.contact_us.insert({ 
                             user_id : "'.$header_data['id'].'",
                             cat_id: "'.$post_data['cat_id'].'", 
