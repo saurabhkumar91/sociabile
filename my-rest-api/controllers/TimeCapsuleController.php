@@ -86,7 +86,7 @@ class TimeCapsuleController {
                         Library::output(false, '0', ERROR_REQUEST, null);
                     }
                     $sender = "user";
-                    foreach ($senderRes["retval"][0]["username"]["running_groups"] as $detail ) {
+                    foreach ($senderRes["retval"][0]["running_groups"] as $detail ) {
                         if( $detail["user_id"] == $header_data["id"] ){
                             if( isset($senderRes["retval"][0]["username"]) ){
                                 $sender = $senderRes["retval"][0]["username"];
