@@ -85,9 +85,16 @@ class TimeCapsuleController {
                         Library::logging('error',"API : getTimeCapsule, mongodb error: ".$errorMessage." : user_id : ".$header_data['id']);
                         Library::output(false, '0', ERROR_REQUEST, null);
                     }
-                    $sender         = $senderRes["retval"][0]["username"];
+                    $sender = "user";
+                    foreach ($senderRes["retval"][0]["username"]["running_groups"] as $detail ) {
+                        if( $detail["user_id"] == $header_data["id"] ){
+                            if( isset($senderRes["retval"][0]["username"]) ){
+                                $sender = $senderRes["retval"][0]["username"];
+                            }
+                            break;
+                        }
+                    }
                     $capsuleType    = 1;
-                    
                 }
                 foreach ($timeCapsule["capsule_image"] as &$value){
                     $value  = FORM_ACTION.$value;                

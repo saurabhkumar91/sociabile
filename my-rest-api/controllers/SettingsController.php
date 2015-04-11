@@ -212,7 +212,7 @@ class SettingsController
     
     public function contactUsAction($header_data,$post_data)
     {
-        if( !isset($post_data['cat_id']) || !isset($post_data['message']) || !isset($post_data['email_id']) || !isset($post_data['user_device']) || !isset($post_data['device_model'])) {
+        if( !isset($post_data['cat_id']) || !isset($post_data['message']) || !isset($post_data['email_id']) || !isset($post_data['user_device']) || !isset($post_data['device_model']) || !isset($post_data['image'])) {
             Library::logging('alert',"API : contactUs : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
@@ -224,7 +224,8 @@ class SettingsController
                             email_id: "'.$post_data['email_id'].'",
                             user_device: "'.$post_data['user_device'].'",
                             device_model: "'.$post_data['device_model'].'",
-                            user_agent: "'.$_SERVER['HTTP_USER_AGENT'].'"
+                            user_agent: "'.$_SERVER['HTTP_USER_AGENT'].'",
+                            image: "'.$post_data['image'].'"
                     })';
                  
                 $db = Library::getMongo();
