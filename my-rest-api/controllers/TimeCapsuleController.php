@@ -79,7 +79,7 @@ class TimeCapsuleController {
                     }
                     $sender         = $users->username;
                 }else{
-                    $senderRes  = $db->execute('return db.users.find({"_id" : ObjectId("'.$timeCapsule["user_id"].'")}, {username:1}).toArray()');
+                    $senderRes  = $db->execute('return db.users.find({"_id" : ObjectId("'.$timeCapsule["user_id"].'")}, {username:1,running_groups:1}).toArray()');
                     if( $senderRes['ok'] == 0 || empty($senderRes["retval"]) ) {
                         $errorMessage   = ($senderRes['ok'] == 0) ? $senderRes['errmsg'] : "User(".$timeCapsule->user_id.") Not found";
                         Library::logging('error',"API : getTimeCapsule, mongodb error: ".$errorMessage." : user_id : ".$header_data['id']);
@@ -143,7 +143,6 @@ class TimeCapsuleController {
                 }
                 return ($openTimeA < $openTimeB) ? -1 : 1;
             });    
-            
             Library::output(true, '1', "No Error", $result);
         } catch (Exception $ex) {
             Library::logging('alert',"API : createTimeCapsule : ".$ex." : user_id : ".$header_data['id']);
