@@ -768,13 +768,14 @@ class UsersController
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
                 if(isset($user_info['retval'][0])) {
-                    $result['id'] = (string)$user_info['retval'][0]['_id'];
-                    $result['username'] = $user_info['retval'][0]['username'];
-                    $result['profile_pic'] = FORM_ACTION.$user_info['retval'][0]["profile_image"];
-                    Library::output(true, '1', "No Error", $result);
-                } else {
-                     Library::output(false, '0', NO_USER_FOUND, null);
+                    if(  empty($user_info['retval'][0]["hidden_contacts"]) || !in_array( $header_data['id'], $user_info['retval'][0]["hidden_contacts"]) ){
+                        $result['id'] = (string)$user_info['retval'][0]['_id'];
+                        $result['username'] = $user_info['retval'][0]['username'];
+                        $result['profile_pic'] = FORM_ACTION.$user_info['retval'][0]["profile_image"];
+                        Library::output(true, '1', "No Error", $result);
+                    }
                 }
+                Library::output(false, '0', NO_USER_FOUND, null);
              }
         } catch(Exception $e) {
             Library::logging('error',"API : searchUser : ".$e." ".": user_id : ".$header_data['id']);
@@ -804,13 +805,14 @@ class UsersController
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
                 if(isset($user_info['retval'][0])) {
-                    $result['id'] = (string)$user_info['retval'][0]['_id'];
-                    $result['username'] = $user_info['retval'][0]['username'];
-                    $result['profile_pic'] = FORM_ACTION.$user_info['retval'][0]["profile_image"];
-                    Library::output(true, '1', "No Error", $result);
-                } else {
-                     Library::output(false, '0', NO_USER_FOUND, null);
+                    if(  empty($user_info['retval'][0]["hidden_contacts"]) || !in_array( $header_data['id'], $user_info['retval'][0]["hidden_contacts"]) ){
+                        $result['id'] = (string)$user_info['retval'][0]['_id'];
+                        $result['username'] = $user_info['retval'][0]['username'];
+                        $result['profile_pic'] = FORM_ACTION.$user_info['retval'][0]["profile_image"];
+                        Library::output(true, '1', "No Error", $result);
+                    }
                 }
+                Library::output(false, '0', NO_USER_FOUND, null);
              }
         } catch(Exception $e) {
             Library::logging('error',"API : searchUserByMobileNo : ".$e." ".": user_id : ".$header_data['id']);

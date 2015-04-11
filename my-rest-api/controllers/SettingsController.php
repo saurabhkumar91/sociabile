@@ -538,7 +538,7 @@ class SettingsController
     
     public function sharePhotosAction($header_data,$post_data)
     {
-        if( (!isset($post_data['group_id']) && !isset($post_data['friends_id'])) || !isset($post_data['image_name'])) {
+        if( (empty($post_data['group_id']) && empty($post_data['friends_id'])) || empty($post_data['image_name'])) {
             Library::logging('alert',"API : sharePhotos : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
