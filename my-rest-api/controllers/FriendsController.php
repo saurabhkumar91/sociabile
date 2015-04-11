@@ -140,10 +140,16 @@ class FriendsController
             $get_users = $db->execute('return db.users.aggregate([
                                     { $match: { _id: ObjectId("'.$header_data['id'].'") } },
                                         { $unwind: "$request_pending" },
-                                        { $group: { _id: "$request_pending.user_id"  } }
+                                        { $group: { _id: "$request_pending.user_id", date:{$last:"$request_pending.date"}  } }
                                     ]).toArray();');
             if($get_users['ok'] == 1) {
                  if(is_array($get_users['retval'])) {
+                    usort($get_users['retval'], function($requestA, $requestB){
+                        if ($requestA["date"] == $requestB["date"]) {
+                            return 0;
+                        }
+                        return ($requestA["date"] < $requestB["date"]) ? 1 : -1;
+                    });       
                     foreach($get_users['retval'] as $info) {
                         $user = Users::findById($info['_id']);
                         $result[$i]['user_id']  = (string)$user->_id;
@@ -157,8 +163,8 @@ class FriendsController
                     Library::output(true, '1', "No Error", $result);
                 }
             } else {
-                Library::output(false, '0', ERROR_REQUEST, null);
                 Library::logging('error',"API : pendingRequest mongodb error: ".$get_users['errmsg']." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
             }
            
         } catch(Exception $e) {
@@ -358,7 +364,7 @@ class FriendsController
                         // query for delete pending request
                         $delete = 'db.users.update(
                                     {_id:ObjectId("'.$userId.'") },
-                                    { $pull: { request_pending: { user_id: "'.$rejectUserId.'" } }, $push:{hidden_contacts:"'.$rejectUserId.'"} },
+                                    { $pull: { request_pending: { user_id: "'.$rejectUserId.'" } }, $addToSet:{hidden_contacts:"'.$rejectUserId.'"} },
                                     { multi: true }
                                   )';
                         $delete_pending = $db->execute($delete);
@@ -415,11 +421,13 @@ class FriendsController
                     if( empty($friends_info->is_active) || $friends_info->is_deleted == 1 ){
                         continue;
                     }
-                    $friends_list[$i]['friends_id'] = (string)$friends_info->_id;
-                    $friends_list[$i]['username'] = $friends_info->username;
-                    $friends_list[$i]['group_id'] = $user_ids['group_id'];
-                    $friends_list[$i]['jaxl_id'] = $friends_info->jaxl_id;
-                    $friends_list[$i]['profile_image'] = isset($friends_info->profile_image) ? FORM_ACTION.$friends_info->profile_image : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
+                    $friends_list[$i]['friends_id']         = (string)$friends_info->_id;
+                    $friends_list[$i]['username']           = $friends_info->username;
+                    $friends_list[$i]['context_indicator']  = $friends_info->context_indicator;
+                    $friends_list[$i]['mobile_no']          = $friends_info->mobile_no;
+                    $friends_list[$i]['group_id']           = $user_ids['group_id'];
+                    $friends_list[$i]['jaxl_id']            = $friends_info->jaxl_id;
+                    $friends_list[$i]['profile_image']      = isset($friends_info->profile_image) ? FORM_ACTION.$friends_info->profile_image : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
                     $i++;
                 }
                 Library::output(true, '1', "No Error", $friends_list);

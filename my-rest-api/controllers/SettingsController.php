@@ -473,7 +473,6 @@ class SettingsController
                 } else {
                     Library::output(false, '0', "Wrong Type", null);
                 }
-               // print_r($user->my_mind_groups); exit();
                 if ($user->save() == false) {
                     foreach ($user->getMessages() as $message) {
                         $errors[] = $message->getMessage();
@@ -886,7 +885,7 @@ class SettingsController
                     if( is_array($postDetail["text"]) ){
                         continue;
                     }
-                    $username   = isset($user["username"]) ? $user["username"] : '';
+                    $username   = isset($user["username"]) ? $user["username"] : 'user';
                     $postId = (string)$postDetail["_id"];
                     $result[$postId]["post_id"]             = (string)$postDetail["_id"];
                     $result[$postId]["user_name"]           = $username;
@@ -917,11 +916,19 @@ class SettingsController
                             if( !empty($postDetail["disliked_by"]) && in_array( $header_data['id'], $postDetail["disliked_by"]) ){
                                 $isDisliked = true;
                             }
-                            $postDetail["text"] = (!is_array($postDetail["text"])) ? FORM_ACTION.$postDetail["text"] : $postDetail["text"];
                             if( is_array($postDetail["text"]) ){
                                 continue;
                             }
-                            $username   = isset($friends_info["username"]) ? $friends_info["username"] : '';
+                            $postDetail["text"] = FORM_ACTION.$postDetail["text"];
+                            
+                            $friendsResult  = $db->execute('return db.users.find({"_id":ObjectId("'.$postDetail['user_id'].'")}, {username:1}).toArray()');
+                            if($friendsResult['ok'] == 0) {
+                                Library::logging('error',"API : getImages (get friends info) , mongodb error: ".$friendsResult['errmsg']." ".": user_id : ".$header_data['id']);
+                                Library::output(false, '0', ERROR_REQUEST, null);
+                            } 
+                            $friends_info   = $friendsResult['retval'][0];
+                            
+                            $username   = isset($friends_info["username"]) ? $friends_info["username"] : 'user';
                             $postId     = (string)$postDetail["_id"];
                             $result[$postId]["post_id"]             = (string)$postDetail["_id"];
                             $result[$postId]["user_name"]           = $username;
@@ -933,6 +940,8 @@ class SettingsController
                             $result[$postId]["is_liked"]            = $isLiked;
                             $result[$postId]["is_disliked"]         = $isDisliked;
                             $result[$postId]["multiple"]            = 0;
+                            $result[$postId]["viewed"]              = $postDetail["viewed"];
+                            
                         }
                         /*
                  if(isset($user['running_groups'])) {
@@ -1104,7 +1113,6 @@ class SettingsController
     
     public function uploadMultipleImagesAction($header_data,$post_data)
     {
-//        print_r($_FILES); exit;
         if( empty($_FILES["images"]['name']) ) {
             Library::logging('alert',"API : uploadMultipleImages : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
