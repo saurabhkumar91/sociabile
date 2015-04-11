@@ -97,7 +97,7 @@ class PostsController
                     $res["user_name"]           = $user->user_name;
                     $res["user_profile_image"]  = FORM_ACTION.$user->profile_image;
                     $res["text"]                = ($childPost["type"]=="1") ? $childPost["text"] : '';
-                    $res["image"]               = ($childPost["type"]=="2") ? array(FORM_ACTION.$childPost["text"]):'';
+                    $res["image"]               = ($childPost["type"]!="1") ? array(FORM_ACTION.$childPost["text"]):'';
                     $res["date"]                = $childPost["date"];
                     $res["likes"]               = $childPost["likes"];
                     $res["dislikes"]            = $childPost["dislikes"];

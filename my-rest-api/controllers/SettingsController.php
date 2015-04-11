@@ -539,16 +539,41 @@ class SettingsController
     
     public function sharePhotosAction($header_data,$post_data)
     {
-        if( !isset($post_data['group_id']) || !isset($post_data['image_name'])) {
+        if( (!isset($post_data['group_id']) && !isset($post_data['friends_id'])) || !isset($post_data['image_name'])) {
             Library::logging('alert',"API : sharePhotos : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
                 $post_data['image_name']    = str_replace( FORM_ACTION, "", $post_data['image_name'] );
-                if($header_data['os'] == 1) {
-                    $group_ids =  json_decode($post_data['group_id']);
-                } else {
-                    $group_ids =  $post_data['group_id'];
+                $sharedWith                 = array();
+                $user                       = Users::findById( $header_data['id'] );
+                if( !empty($post_data['group_id']) ){
+                    if($header_data['os'] == 1) {
+                        $group_ids =  json_decode($post_data['group_id']);
+                    } else {
+                        $group_ids =  $post_data['group_id'];
+                    }
+                    if( !empty($user->running_groups) ){
+                        foreach ($user->running_groups as $detail ) {
+                            if( count(array_intersect($detail['group_id'], $group_ids)) > 0 ) {
+                                $sharedWith[$detail["user_id"]] = $detail["user_id"];
+                            }
+                        }
+                    }
+                }
+                if( !empty($post_data['friends_id']) ){
+                    if($header_data['os'] == 1) {
+                        $friends_id =  json_decode($post_data['friends_id']);
+                    } else {
+                        $friends_id =  $post_data['friends_id'];
+                    }
+                    if( !empty($user->running_groups) ){
+                        foreach ($user->running_groups as $detail ) {
+                            if( in_array($detail['user_id'], $friends_id) ) {
+                                $sharedWith[$detail["user_id"]] = $detail["user_id"];
+                            }
+                        }
+                    }
                 }
                 $post                   = new Posts();
                 $post->user_id          = $header_data['id'];
@@ -557,7 +582,8 @@ class SettingsController
                 $post->likes            = 0;
                 $post->dislikes         = 0;
                 $post->date             = time();
-                $post->group_id         = $group_ids;
+                $post->sahred_with      = array_values($sharedWith);
+                $post->viewed           = 0;
                 $post->type             = 3;    // type| 1 for text posts, 2 for images, 3 for shared images
                 if ($post->save() == false) {
                     foreach ($post->getMessages() as $message) {
@@ -574,7 +600,67 @@ class SettingsController
         }
     }
     
+    public function viewSharedImageAction( $header_data, $post_data ){
+        if( !isset($post_data['post_id'])) {
+            Library::logging('alert',"API : viewSharedImage : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                $post   = Posts::findById( $post_data['post_id'] );
+                if($post){
+                    $post->viewed   = 1;
+                    if ($post->save() == false) {
+                        foreach ($post->getMessages() as $message) {
+                            $errors[] = $message->getMessage();
+                        }
+                        Library::logging('error',"API : viewSharedImage : ".$errors." user_id : ".$header_data['id']);
+                        Library::output(false, '0', $errors, null);
+                    }
+                    Library::output(true, '1', "No error", null);
+                }else{
+                    Library::logging('error',"API : viewSharedImage : Invalid Post Id : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+            } catch(Exception $e) {
+                Library::logging('error',"API : viewSharedImage, error_msg : ".$e." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        }
+        
+    }
     
+    
+    public function deleteSharedImageAction( $header_data, $post_data ){
+        if( !isset($post_data['post_id'])) {
+            Library::logging('alert',"API : deleteSharedImage : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                $post   = Posts::findById( $post_data['post_id'] );
+                if($post){
+                    if( ($key=array_search($header_data['id'], $post->sahred_with )) !== false ){
+                        unset($post->sahred_with[$key]);
+                        $post->sahred_with  = array_values( $post->sahred_with );
+                        if ($post->save() == false) {
+                            foreach ($post->getMessages() as $message) {
+                                $errors[] = $message->getMessage();
+                            }
+                            Library::logging('error',"API : deleteSharedImage : ".$errors." user_id : ".$header_data['id']);
+                            Library::output(false, '0', $errors, null);
+                        }
+                    }
+                    Library::output(true, '1', "Shared image deleted successfully", null);
+                }else{
+                    Library::logging('error',"API : deleteSharedImage : Invalid Post Id : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+            } catch(Exception $e) {
+                Library::logging('error',"API : deleteSharedImage, error_msg : ".$e." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        }
+        
+    }
     /**
      * Method for get other friends profile info
      *
@@ -817,6 +903,38 @@ class SettingsController
             elseif( $type == 2 ) { // type 2 for share images
                 
                 $result     = array();
+                        $posts  = $db->execute('return db.posts.find({"type":3, "sahred_with":"'.$header_data['id'].'"}).toArray()');
+                        if($posts['ok'] == 0) {
+                            Library::logging('error',"API : getImages (get user info) , mongodb error: ".$posts['errmsg']." ".": user_id : ".$header_data['id']);
+                            Library::output(false, '0', ERROR_REQUEST, null);
+                        }
+                        foreach( $posts['retval'] As $postDetail ){ 
+                            $isLiked    = false;
+                            $isDisliked = false;
+                            if( !empty($postDetail["liked_by"]) && in_array( $header_data['id'], $postDetail["liked_by"]) ){
+                                $isLiked    = true;
+                            }
+                            if( !empty($postDetail["disliked_by"]) && in_array( $header_data['id'], $postDetail["disliked_by"]) ){
+                                $isDisliked = true;
+                            }
+                            $postDetail["text"] = (!is_array($postDetail["text"])) ? FORM_ACTION.$postDetail["text"] : $postDetail["text"];
+                            if( is_array($postDetail["text"]) ){
+                                continue;
+                            }
+                            $username   = isset($friends_info["username"]) ? $friends_info["username"] : '';
+                            $postId     = (string)$postDetail["_id"];
+                            $result[$postId]["post_id"]             = (string)$postDetail["_id"];
+                            $result[$postId]["user_name"]           = $username;
+                            $result[$postId]["text"]                = $postDetail["text"];
+                            $result[$postId]["date"]                = $postDetail["date"];
+                            $result[$postId]["likes"]               = $postDetail["likes"];
+                            $result[$postId]["dislikes"]            = $postDetail["dislikes"];
+                            $result[$postId]["total_comments"]      = $postDetail["total_comments"];
+                            $result[$postId]["is_liked"]            = $isLiked;
+                            $result[$postId]["is_disliked"]         = $isDisliked;
+                            $result[$postId]["multiple"]            = 0;
+                        }
+                        /*
                  if(isset($user['running_groups'])) {
                      foreach ($user['running_groups'] as $groups) {
                         $friendsResult  = $db->execute('return db.users.find({"_id":ObjectId("'.$groups['user_id'].'")}).toArray()');
@@ -873,6 +991,8 @@ class SettingsController
                         }
                      }
                  }
+                         * 
+                         */
              } else {
                  Library::output(false, '0', WRONG_TYPE, null);
              }
@@ -986,7 +1106,7 @@ class SettingsController
     {
 //        print_r($_FILES); exit;
         if( empty($_FILES["images"]['name']) ) {
-            Library::logging('alert',"API : sharePhotos : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::logging('alert',"API : uploadMultipleImages : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {

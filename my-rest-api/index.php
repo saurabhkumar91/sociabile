@@ -388,6 +388,18 @@ $app->post('/sharePhotos', function () use ( $app ) {
     $settings->sharePhotosAction($header_data,$app->request->getPost());
 });
 
+$app->post('/viewSharedImage', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $settings = new SettingsController();
+    $settings->viewSharedImageAction($header_data,$app->request->getPost());
+});
+
+$app->post('/deleteSharedImage', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $settings = new SettingsController();
+    $settings->deleteSharedImageAction($header_data,$app->request->getPost());
+});
+
 $app->get('/getFriendsInfo/{user_id}', function ($user_id) use ( $app ) {
     $header_data = Library::getallheaders();
     $settings = new SettingsController();
