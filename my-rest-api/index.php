@@ -248,6 +248,12 @@ $app->post('/leaveChatGroup', function () use ( $app ) {
     $group->leaveChatGroupAction( $header_data, $app->request->getPost() );
 });
 
+$app->post('/leaveChatGroup1', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $group = new GroupsController();
+    $group->leaveChatGroup1Action( $header_data, $app->request->getPost() );
+});
+
 $app->post('/deleteChatGroup', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $group = new GroupsController();

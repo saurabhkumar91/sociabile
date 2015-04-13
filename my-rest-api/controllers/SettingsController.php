@@ -650,20 +650,30 @@ class SettingsController
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
-                $post   = Posts::findById( $post_data['post_id'] );
-                if($post){
-                    $post->viewed   = 1;
-                    if ($post->save() == false) {
-                        foreach ($post->getMessages() as $message) {
-                            $errors[] = $message->getMessage();
+                if($header_data['os'] == 1) {
+                    $post_data['post_id'] =  json_decode($post_data['post_id']);
+                }
+                if( !is_array($post_data['post_id']) ) {
+                    Library::logging('alert',"API : viewSharedImage : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_INPUT, null);
+                }                
+                foreach( $post_data['post_id'] AS $postId ){
+                    $post   = Posts::findById( $postId );
+                    if($post){
+                        $post->viewed   = 1;
+                        if ($post->save() == false) {
+                            foreach ($post->getMessages() as $message) {
+                                $errors[] = $message->getMessage();
+                            }
+                            Library::logging('error',"API : viewSharedImage : ".$errors." user_id : ".$header_data['id']);
+                            Library::output(false, '0', $errors, null);
                         }
-                        Library::logging('error',"API : viewSharedImage : ".$errors." user_id : ".$header_data['id']);
-                        Library::output(false, '0', $errors, null);
+                        Library::output(true, '1', "No error", null);
+                    }else{
+                        Library::logging('error',"API : viewSharedImage : Invalid Post Id : user_id : ".$header_data['id'].", post_id: ".$postId);
+                        Library::output(false, '0', ERROR_REQUEST, null);
                     }
-                    Library::output(true, '1', "No error", null);
-                }else{
-                    Library::logging('error',"API : viewSharedImage : Invalid Post Id : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
-                    Library::output(false, '0', ERROR_REQUEST, null);
+
                 }
             } catch(Exception $e) {
                 Library::logging('error',"API : viewSharedImage, error_msg : ".$e." ".": user_id : ".$header_data['id']);
