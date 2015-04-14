@@ -143,12 +143,13 @@ class PostsController
                 if( !isset($user->profile_image) ){
                     $user->profile_image  = "";
                 } 
-                $friends    = array( 
-                                $header_data['id']=>array(
-                                        "name"=>$user->username, 
-                                        "profile_image"=>$user->profile_image, 
-                                        "type"=>"[1,2]") 
-                    );
+                $friends    = array();
+//                $friends    = array( 
+//                                $header_data['id']=>array(
+//                                        "name"=>$user->username, 
+//                                        "profile_image"=>$user->profile_image, 
+//                                        "type"=>"[1,2]") 
+//                    );
                 if(isset($user->running_groups)) {
                     foreach($user->running_groups as $user_ids) {
                         // get groups in which user has added friend and are selected
