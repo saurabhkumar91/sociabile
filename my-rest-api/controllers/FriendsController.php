@@ -107,7 +107,7 @@ class FriendsController
                 $_SESSION["requestedId"]        = $requestedUser->jaxl_id;
                 $_SESSION["os"]                 = empty($requestedUser->os) ? '' : $requestedUser->os ;
                 $_SESSION["deviceToken"]        = empty($requestedUser->device_token) ? '' : $requestedUser->device_token;
-                $_SESSION["userMobileNo"]       = $user->mobile_no;
+                $_SESSION["userMobileNo"]       = $user->username." (".$user->mobile_no.")";
                 $_SESSION["userId"]             = $header_data['id'];
                 $_SESSION["requestedUserId"]    = $post_data['request_user_id'];
                 $_SESSION["groupIds"]           = $groupIds;
@@ -205,6 +205,8 @@ class FriendsController
                 $userDetails['group_id']    = json_decode($groupIds);
                 $userDetails['jaxl_id']     = $user->jaxl_id;
                 $userDetails['profile_pic'] = FORM_ACTION.$user->profile_image;
+                $userDetails['context_indicator']  = $user->context_indicator;
+                $userDetails['mobile_no']          = $user->mobile_no;
                 
                 $requestFound   = false;
                 foreach($request_pending_ids as $request_ids) {
@@ -306,8 +308,8 @@ class FriendsController
                 $_SESSION["requestGroups"]  = $requestGroups;
                 $_SESSION["os"]             = empty($acceptUser->os) ? '' : $acceptUser->os ;
                 $_SESSION["deviceToken"]    = empty($acceptUser->device_token) ? '' : $acceptUser->device_token;
-                $_SESSION["userMobileNo"]   = $user->mobile_no;
-                $_SESSION["userDetails"]   = $userDetails;
+                $_SESSION["userMobileNo"]   = $user->username." (".$user->mobile_no.")";
+                $_SESSION["userDetails"]    = $userDetails;
                 
                 $client->start();
                 /******* code for subscribe(add) user end **************************************/

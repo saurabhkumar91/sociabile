@@ -657,24 +657,20 @@ class SettingsController
                     Library::logging('alert',"API : viewSharedImage : ".ERROR_INPUT.": user_id : ".$header_data['id']);
                     Library::output(false, '0', ERROR_INPUT, null);
                 }                
+                $ids    = "[ ";
                 foreach( $post_data['post_id'] AS $postId ){
-                    $post   = Posts::findById( $postId );
-                    if($post){
-                        $post->viewed   = 1;
-                        if ($post->save() == false) {
-                            foreach ($post->getMessages() as $message) {
-                                $errors[] = $message->getMessage();
-                            }
-                            Library::logging('error',"API : viewSharedImage : ".$errors." user_id : ".$header_data['id']);
-                            Library::output(false, '0', $errors, null);
-                        }
-                        Library::output(true, '1', "No error", null);
-                    }else{
-                        Library::logging('error',"API : viewSharedImage : Invalid Post Id : user_id : ".$header_data['id'].", post_id: ".$postId);
-                        Library::output(false, '0', ERROR_REQUEST, null);
-                    }
-
+                    $ids    .= 'ObjectId("'.$postId.'"), ';
                 }
+                $ids    = substr($ids, 0, -1)." ]"; 
+                $db     = Library::getMongo();
+                $query  = 'return db.posts.update( {"_id" :{$in:'.$ids.'} }, { $set:{viewed:1} }, { multi:true } )';
+                $update = $db->execute($query);
+                if($update['ok'] == 0) {
+                    Library::logging('error',"API : viewSharedImage mongodb error: ".$update['errmsg']." ".": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+                Library::output(true, '1', "No error", null);
+                
             } catch(Exception $e) {
                 Library::logging('error',"API : viewSharedImage, error_msg : ".$e." ".": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_REQUEST, null);
