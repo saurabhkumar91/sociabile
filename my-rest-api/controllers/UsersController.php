@@ -236,7 +236,7 @@ class UsersController
                         $user->unique_id = strtolower( uniqid() );
                         $user->is_edit = 0;
                         $user->is_searchable = 1;
-                        $user->is_mobile_searchable = 0;
+                        $user->is_mobile_searchable = 1;
                         $user->save();
                     }
                     Library::output(true, '1', OTP_VERIFIED, null);

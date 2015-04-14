@@ -136,3 +136,6 @@ define( 'NOTIFY_FRIEND_REQUEST_ACCEPTED', '3' );
 define( 'NOTIFY_COMMENT_RECEIVED', '4' );
 define( 'NOTIFY_POST_LIKED', '5' );
 define( 'NOTIFY_POST_DISLIKED', '6' );
+
+
+define( 'CONTACT_US_EMAIL', "scbleHelp@gmail.com" );

@@ -278,9 +278,7 @@ class SettingsController
                     Library::logging('error',"API : contactUs, error_msg: ".$result['errmsg']." ".": user_id : ".$header_data['id']);
                 }
                                 
-                $email_id = "shubham150@gmail.com";
-                
-                Library::sendMail( $email_id, $post_data['message'], "Contact Us" );
+                Library::sendMail( CONTACT_US_EMAIL, $post_data['message'], "Contact Us" );
                 
                 Library::output(true, '1', "Post Sent Successfully.",null);
             } catch(Exception $e) {
