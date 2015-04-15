@@ -502,6 +502,24 @@ $app->get( "/getEmoticons", function() {
     $emoticons->getEmoticonsAction($header_data);
 } );
 
+$app->post( "/getEmoticonDetails", function() use ($app) {
+    $header_data    = Library::getallheaders();
+    $emoticons      = new EmoticonsController();
+    $emoticons->getEmoticonDetailsAction( $header_data, $app->request->getPost() );
+} );
+
+$app->post( "/emoticonsPurchase", function() use ($app) {
+    $header_data    = Library::getallheaders();
+    $emoticons      = new EmoticonsController();
+    $emoticons->emoticonsPurchaseAction( $header_data, $app->request->getPost() );
+} );
+
+$app->get( "/getPurchasesdEmoticons", function() {
+    $header_data    = Library::getallheaders();
+    $emoticons      = new EmoticonsController();
+    $emoticons->getPurchasesdEmoticonsAction($header_data);
+} );
+
 $app->notFound(
 	function () use ( $app ) {
             $app->response->setStatusCode( 404, "Not Found" )->sendHeaders();

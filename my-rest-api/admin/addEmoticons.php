@@ -176,13 +176,13 @@ if (isset($_POST['submit'])) {
         // upload icon image
         $iconImageName  = uploadFile( $_FILES['icon']['name'], $target_path, $_FILES["icon"]["size"], $_FILES['icon']['tmp_name'], $validextensions, $maxSize );
         if( $iconImageName === false ){
-            $errorMessage   .= "Invalid file ".$_FILES['file']['name'][$i]."<BR>";
+            $errorMessage   .= "Invalid file ".$_FILES['file']['name']."<BR>";
         }
         
         // upload large_icon image
         $largeiconImageName = uploadFile( $_FILES['large_icon']['name'], $target_path, $_FILES["large_icon"]["size"], $_FILES['large_icon']['tmp_name'], $validextensions, $maxSize );
         if( $largeiconImageName === false ){
-            $errorMessage   .= "Invalid file ".$_FILES['file']['name'][$i]."<BR>";
+            $errorMessage   .= "Invalid file ".$_FILES['file']['name']."<BR>";
         }
         
         $emoticons  = array();
