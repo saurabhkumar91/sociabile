@@ -110,10 +110,10 @@ class EmoticonsController {
                                 "artist"            => $emoticon["artist"],
                                 "icon"              => FORM_ACTION.$emoticon["icon"],
                                 "price"             => $emoticon["price"],
-                                "large_icon"        => FORM_ACTION.$emoticons["large_icon"],
-                                "decsription"       => $emoticons["decsription"],
-                                "emoticons_count"   => count($emoticons["emoticons"]),
-                                "emoticons"         => $emoticons["emoticons"]
+                                "large_icon"        => FORM_ACTION.$emoticon["large_icon"],
+                                "decsription"       => $emoticon["decsription"],
+                                "emoticons_count"   => count($emoticon["emoticons"]),
+                                "emoticons"         => $emoticon["emoticons"]
                 );
             }
             Library::output(true, '1', "No Error", $result);
