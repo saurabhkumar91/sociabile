@@ -496,6 +496,12 @@ $app->post( "/setTimeCapsuleImages", function() use ($app) {
     $timeCapsule->setTimeCapsuleImagesAction( $header_data, $app->request->getPost() );
 } );
 
+$app->get( "/getEmoticons", function() {
+    $header_data    = Library::getallheaders();
+    $emoticons      = new EmoticonsController();
+    $emoticons->getEmoticonsAction($header_data);
+} );
+
 $app->notFound(
 	function () use ( $app ) {
             $app->response->setStatusCode( 404, "Not Found" )->sendHeaders();

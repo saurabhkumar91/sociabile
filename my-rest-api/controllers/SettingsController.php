@@ -253,6 +253,7 @@ class SettingsController
                     ); // cURL options
                     curl_setopt_array($ch, $options);
                     $imageName              = curl_exec($ch);
+                    curl_close($ch);
                     $post_data['image']     = FORM_ACTION.$imageName;
                 }
             /**************************upload image code ends************************/                

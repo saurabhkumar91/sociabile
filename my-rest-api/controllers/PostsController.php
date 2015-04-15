@@ -150,7 +150,7 @@ class PostsController
 //                                        "profile_image"=>$user->profile_image, 
 //                                        "type"=>"[1,2]") 
 //                    );
-                if(isset($user->running_groups)) {
+                if( isset($user->running_groups) && count($post_data['groups']) > 0 ) {
                     foreach($user->running_groups as $user_ids) {
                         // get groups in which user has added friend and are selected
                         $groupsToSearch = array_intersect($user_ids['group_id'], $post_data['groups']);

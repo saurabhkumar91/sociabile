@@ -63,10 +63,10 @@ class TimeCapsuleController {
             //$timeCapsules   = TimeCapsules::find( array("conditions"=>array( "user_id"=>))  );
             $db             = Library::getMongo();
             $timeCapsules   = $db->execute('return db.time_capsules.find( { $or : [{ "user_id" : "'.$header_data["id"].'" }, { "capsule_recipients" : "'.$header_data["id"].'" } ]} ).sort( { date: -1 } ).toArray()');
-                if( $timeCapsules['ok'] == 0 ) {
-                    Library::logging('error',"API : getTimeCapsule, mongodb error: ".$timeCapsules['errmsg']." : user_id : ".$header_data['id']);
-                    Library::output(false, '0', ERROR_REQUEST, null);
-                }
+            if( $timeCapsules['ok'] == 0 ) {
+                Library::logging('error',"API : getTimeCapsule, mongodb error: ".$timeCapsules['errmsg']." : user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
             if( empty($timeCapsules["retval"]) ){
                     Library::output(true, '0', "No Result Found.", null);
             }
