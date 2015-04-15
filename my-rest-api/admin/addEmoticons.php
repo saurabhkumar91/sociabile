@@ -58,7 +58,7 @@
                             src: 'x.png',
                             alt: 'delete'
                         }).click(function() {
-                            $(this).parent().parent().remove();
+                            $(this).parent().remove();
                         }));
                     }
                 });

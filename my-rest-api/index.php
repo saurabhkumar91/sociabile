@@ -167,6 +167,18 @@ $app->post('/removeDislikePost', function () use ( $app ) {
     $post->removeDislikePostAction($header_data,$app->request->getPost());
 });
 
+$app->post('/setPostPrivacy', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $post = new PostsController();
+    $post->setPostPrivacyAction($header_data,$app->request->getPost());
+});
+
+$app->post('/getPostPrivacy', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $post = new PostsController();
+    $post->getPostPrivacyAction($header_data,$app->request->getPost());
+});
+
 $app->post('/postComment', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $comment = new CommentsController();
@@ -177,6 +189,18 @@ $app->get('/getComments/{post_id}', function ($post_id) use ( $app ) {
     $header_data = Library::getallheaders();
     $comment = new CommentsController();
     $comment->getCommentsAction($header_data,$post_id);
+});
+
+$app->post('/setCommentPrivacy', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $comment = new CommentsController();
+    $comment->setCommentPrivacyAction($header_data,$app->request->getPost());
+});
+
+$app->post('/getCommentPrivacy', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $comment = new CommentsController();
+    $comment->getCommentPrivacyAction($header_data,$app->request->getPost());
 });
 
 $app->get('/getStatus/{user_id}/{type}', function ($user_id,$type) use ( $app ) {

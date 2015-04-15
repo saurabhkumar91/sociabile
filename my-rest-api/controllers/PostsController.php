@@ -202,6 +202,11 @@ class PostsController
                         Library::output(false, '0', ERROR_REQUEST, null);
                     }    
                     foreach( $post['retval'] As $postDetail ){
+                        if( !empty($postDetail["shared_with"]) ){
+                            if( !in_array($header_data['id'], $postDetail["shared_with"]) ){
+                                continue;
+                            }
+                        }
                         $isLiked    = false;
                         $isDisliked = false;
                         if( !empty($postDetail["liked_by"]) && in_array( $header_data['id'], $postDetail["liked_by"]) ){
@@ -699,5 +704,95 @@ class PostsController
             }
         }
     }
+    
+    // only for uploaded images
+    public function setPostPrivacyAction( $header_data, $post_data ){
+        if(!isset($post_data['post_id']) && !isset($post_data['user_id']) ) {
+            Library::logging('alert',"API : setpostPrivacy : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                if($header_data['os'] == 1) {
+                    $post_data['user_id'] =  json_decode($post_data['user_id']);
+                }
+                if( !is_array($post_data['user_id']) ) {
+                    Library::logging('alert',"API : setpostPrivacy : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_INPUT, null);
+                }
+                $post   = Posts::findById( $post_data['post_id'] );
+                if( $post && $post->type==2 ){
+                    if( empty($post->shared_with) ){
+                        $post->shared_with   = array();
+                    }
+                    $post->shared_with   = array_merge( $post->shared_with, $post_data['user_id'] );
+                    if($post->save()){
+                        Library::output(true, '1', PRIVACY_SETTINGS, null);
+                        
+                    }else{
+                        foreach ($post->getMessages() as $message) {
+                            $errors[] = $message->getMessage();
+                        }
+                        Library::logging('error',"API : setpostPrivacy : ".$errors." user_id : ".$header_data['id']);
+                        Library::output(false, '0', $errors, null);
+                    }
+                }else{
+                    Library::logging('error',"API : setpostPrivacy : Invalid post Id : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+            } catch (Exception $ex) {
+                Library::logging('error',"API : setpostPrivacy : ".$ex." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        }
+        
+    }
+    
+    public function getPostPrivacyAction( $header_data, $post_data ){
+        if( !isset($post_data['post_id']) ) {
+            Library::logging('alert',"API : getpostPrivacy : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                $post   = Posts::findById( $post_data['post_id'] );
+                if( $post ){
+                    if( empty($post->shared_with) ){
+                        $post->shared_with   = array();
+                    }
+                    
+                    $user       = Users::findById( $header_data["id"] );
+                    $friends    = array( $header_data['id']=>$header_data['id'] );
+                    if(isset($user->running_groups)) {
+                        foreach( $user->running_groups as $friend ) {
+                            $friends[$friend["user_id"]]    = $friend["user_id"];
+                        }
+                    }
+                    $result = array();
+                    foreach( $comment->shared_with AS $friendId){        
+                        $friend         = Users::findById( $friendId );
+                        if($friend){
+                            if( !isset($friend->username) ){
+                                $friend->username   = "";
+                            }
+                            if( empty($friends[$friendId]) || $friend->is_deleted == 1 ){
+                                $result[]  = array( "user_id"=>"" ,"name"=> "user", "profile_image"=>FORM_ACTION.DEFAULT_PROFILE_IMAGE );
+                            }else{
+                                $result[]  = array( "user_id"=>$friendId, "name"=> $friend->username, "profile_image"=>FORM_ACTION.$friend->profile_image );
+                            }
+                        }
+                    }
+                    
+                    Library::output(true, '1', "No error", $result);
+                }else{
+                    Library::logging('error',"API : getpostPrivacy : Invalid post Id : user_id : ".$header_data['id'].", post_id: ".$post_data['post_id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+            } catch (Exception $ex) {
+                Library::logging('error',"API : getpostPrivacy : ".$ex." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        }
+        
+    }
+    
 }
 ?>

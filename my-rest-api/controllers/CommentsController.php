@@ -115,6 +115,11 @@ class CommentsController
                     $i          =   0;
                     $listing    = array();
                     foreach ($comments['retval'] as $comment) {
+                        if( !empty($comment["shared_with"]) && $comment['user_id'] !=$header_data['id'] ){
+                            if( !in_array($header_data['id'], $comment["shared_with"]) ){
+                                continue;
+                            }
+                        }
                         $listing[$i]['comment_id'] = (string)$comment['_id'];
                         $listing[$i]['comment_text'] = $comment['comment_text'];
                         $listing[$i]['comment_timestamp'] = $comment['date'];
@@ -148,6 +153,92 @@ class CommentsController
         }
     }
     
-  
+    public function setCommentPrivacyAction( $header_data, $post_data ){
+        if(!isset($post_data['comment_id']) && !isset($post_data['user_id']) ) {
+            Library::logging('alert',"API : setCommentPrivacy : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                if($header_data['os'] == 1) {
+                    $post_data['user_id'] =  json_decode($post_data['user_id']);
+                }
+                if( !is_array($post_data['user_id']) ) {
+                    Library::logging('alert',"API : setCommentPrivacy : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_INPUT, null);
+                }
+                $comment   = Comments::findById( $post_data['comment_id'] );
+                if( $comment ){
+                    if( empty($comment->shared_with) ){
+                        $comment->shared_with   = array();
+                    }
+                    $comment->shared_with   = array_merge( $comment->shared_with, $post_data['user_id'] );
+                    if($comment->save()){
+                        Library::output(true, '1', PRIVACY_SETTINGS, null);
+                        
+                    }else{
+                        foreach ($comment->getMessages() as $message) {
+                            $errors[] = $message->getMessage();
+                        }
+                        Library::logging('error',"API : setCommentPrivacy : ".$errors." user_id : ".$header_data['id']);
+                        Library::output(false, '0', $errors, null);
+                    }
+                }else{
+                    Library::logging('error',"API : setCommentPrivacy : Invalid comment Id : user_id : ".$header_data['id'].", comment_id: ".$post_data['comment_id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+            } catch (Exception $ex) {
+                Library::logging('error',"API : setCommentPrivacy : ".$ex." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        }
+        
+    }
+    
+    public function getCommentPrivacyAction( $header_data, $post_data ){
+        if( !isset($post_data['comment_id']) ) {
+            Library::logging('alert',"API : getCommentPrivacy : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                $comment   = Comments::findById( $post_data['comment_id'] );
+                if( $comment ){
+                    if( empty($comment->shared_with) ){
+                        $comment->shared_with   = array();
+                    }
+                    
+                    $user       = Users::findById( $header_data["id"] );
+                    $friends    = array( $header_data['id']=>$header_data['id'] );
+                    if(isset($user->running_groups)) {
+                        foreach( $user->running_groups as $friend ) {
+                            $friends[$friend["user_id"]]    = $friend["user_id"];
+                        }
+                    }
+                    $result = array();
+                    foreach( $comment->shared_with AS $friendId){        
+                        $friend         = Users::findById( $friendId );
+                        if($friend){
+                            if( !isset($friend->username) ){
+                                $friend->username   = "";
+                            }
+                            if( empty($friends[$friendId]) || $friend->is_deleted == 1 ){
+                                $result[]  = array( "user_id"=>"" ,"name"=> "user", "profile_image"=>FORM_ACTION.DEFAULT_PROFILE_IMAGE );
+                            }else{
+                                $result[]  = array( "user_id"=>$friendId, "name"=> $friend->username, "profile_image"=>FORM_ACTION.$friend->profile_image );
+                            }
+                        }
+                    }
+                    
+                    Library::output(true, '1', "No error", $result);
+                }else{
+                    Library::logging('error',"API : getCommentPrivacy : Invalid comment Id : user_id : ".$header_data['id'].", comment_id: ".$post_data['comment_id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+            } catch (Exception $ex) {
+                Library::logging('error',"API : getCommentPrivacy : ".$ex." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        }
+        
+    }
 }
 ?>

@@ -834,6 +834,11 @@ class SettingsController
                             $posts = Posts::find(array(array("user_id" => $user_id, "type"=>2)));
                             if(is_array($posts)) {
                                 foreach($posts as $post) {
+                                    if( !empty($post->shared_with) ){
+                                        if( !in_array($header_data['id'], $post->shared_with) ){
+                                            continue;
+                                        }
+                                    }
                                     $postId = (string)$post->_id;
                                     $isLiked    = false;
                                     $isDisliked = false;
