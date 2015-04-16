@@ -12,11 +12,16 @@ class EmoticonsController {
                 Library::output(false, '0', ERROR_REQUEST, null);
             }
             foreach( $emoticons["retval"] AS $emoticon ){
+                $purchased  = "0";
+                if( !empty($emoticon["purchased_by"]) && in_array( $header_data["id"], $emoticon["purchased_by"]) ){
+                    $purchased  = "1";
+                }
                 $result[]   = array(
                                 "title"     => $emoticon["title"],
                                 "artist"    => $emoticon["artist"],
                                 "icon"      => FORM_ACTION.$emoticon["icon"],
-                                "price"     => $emoticon["price"]
+                                "price"     => $emoticon["price"],
+                                "purchased" => $purchased
                 );
             }
             Library::output(true, '1', "No Error", $result);
