@@ -17,6 +17,7 @@ class EmoticonsController {
                     $purchased  = "1";
                 }
                 $result[]   = array(
+                                "id"        => (string)$emoticon["_id"],
                                 "title"     => $emoticon["title"],
                                 "artist"    => $emoticon["artist"],
                                 "icon"      => FORM_ACTION.$emoticon["icon"],
