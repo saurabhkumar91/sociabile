@@ -61,16 +61,16 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
                                 self::output(false, '0', TOKEN_WRONG, null);
                             }
                         } else {
-                            self::logging('error',"API : Middleware: ".USER_NOT_REGISTERED." user_id : ".$param['id']);
+                            self::logging('error',"API : $api_name Middleware: ".USER_NOT_REGISTERED." user_id : ".$param['id']);
                             self::output(false, '0', USER_NOT_REGISTERED, null);
                         }
                     } else {
-                        self::logging('error',"API : Middleware: ".HEADER_INFO." user_id : ".$param['id'] );
+                        self::logging('error',"API : $api_name Middleware: ".HEADER_INFO." user_id : ".$param['id'] );
                         self::output(false, '0', HEADER_INFO, null);
                     }
 
                 } catch(Exception $e) {
-                    self::logging('error',"API : Middleware: ".$e->getMessage());
+                    self::logging('error',"API : $api_name Middleware: ".$e->getMessage());
                     self::output(false, '0', "wrong user id", null);
                 }
             }
