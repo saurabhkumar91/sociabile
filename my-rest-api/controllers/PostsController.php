@@ -721,9 +721,10 @@ class PostsController
                 }
                 $post   = Posts::findById( $post_data['post_id'] );
                 if( $post && $post->type==2 ){
-                    if( empty($post->shared_with) ){
-                        $post->shared_with   = array();
-                    }
+//                    if( empty($post->shared_with) ){
+//                        $post->shared_with   = array();
+//                    }
+                    $post->shared_with   = array();
                     foreach($post_data['user_id'] AS $userId ){
                         if( !in_array( $userId, $post->shared_with) ){
                             $post->shared_with[]    = $userId;

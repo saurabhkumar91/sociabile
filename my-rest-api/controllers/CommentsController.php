@@ -168,10 +168,15 @@ class CommentsController
                 }
                 $comment   = Comments::findById( $post_data['comment_id'] );
                 if( $comment ){
-                    if( empty($comment->shared_with) ){
-                        $comment->shared_with   = array();
+//                    if( empty($comment->shared_with) ){
+//                        $comment->shared_with   = array();
+//                    }
+                    $comment->shared_with   = array();
+                    foreach($post_data['user_id'] AS $userId ){
+                        if( !in_array( $userId, $comment->shared_with) ){
+                            $comment->shared_with[]    = $userId;
+                        }
                     }
-                    $comment->shared_with   = array_merge( $comment->shared_with, $post_data['user_id'] );
                     if($comment->save()){
                         Library::output(true, '1', PRIVACY_SETTINGS, null);
                         
