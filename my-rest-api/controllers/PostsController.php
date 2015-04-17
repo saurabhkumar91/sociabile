@@ -724,7 +724,11 @@ class PostsController
                     if( empty($post->shared_with) ){
                         $post->shared_with   = array();
                     }
-                    $post->shared_with   = array_merge( $post->shared_with, $post_data['user_id'] );
+                    foreach($post_data['user_id'] AS $userId ){
+                        if( !in_array( $userId, $post->shared_with) ){
+                            $post->shared_with[]    = $userId;
+                        }
+                    }
                     if($post->save()){
                         Library::output(true, '1', PRIVACY_SETTINGS, null);
                         
@@ -767,7 +771,7 @@ class PostsController
                         }
                     }
                     $result = array();
-                    foreach( $comment->shared_with AS $friendId){        
+                    foreach( $post->shared_with AS $friendId){        
                         $friend         = Users::findById( $friendId );
                         if($friend){
                             if( !isset($friend->username) ){

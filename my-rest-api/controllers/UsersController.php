@@ -73,7 +73,11 @@ class UsersController
                 $device_id = $data['device_id'];
                 $record = Users::find( array(array("mobile_no"=>$mobile_no, "is_deleted"=>0)) );
                 $jaxlPassword           = "12345";
-                if(count($record) > 0) {
+                if( count($record) > 0 && $record[0]->is_active == 0 ){
+                    $db                 = Library::getMongo();
+                    $db->execute('return db.users.remove({"_id" :ObjectId("'.$record[0]->_id.'") })');
+                }
+                if(count($record) > 0 && $record[0]->is_active != 0 ) {
                     $result['user_id']  = $record[0]->_id;
                     $result['token']    = $record[0]->hash;
                    // $result['otp'] = 1234;

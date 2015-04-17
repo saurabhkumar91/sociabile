@@ -625,7 +625,7 @@ class SettingsController
                 $post->likes            = 0;
                 $post->dislikes         = 0;
                 $post->date             = time();
-                $post->sahred_with      = array_values($sharedWith);
+                $post->shared_with      = array_values($sharedWith);
                 $post->viewed           = 0;
                 $post->type             = 3;    // type| 1 for text posts, 2 for images, 3 for shared images
                 if ($post->save() == false) {
@@ -687,9 +687,9 @@ class SettingsController
             try {
                 $post   = Posts::findById( $post_data['post_id'] );
                 if($post){
-                    if( ($key=array_search($header_data['id'], $post->sahred_with )) !== false ){
-                        unset($post->sahred_with[$key]);
-                        $post->sahred_with  = array_values( $post->sahred_with );
+                    if( ($key=array_search($header_data['id'], $post->shared_with )) !== false ){
+                        unset($post->shared_with[$key]);
+                        $post->shared_with  = array_values( $post->shared_with );
                         if ($post->save() == false) {
                             foreach ($post->getMessages() as $message) {
                                 $errors[] = $message->getMessage();
@@ -957,7 +957,7 @@ class SettingsController
             elseif( $type == 2 ) { // type 2 for share images
                 
                 $result     = array();
-                        $posts  = $db->execute('return db.posts.find({"type":3, "sahred_with":"'.$header_data['id'].'"}).toArray()');
+                        $posts  = $db->execute('return db.posts.find({"type":3, "shared_with":"'.$header_data['id'].'"}).toArray()');
                         if($posts['ok'] == 0) {
                             Library::logging('error',"API : getImages (get user info) , mongodb error: ".$posts['errmsg']." ".": user_id : ".$header_data['id']);
                             Library::output(false, '0', ERROR_REQUEST, null);
