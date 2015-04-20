@@ -161,6 +161,10 @@ class CommentsController
             try {
                 if($header_data['os'] == 1) {
                     $post_data['user_id'] =  json_decode($post_data['user_id']);
+                }else{
+                    if( empty($post_data['user_id']) ){
+                        $post_data['user_id'] = array();
+                    }
                 }
                 if( !is_array($post_data['user_id']) ) {
                     Library::logging('alert',"API : setCommentPrivacy : ".ERROR_INPUT.": user_id : ".$header_data['id']);
