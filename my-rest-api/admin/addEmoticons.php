@@ -251,7 +251,7 @@ function uploadFile( $fileName, $target_path, $fileSize, $fileTmpName, $validext
                 $ext        = explode(".", $imgName);
                 $extension  = trim(end($ext));
                 $postfields = array(
-                    "key"                       =>  "emoticons/".$imgName,//$amazonSign["key"],
+                    "key"                       =>  "Emoticons/".$imgName,//$amazonSign["key"],
                     "AWSAccessKeyId"            => $amazonSign["AWSAccessKeyId"],
                     "acl"                       => $amazonSign["acl"],
                     "success_action_redirect"   => $amazonSign["success_action_redirect"],
