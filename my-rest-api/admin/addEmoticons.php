@@ -1,5 +1,20 @@
+<?php
+    require_once 'loginValidate.php';
+    $url                = "http://".$_SERVER["HTTP_HOST"].$_SERVER["PHP_SELF"];
+    $changePasswordUrl  = str_replace( "addEmoticons.php", "changePassword.php", $url );
+    $logoutUrl          = str_replace( "addEmoticons.php", "logout.php", $url );
+?>
 <html>
     <body>
+        <p>
+            <span style="float:left;" class="button">
+                &nbsp;&nbsp;&nbsp;&nbsp;<a  style="color:#ffffff;" href="<?php echo $changePasswordUrl;?>">change password</a>
+            </span>
+            <span style="float:right" class="button">
+                <a  style="color:#ffffff;" href="<?php echo $logoutUrl;?>">logout</a>&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>
+        </p>
+        <br><br><br><br>
         <form enctype="multipart/form-data" method="post" action="addEmoticons.php">
             <label for="title">Title</label>
             <input type="text" name="title" id="title" value="">
@@ -21,9 +36,10 @@
             <br><br>
                 <div id="filediv"></div>
                 <div><input name="file[]" type="file" id="file"/></div>
+                <br>
                 <input type="button" id="add_more" class="upload" value="Add More Files"/>
             <br><br>
-            <input type="submit" name="submit" value="submit">
+            <input type="submit" name="submit" value="submit" class="button">
         </form>
         
 
@@ -100,8 +116,8 @@
                 margin-left:30px
             }
             .upload{
-                background-color:red;
-                border:1px solid red;
+                background-color:green;
+                border:1px solid green;
                 color:#fff;
                 border-radius:5px;
                 padding:10px;
@@ -114,11 +130,14 @@
                 border:1px solid #c20b0b;
                 box-shadow:0 0 5px rgba(0,0,0,.75)
             }
-            #file{
-                color:green;
-                padding:5px;
-                border:1px dashed #123456;
-                background-color:#f9ffe5
+            .button{
+                background-color:green;
+                border:1px solid green;
+                color:#fff;
+                border-radius:5px;
+                padding:10px;
+                text-shadow:1px 1px 0 green;
+                box-shadow:2px 2px 15px rgba(0,0,0,.75)
             }
             #upload{
                 margin-left:45px
@@ -204,7 +223,7 @@ if (isset($_POST['submit'])) {
         }else{
             $mongo = new MongoClient();
             $db = $mongo->Sociabile;
-            $request = 'db.emoticons.insert({ title: "'.$_POST["title"].'", artist: "'.$_POST["artist"].'", price: "'.$_POST["price"].'", icon: "'.$iconImageName.'", large_icon: "'.$largeiconImageName.'", decsription: "'.$_POST["decsription"].'", emoticons:'.json_encode($emoticons).' })';
+            $request = 'return db.emoticons.insert({ title: "'.$_POST["title"].'", artist: "'.$_POST["artist"].'", price: "'.$_POST["price"].'", icon: "'.$iconImageName.'", large_icon: "'.$largeiconImageName.'", decsription: "'.$_POST["decsription"].'", emoticons:'.json_encode($emoticons).' })';
             $result = $db->execute($request);
             if($result['ok'] == 0) {
                 exit( $result['errmsg'] );
