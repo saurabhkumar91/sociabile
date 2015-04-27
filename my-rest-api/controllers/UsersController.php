@@ -49,7 +49,7 @@ class UsersController
                 Library::output(false, '0', JAXL_REG_FAILED, null); 
             }
         }else{ //if not registered successfully with unknown error
-            Library::logging('error',"API : registration : JAXL registration failed ".$mobile_no);
+            Library::logging('error',"API : registration : JAXL registration failed ".$mobile_no.$form);
             Library::output(false, '0', JAXL_REG_FAILED, null);
         }
     }
