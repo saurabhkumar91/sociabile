@@ -141,7 +141,7 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
     
     static function  getMongo() 
     {
-        $mongo = new MongoClient();
+        $mongo = new MongoClient("mongodb://54.69.252.154");
         $db = $mongo->Sociabile;
         return $db;
     }

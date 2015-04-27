@@ -1,12 +1,11 @@
 <?php
 //exit ("unauthorized access");
+    require_once 'config.php';
     require_once 'loginValidate.php';
     if( isset($_POST['username']) &&  isset($_POST['password']) ){
         if( $_POST['password'] !== $_POST['confirmPassword'] ){
             echo "<p style='color:red;'>Password and Confirm password did not matched.</p>";
         }else{
-            $mongo = new MongoClient("mongodb://54.69.252.154");
-            $db = $mongo->Sociabile;
             $password   = md5( $_POST['password'] );
             $request    = 'return db.admin_users.find( { username:"'.$_POST['username'].'" } ).toArray();';
             $result     = $db->execute($request);

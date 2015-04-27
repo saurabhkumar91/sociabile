@@ -1,7 +1,6 @@
 <?php
     if( isset($_POST['username']) &&  isset($_POST['password']) ){
-            $mongo = new MongoClient();
-            $db = $mongo->Sociabile;
+        require_once 'config.php';
             $password   = md5( $_POST['password'] );
             $request    = 'return db.admin_users.find( { username:"'.$_POST['username'].'", password:"'.$password.'" } ).toArray();';
             $result     = $db->execute($request);

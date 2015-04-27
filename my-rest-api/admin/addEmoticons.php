@@ -1,4 +1,5 @@
 <?php
+    require_once 'config.php';
     require_once 'loginValidate.php';
     $url                = "http://".$_SERVER["HTTP_HOST"].$_SERVER["PHP_SELF"];
     $changePasswordUrl  = str_replace( "addEmoticons.php", "changePassword.php", $url );
@@ -221,8 +222,6 @@ if (isset($_POST['submit'])) {
         if( $errorMessage ){
             echo $errorMessage;
         }else{
-            $mongo = new MongoClient();
-            $db = $mongo->Sociabile;
             $request = 'return db.emoticons.insert({ title: "'.$_POST["title"].'", artist: "'.$_POST["artist"].'", price: "'.$_POST["price"].'", icon: "'.$iconImageName.'", large_icon: "'.$largeiconImageName.'", decsription: "'.$_POST["decsription"].'", emoticons:'.json_encode($emoticons).' })';
             $result = $db->execute($request);
             if($result['ok'] == 0) {

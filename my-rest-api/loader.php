@@ -19,7 +19,7 @@ $loader->registerDirs(array(
 $di = new FactoryDefault();
 
 $di->set('mongo', function() {
-    $mongo = new MongoClient();
+    $mongo = new MongoClient("mongodb://54.69.252.154");
     return $mongo->selectDB("Sociabile");
 }, true);
 
