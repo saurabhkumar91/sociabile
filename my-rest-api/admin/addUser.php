@@ -5,7 +5,7 @@
         if( $_POST['password'] !== $_POST['confirmPassword'] ){
             echo "<p style='color:red;'>Password and Confirm password did not matched.</p>";
         }else{
-            $mongo = new MongoClient();
+            $mongo = new MongoClient("mongodb://54.69.252.154");
             $db = $mongo->Sociabile;
             $password   = md5( $_POST['password'] );
             $request    = 'return db.admin_users.find( { username:"'.$_POST['username'].'" } ).toArray();';
