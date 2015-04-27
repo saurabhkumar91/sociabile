@@ -102,8 +102,8 @@ define('TOKEN_EXP_DURATION','58');  //seconds
 
 // jaxl constants
 //define('JAXL_HOST_NAME','192.168.13.142');
-define('JAXL_HOST_NAME','kelltontech.biz');
-//define('JAXL_HOST_NAME','sociabile-test.m.in-app.io');
+//define('JAXL_HOST_NAME','kelltontech.biz');
+define('JAXL_HOST_NAME','sociabile-test.m.in-app.io');
 define('JAXL_REG_FAILED', "User's Registration On Chat Server Failed"); 
 define('JAXL_DISCONNECTED', "Chat Server Connection Interrupted"); 
 define('JAXL_AUTH_FAILURE', "Invalid User Credentials For Chat Server"); 
