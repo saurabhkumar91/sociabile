@@ -16,8 +16,10 @@ class UsersController
         require 'components/JAXL3/jaxl.php';
         require 'components/JAXL3/register.php';
         $client = new JAXL(array(
-                'jid' => JAXL_HOST_NAME,
-                'log_level' => JAXL_ERROR
+//                'jid' => JAXL_HOST_NAME,
+                'host' => JAXL_HOST_NAME,
+                'log_level' => JAXL_ERROR,
+                "port"=>5281
         ));
 
         $client->require_xep(array(
