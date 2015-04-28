@@ -13,21 +13,22 @@ class UsersController
      */
     
     function registerOnEjabberd($mobile_no,$jaxlPassword){
+        /*********************register with curl code start*****************************************/
                     $ch = curl_init();
                     $options = array(
                         CURLOPT_URL         => "https://sociabile-test.m.in-app.io:5281/api/register",
                         //CURLOPT_HEADER      => true,
                         CURLOPT_POST        => 1,
                        // CURLOPT_HTTPHEADER  => $headers,
-                        CURLOPT_POSTFIELDS  => '["test1","sociabile-test.m.in-app.io","secret"]',
+                        CURLOPT_POSTFIELDS  => '["'.$mobile_no.'","'.JAXL_HOST_NAME.'","'.$jaxlPassword.'"]',
                         CURLOPT_FOLLOWLOCATION => true,
                         CURLOPT_RETURNTRANSFER => true
                     ); // cURL options
                     curl_setopt_array($ch, $options);
                     $result = curl_exec($ch);
                     curl_close($ch);
-                    var_dump( $result );
-                    exit;
+                    return array("jaxl_id"=>$mobile_no.'@'.JAXL_HOST_NAME, "jaxl_password"=>$jaxlPassword);
+        /*********************register with curl code end*****************************************/
         
         require 'components/JAXL3/jaxl.php';
         require 'components/JAXL3/register.php';
