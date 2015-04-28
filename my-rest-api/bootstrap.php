@@ -89,15 +89,23 @@ define('TIME_CAPSULE_NOT_OPENED', 'Unopened Time Capsule Can Not Be Deleted .');
 
 
 //amazon variable
-define('AUTHKEY','AKIAJXUZE7L54DA6Y3NA');
-define('SECRETKEY','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');
-define('S3BUCKET','newchatejabberd');
-define('SUCCESS_ACTION_REDIRECT','http://54.164.91.58/getStatus');
+//define('AUTHKEY','AKIAJXUZE7L54DA6Y3NA');
+//define('SECRETKEY','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');
+//define('S3BUCKET','newchatejabberd');
+//define('SUCCESS_ACTION_REDIRECT','http://54.164.91.58/getStatus');
 //define('SUCCESS_ACTION_REDIRECT','http://192.168.0.60/sociabileapi/my-rest-api/getStatus');
 
-define('FORM_ACTION','http://newchatejabberd.s3.amazonaws.com/'); 
+//define('FORM_ACTION','http://newchatejabberd.s3.amazonaws.com/'); 
+//define('ACL','public-read');
+////define('CDN_URL','cgintelmob.cafegive.com');
+//define('TOKEN_EXP_DURATION','58');  //seconds
+
+define('AUTHKEY','AKIAJY5FBQ6GJZ3EKNUQ');
+define('SECRETKEY','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');
+define('S3BUCKET','sociabiles3');
+define('SUCCESS_ACTION_REDIRECT','http://54.201.189.57/getStatus');
+define('FORM_ACTION','http://sociabiles3.s3.amazonaws.com/'); 
 define('ACL','public-read');
-//define('CDN_URL','cgintelmob.cafegive.com');
 define('TOKEN_EXP_DURATION','58');  //seconds
 
 // jaxl constants
