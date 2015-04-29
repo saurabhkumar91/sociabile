@@ -102,9 +102,9 @@ define('TIME_CAPSULE_NOT_OPENED', 'Unopened Time Capsule Can Not Be Deleted .');
 
 define('AUTHKEY','AKIAJY5FBQ6GJZ3EKNUQ');
 define('SECRETKEY','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');
-define('S3BUCKET','sociabile');
+define('S3BUCKET','sociabileimages');
 define('SUCCESS_ACTION_REDIRECT','http://54.201.189.57/getStatus');
-define('FORM_ACTION','http://sociabile.s3.amazonaws.com/'); 
+define('FORM_ACTION','http://sociabileimages.s3.amazonaws.com/'); 
 define('ACL','public-read');
 define('TOKEN_EXP_DURATION','58');  //seconds
 
