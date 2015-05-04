@@ -88,7 +88,7 @@ class JAXL extends XMPPStream {
 	public $manage_subscribe = "none";
 	
 	// path variables
-	public $log_level = JAXL_INFO;
+	public $log_level = JAXL_DEBUG;
 	public $priv_dir;
 	public $tmp_dir;
 	public $log_dir;

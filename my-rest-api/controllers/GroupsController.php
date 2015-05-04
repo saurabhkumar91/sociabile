@@ -33,7 +33,7 @@ class GroupsController
             foreach ($list['retval'] as $group) {
                 $result[$i]['id'] = (string)$group['_id'];
                 $result[$i]['group_name'] = $group['group_name'];
-                if($group['user_id'] == $header_data['id'] ){
+                if( isset($group['user_id']) && $group['user_id'] == $header_data['id'] ){
                     $result[$i]['is_default']   = 0;
                 }else{
                     $result[$i]['is_default']   = 1;
