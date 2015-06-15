@@ -574,6 +574,30 @@ class UsersController
                             continue;
                         }
                     }
+                    if( isset($user->request_sent) ) {
+                        $isFriendRequested  = false;
+                        foreach($user->request_sent as $user_ids) {
+                            if($user_ids['user_id'] == (string)$record[0]->_id) {
+                                $isFriendRequested   = true; 
+                                break;
+                            }
+                        }
+                        if( $isFriendRequested ){
+                            continue;
+                        }
+                    }
+                    if(isset($user->request_pending)) {
+                        $isRequestPending   = false;
+                        foreach($user->request_pending as $user_ids) {
+                            if($user_ids['user_id'] == (string)$record[0]->_id) {
+                                $isRequestPending   = true; 
+                                break;
+                            }
+                        }
+                        if( $isRequestPending ){
+                            continue;
+                        }
+                    }
                     
                     $register[$i]['mobile_no'] = $contacts;
                     $register[$i]['user_id'] = (string)$record[0]->_id;
@@ -797,10 +821,20 @@ class UsersController
                     Library::output(false, '0', ERROR_REQUEST, null);
                 }
                 if(isset($user_info['retval'][0])) {
-                    if(  empty($user_info['retval'][0]["hidden_contacts"]) || !in_array( $header_data['id'], $user_info['retval'][0]["hidden_contacts"]) ){
+                    if( empty($user_info['retval'][0]["hidden_contacts"]) || !in_array( $header_data['id'], $user_info['retval'][0]["hidden_contacts"]) ){
                         $result['id'] = (string)$user_info['retval'][0]['_id'];
                         $result['username'] = $user_info['retval'][0]['username'];
                         $result['profile_pic'] = FORM_ACTION.$user_info['retval'][0]["profile_image"];
+                        if(isset($user_info['retval'][0]["running_groups"])) {
+                            $isFriend   = false;
+                            foreach($user_info['retval'][0]["running_groups"] as $user_ids) {
+                                if($user_ids['user_id'] == $header_data['id']) {
+                                    $isFriend   = true; 
+                                    break;
+                                }
+                            }
+                        }
+                        $result['isFriend'] = $isFriend;
                         Library::output(true, '1', "No Error", $result);
                     }
                 }
@@ -810,7 +844,7 @@ class UsersController
             Library::logging('error',"API : searchUser : ".$e." ".": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_REQUEST, null);
         }
-     }
+    }
      
     /**
      * Method for searching user based on mobile no

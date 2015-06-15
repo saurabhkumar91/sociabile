@@ -290,8 +290,9 @@ class PostsController
                         $post->liked_by = array();
                     }
                     if( in_array( $header_data['id'], $post->liked_by) ){
-                        Library::logging('error',"API : likePost : ".POST_ALREADY_LIKED." ".": user_id : ".$header_data['id']);
-                        Library::output(false, '0', POST_ALREADY_LIKED, null);
+//                        Library::logging('error',"API : likePost : ".POST_ALREADY_LIKED." ".": user_id : ".$header_data['id']);
+//                        Library::output(false, '0', POST_ALREADY_LIKED, null);
+                        Library::output(true, '1', POST_LIKED, null);
                     }
                     $post->liked_by[]   = $header_data['id'];
                     if($post->save()){
@@ -307,7 +308,7 @@ class PostsController
                             if( !empty($res['retval'][0]["os"]) && in_array($res['retval'][0]["os"], array("1", "2")) && !empty($res['retval'][0]["device_token"]) ){
                                 $postType   = ($post->type==2 || $post->type==3) ? "photo" : "my mind";
                                // $postDetail = $this->getPostDetail( $header_data["id"], $post_data['post_id'] );
-                                $message    = array( "message"=>$user->username." (".$user->mobile_no.")"." liked your $postType.", "type"=>NOTIFY_POST_LIKED, "post_type"=>$post->type, "post_id"=>$post_data['post_id'] );
+                                $message    = array( "message"=>$user->username/*." (".$user->mobile_no.")"*/." liked your $postType.", "type"=>NOTIFY_POST_LIKED, "post_type"=>$post->type, "post_id"=>$post_data['post_id'] );
                                 $sendTo     = ($res['retval'][0]["os"] == "1") ? "android" : "ios";
                                 $settings   = new SettingsController();
                                 $settings->sendNotifications( array($res['retval'][0]["device_token"]), array("message"=>json_encode($message)), $sendTo );
@@ -355,8 +356,9 @@ class PostsController
                         $post->disliked_by = array();
                     }
                     if( in_array( $header_data['id'], $post->disliked_by) ){
-                        Library::logging('error',"API : dislikePost : ".POST_ALREADY_DISLIKED." ".": user_id : ".$header_data['id']);
-                        Library::output(false, '0', POST_ALREADY_DISLIKED, null);
+//                        Library::logging('error',"API : dislikePost : ".POST_ALREADY_DISLIKED." ".": user_id : ".$header_data['id']);
+//                        Library::output(false, '0', POST_ALREADY_DISLIKED, null);
+                        Library::output(true, '1', POST_DISLIKED, null);
                     }
                     $post->disliked_by[]    = $header_data['id'];
                     
@@ -373,7 +375,7 @@ class PostsController
                             if( !empty($res['retval'][0]["os"]) && in_array($res['retval'][0]["os"], array("1", "2")) && !empty($res['retval'][0]["device_token"]) ){
                                 $postType   = ($post->type==2 || $post->type==3) ? "photo" : "my mind";
                                 //$postDetail = $this->getPostDetail( $header_data["id"], $post_data['post_id'] );
-                                $message    = array( "message"=>$user->username." (".$user->mobile_no.")"." disliked your $postType.", "type"=>NOTIFY_POST_DISLIKED, "post_type"=>$post->type, "post_id"=>$post_data['post_id'] );
+                                $message    = array( "message"=>$user->username/*." (".$user->mobile_no.")"*/." disliked your $postType.", "type"=>NOTIFY_POST_DISLIKED, "post_type"=>$post->type, "post_id"=>$post_data['post_id'] );
                                 $sendTo     = ($res['retval'][0]["os"] == "1") ? "android" : "ios";
                                 $settings   = new SettingsController();
                                 $settings->sendNotifications( array($res['retval'][0]["device_token"]), array("message"=>json_encode($message)), $sendTo );

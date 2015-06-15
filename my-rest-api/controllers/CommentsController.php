@@ -59,7 +59,7 @@ class CommentsController
                                 $postType   = ($post->type==2 || $post->type==3) ? "photo" : "my mind";
                                 //$post       = new PostsController();
                                // $postDetail = $post->getPostDetail( $header_data["id"], $post_data['post_id'] );
-                                $message    = array( "message"=>$user->username." (".$user->mobile_no.")"." commented on your $postType.", "type"=>NOTIFY_COMMENT_RECEIVED, "post_type"=>$post->type, "post_id"=>$post_data['post_id'] );
+                                $message    = array( "message"=>$user->username/*." (".$user->mobile_no.")"*/." commented on your $postType.", "type"=>NOTIFY_COMMENT_RECEIVED, "post_type"=>$post->type, "post_id"=>$post_data['post_id'] );
                                 $sendTo     = ($res['retval'][0]["os"] == "1") ? "android" : "ios";
                                 $settings   = new SettingsController();
                                 $settings->sendNotifications( array($res['retval'][0]["device_token"]), array("message"=>json_encode($message)), $sendTo );

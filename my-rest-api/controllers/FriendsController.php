@@ -107,7 +107,7 @@ class FriendsController
                 $_SESSION["requestedId"]        = $requestedUser->jaxl_id;
                 $_SESSION["os"]                 = empty($requestedUser->os) ? '' : $requestedUser->os ;
                 $_SESSION["deviceToken"]        = empty($requestedUser->device_token) ? '' : $requestedUser->device_token;
-                $_SESSION["userMobileNo"]       = $user->username." (".$user->mobile_no.")";
+                $_SESSION["userMobileNo"]       = $user->username/*." (".$user->mobile_no.")"*/;
                 $_SESSION["userId"]             = $header_data['id'];
                 $_SESSION["requestedUserId"]    = $post_data['request_user_id'];
                 $_SESSION["groupIds"]           = $groupIds;
@@ -308,7 +308,7 @@ class FriendsController
                 $_SESSION["requestGroups"]  = $requestGroups;
                 $_SESSION["os"]             = empty($acceptUser->os) ? '' : $acceptUser->os ;
                 $_SESSION["deviceToken"]    = empty($acceptUser->device_token) ? '' : $acceptUser->device_token;
-                $_SESSION["userMobileNo"]   = $user->username." (".$user->mobile_no.")";
+                $_SESSION["userMobileNo"]   = $user->username/*." (".$user->mobile_no.")"*/;
                 $_SESSION["userDetails"]    = $userDetails;
                 
                 $client->start();
@@ -506,6 +506,13 @@ class FriendsController
                     }
                     if( $isModified ){
                         $isModified = 0;
+                        if( isset($user->hidden_contacts) ){
+                            if( !in_array($friendId,$user->hidden_contacts) ){
+                                $user->hidden_contacts[]    = $friendId;
+                            }
+                        }else{
+                            $user->hidden_contacts[]    = array($friendId);
+                        }
                         if( !$user->save() ){
                             foreach ($user->getMessages() as $message) {
                                 $errors[] = $message->getMessage();

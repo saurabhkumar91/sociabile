@@ -547,7 +547,7 @@ $app->get( "/getPurchasesdEmoticons", function() {
 $app->notFound(
 	function () use ( $app ) {
             $app->response->setStatusCode( 404, "Not Found" )->sendHeaders();
-             Library::output(false, '0', "This Api not exist", null);
+            Library::output(false, '0', "This Api not exist", null);
 	}
 );
 $app->handle();
