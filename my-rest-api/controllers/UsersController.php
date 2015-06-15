@@ -822,11 +822,11 @@ class UsersController
                 }
                 if(isset($user_info['retval'][0])) {
                     if( empty($user_info['retval'][0]["hidden_contacts"]) || !in_array( $header_data['id'], $user_info['retval'][0]["hidden_contacts"]) ){
+                        $isFriend   = false;
                         $result['id'] = (string)$user_info['retval'][0]['_id'];
                         $result['username'] = $user_info['retval'][0]['username'];
                         $result['profile_pic'] = FORM_ACTION.$user_info['retval'][0]["profile_image"];
                         if(isset($user_info['retval'][0]["running_groups"])) {
-                            $isFriend   = false;
                             foreach($user_info['retval'][0]["running_groups"] as $user_ids) {
                                 if($user_ids['user_id'] == $header_data['id']) {
                                     $isFriend   = true; 

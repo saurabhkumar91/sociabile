@@ -511,7 +511,7 @@ class FriendsController
                                 $user->hidden_contacts[]    = $friendId;
                             }
                         }else{
-                            $user->hidden_contacts[]    = array($friendId);
+                            $user->hidden_contacts    = array($friendId);
                         }
                         if( !$user->save() ){
                             foreach ($user->getMessages() as $message) {
