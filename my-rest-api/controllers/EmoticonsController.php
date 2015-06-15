@@ -128,4 +128,33 @@ class EmoticonsController {
             Library::output(false, '0', ERROR_REQUEST, null);
         }
     }
+    
+    public function getFreeEmoticonsAction( $header_data ){
+        $staticSmileys = array(
+            "Emoticons/1757899461soc_angry.gif",
+            "Emoticons/1884133391soc_angryred.gif",
+            "Emoticons/304715169soc_cool2.gif",
+            "Emoticons/1705379628soc_cool.gif",
+            "Emoticons/1593154307soc_crying.gif",
+            "Emoticons/1061497941soc_exhaushted.gif",
+            "Emoticons/1821514132soc_gross.gif",
+            "Emoticons/1946847887soc_grossgreen.gif",
+            "Emoticons/1115455992soc_happy.gif",
+            "Emoticons/1791049876soc_hehe.gif",
+            "Emoticons/525641982soc_hungover.gif",
+            "Emoticons/579783157soc_hungover2.gif",
+            "Emoticons/803381996soc_kiss.gif",
+            "Emoticons/618229093soc_kissme.gif",
+            "Emoticons/708778971soc_oh.gif",
+            "Emoticons/1174664530soc_omg.gif",
+            "Emoticons/858143723soc_ouch.gif",
+            "Emoticons/501717861soc_redeyes.gif"
+        );
+        $result = array();
+        $i  = 0;
+        foreach( $staticSmileys AS $emoticon ){
+            $result[$i][]    = FORM_ACTION.$emoticon;
+        }
+        Library::output(true, '1', "No Error", $result);
+    }
 }
