@@ -85,6 +85,68 @@ class GroupsController
         }
     }
     
+    
+    /**
+     * Method for delete group
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Saurabh Kumar
+     * @return json
+     */
+    
+    public function deleteGroupAction( $header_data, $post_data )
+    {
+        if( !isset($post_data['group_id'])) {
+            Library::logging('alert',"API : deleteGroup : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                $group = Groups::findById( $post_data['group_id'] );
+                if( !$group ){
+                    Library::logging('error',"API : deleteGroup : invalid parameters recieved(group id): user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+                if( !$group->user_id || ($group->user_id != $header_data['id']) ){
+                    Library::logging('error',"API : deleteGroup : ".GROUP_DELETE_AUTH_ERROR." : user id :".$header_data['id']." group id : " . $post_data['group_id'] );
+                    Library::output(false, '0', GROUP_DELETE_AUTH_ERROR, null);
+                }
+                
+                $db     = Library::getMongo();
+                $res    = $db->execute('return db.groups.remove( {"_id" : ObjectId("'.$post_data['group_id'].'")} )');
+                if( $res["ok"] == 0 ) {
+                    Library::logging('error',"API : deleteGroup, mongodb error: ".$res['errmsg']." : group : ".$post_data['group_id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                }
+                /******code to move friends of this group to another group **********************************/
+                $user   = Users::findById( $header_data["id"] );
+                if( isset($user->running_groups) ){
+                    $res    = $db->execute('return db.groups.find(  { group_name: /^acquaintances$/i }  ).toArray();');
+                    if( $res["ok"] == 0 ) {
+                        Library::logging('error',"API : deleteGroup, mongodb error: ".$res['errmsg']." : group : ".$post_data['group_id']);
+                        Library::output(false, '0', ERROR_REQUEST, null);
+                    }
+                    $userModified   = false;
+                    foreach( $user->running_groups As $key=>$friend ){
+                        if( $friend["group_id"] == $post_data['group_id'] ){
+                            $user->running_groups[$key]["group_id"] = (string)$res["retval"][0]["_id"];
+                            $userModified   = true;
+                        }
+                    }
+                    if($userModified){
+                        $user->save();
+                    }
+                }
+                Library::output(true, '1', GROUP_DELETED, null );
+
+            } catch(Exception $e) {
+                Library::logging('error',"API : getGroups : ".$e." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        }
+    }
+    
     /**
      * Method for opening time capsule 
      * @param $header_data: array of header data

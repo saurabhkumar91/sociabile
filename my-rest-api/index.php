@@ -243,6 +243,12 @@ $app->post('/addGroup', function () use ( $app ) {
     $group->addGroupAction($header_data,$app->request->getPost());
 });
 
+$app->post('/deleteGroup', function () use ( $app ) {
+    $header_data = Library::getallheaders();
+    $group = new GroupsController();
+    $group->deleteGroupAction($header_data,$app->request->getPost());
+});
+
 $app->post('/createChatGroup', function () use ( $app ) {
     $header_data = Library::getallheaders();
     $group = new GroupsController();
@@ -543,6 +549,13 @@ $app->get( "/getPurchasesdEmoticons", function() {
     $emoticons      = new EmoticonsController();
     $emoticons->getPurchasesdEmoticonsAction($header_data);
 } );
+
+$app->get( "/getFreeEmoticons", function() {
+    $header_data    = Library::getallheaders();
+    $emoticons      = new EmoticonsController();
+    $emoticons->getFreeEmoticonsAction($header_data);
+} );
+
 
 $app->notFound(
 	function () use ( $app ) {
