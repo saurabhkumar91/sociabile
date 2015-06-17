@@ -136,6 +136,199 @@ class SettingsController
         }
     }
     
+    
+    /**
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Saurabh Kumar
+     * @return json
+     */
+    
+    public function helpAction( $header_data, $type )
+    {  
+        try {
+            $aboutSociabile = array(
+                "What is Sociabile" =>  "Sociabile is a portmanteau of the words “Mobile” and “Social” resulting in the word Sociabile. Sociabile is your private, mobile, social network. Our goal is to block out the noise and help you share with just the people you care about. Sociabile is designed to help you protect your privacy and control who you can join your network and the information they are able to see.",
+                
+                "Why use Sociabile" =>  "There is a trend where people are leaving the open and public social networks and moving toward chatting applications that are more personal and private. Sociabile is bridging the gap because using social networking and maintaining privacy. When reading about each feature you can get an idea of how we designed our network to help you control your privacy easily and seamlessly.",
+                
+                "Marketing"=>"Sociabile is dedicated to providing an ad-free environment. We do not wish to subject our users to marketing campaigns or provide your personally identifiable information to any third party.",
+                "Does it cost money?"   => "No! Sociabile is a free service that allows you to connect to the people that are close to you. Sociabile does contain in-app purchases for animated emoticons if you wish to purchase them for use with Sociabile services.",
+                
+                "Registration"  =>  "Registration is simple and free. Once you download Sociabile you will be required to enter your phone number for verification. Each phone number can be used only once and is required to verify our users. We want to limit the use of fake profiles and protect our users from spamming. Once you have verified your phone number you may start using Sociabile. See the “About Friend Connections” to learn how to connect to your friends.",
+                
+                "Password protection"   =>  "By default Sociabile does not require a password to login. Your account is tied to your phone and phone number used to register. Therefore, your account can only be accessed on the mobile device used for registration. If you wish to have further security you may add a password to your account through the settings tab. This will require you to login each time you open the application.",
+                
+                "I Deleted the application" =>  "If you deleted the application and wish to recover your account you can do so by reinstalling the application. After installing the app, enter your phone number to register. It will prompt you that this number has already been registered and direct you to the account recovery system. If you registered your email to your account then you can recover your account by entering your email. If you deleted your account prior to deleting the application then you will not be able to recover your account. ",
+                
+                "I Got a new phone" =>  "Install Sociabile on your new mobile device and enter your phone number to register. It will prompt you that this number has already been registered and direct you to the account recovery system. If you registered your email to your account then you can recover your account by entering your email.",
+                
+                "I Changed my phone number" =>  "If you change your phone number then we recommend going to the Setting Tab and updating your number using through the Account Information Screen. Having your current number and email registered will help recover your application if you ever delete Sociabile or get a new phone. If you delete your account then it will not be recoverable.",
+                
+                "Deleting My Account"   =>  "If you wish to leave Sociabile you may delete your account by going to Account Information under the settings tab. Once your account has been deleted it will not be recoverable. Make sure you have backed up any information you wish to save before deleting your account."
+            );
+            
+            $aboutMyProfile = array(
+                "Profile Information"   =>  "Your profile displays your name, a context indicator and your date of birth. Your name is entered when registering for Sociabile and can be updated by clicking the edit button on the profile page. Birthday can be updated through the edit option and will only display the month and day on your profile.",
+                
+                "Profile Privacy"   =>  "Only users whom you have made a connection with can view your profile. Once you connect with a user you will need to add them to a group that can be used to control access to various elements on your profile such as My Mind messages, About Me content and My Pictures.",
+                
+                "Context Indicator" =>  "The context indicator displays your availability to other users when they view your profile. It lets other know if your available, busy or performing various other action. You may select from the predefined options or create your own custom context indicator.",
+                
+                "My Mind"   =>  "My Mind allows you to post messaged on your profile displaying what you are thinking at that time. Other users who have been given permission can view your My Mind messages and leave comments, like, or dislike the message.",
+                
+                "My Mind Privacy"   =>  "My Mind messages can only be seen by users whom you have made contact with and are given permission to view this content. Users are given permission by being put in groups that you have given permission to view the content. ",
+                
+                "About Me"  =>  "About me tab of your profile contains general information about you for others to read whom you have connected with. Only users who have been given permission can view your About Me information.",
+                
+                "About Me Privacy"  =>  "Information on your About Me page can only be seen by users whom you have made contact with and are given permission to view this content. Users are given permission by being put in groups that you have given permission to view the content.",
+                
+                "My Pictures"   =>  "The My Pictures section contains images that you have uploaded to your profile. User who have been given permission can view your pictures and leave comments, like or dislike the picture. You may also share your pictures with other users and have your image appear in their Shared Images tab. Images that are shared can be seen by the person you have shared it with regardless of your privacy settings.",
+                
+                "My Pictures Privacy"   =>  "Pictures that you upload can only be seen by users whom you have made contact with and are given permission to view this content. Users are given permission by being put in groups that you have given permission to view the content.",
+                
+                "Shared Pictures"   =>  "Shared pictures are images that other users you have connected with shared with you. When another user chooses to share a picture with you, that picture will appear in your Shared Pictures tab. Only you can see images that appear in this tab. Other users cannot see images that have been shared with you appearing in your Share Images section. Your Shared Images tab is private and only visible by you."
+                
+            );
+
+            $aboutMyMindMessages    =   array(
+                "Creating a My Mind Message"    =>  "My Mind messages are used to publically display what is on your mind for others to see. Only those who have been granted permission can view these messages. To create a new My Mind message, go to the “My Profile” tab. You will see a text box that says “What’s on your mind?”. Type your message here and click the send button.",
+
+                "Deleting a My Mind Message"    =>  "To delete a My Mind message that you have posted, swipe your finger across the message you wish to delete. A DELETE button will appear allowing you to delete the My Mind post from your profile.",
+
+                "Privacy Settings for My Mind Messages" =>  "Privacy settings for My Mind messages can be set under the Privacy Settings   My Mind options from the Settings tab. From there, you can select which groups have permission to view your My Mind messages. This will be the default settings for all My Mind message you post. You may also create custom privacy settings for individual My Mind messages. See “Custom Privacy Settings” for instructions.",
+
+                "Custom Privacy Settings"   =>  "To create custom privacy settings for an individual My Mind message, click on the message to view it. In the top right corner there will be a lock. Click on the lock and you can select the groups or individuals you want to give permission to view this specific My Mind message. The default settings will not be used when custom settings are declared.",
+
+                "Comments/Likes/Dislikes"   =>  "Each My Mind message will display the number of comments, likes, and dislikes for that message. To view these, click on the My Mind message and the comments will appear. From the comment page, you can click the “View Likes/Dislikes” link to view who has liked or disliked your My Mind Message. You may also leave a comment, like or dislike the My Mind message from this page."
+            );
+            
+            $aboutPictures  = array(
+                "Adding a new image"    =>  "To add a new image to your profile, go to the My Images section under the My Profile tab. In the top right corner, there will be a plus sign that is used to add new images from your mobile device’s photo album.",
+                
+                "Set as profile image"  =>  "There are three ways to set your profile picture. The first way is to click on the image under then My Profile tab. This will allow you to take a picture or select one from your mobile device’s photo album. The second way is to click on the image under Account Information that appears in the settings tab. This will also allow you to take a picture or select one from your mobile device’s photo album. The third way is to select an image from your My Photos section, click on the image top view it. In the bottom right corner of the screen there are three dots with more options. One option will be to set this image as your profile image.",
+                
+                "Deleting an image" =>  "To delete an image, go to the My Photos section under the My Profile tab. Click on the image you wish to delete. In the bottom right corner of the screen there are three dots with more options. Select the option that says “Delete Image” to delete the image. If this image was shared with others then it will no longer be available in the Shared Pictures section of the people it was shared with.",
+                
+                "Delete Profile Image"  =>  "To delete you profile image, click on the image under the My Profile tab or click on the image in the Account Information section of the Settings tab. A menu option will appear, select “Delete Photo” and the image will be removed.",
+                
+                "Shared Pictures"   =>  "Shared pictures are images that other users you have connected with shared with you. When another user chooses to share a picture with you, that picture will appear in your Shared Pictures tab. Only you can see images that appear in this tab. Other users cannot see images that have been shared with you appearing in your Share Images section. Your Shared Images tab is private and only visible by you.",
+                
+                "Sharing an image"  =>  "Any image you share with another use will appear in their Shared Images section. These images can only be viewed by the people you share them with or friends who have permission to view the image on your profile. If a user belongs to a group that does not have permission to view your images, then the image shared will appear in their Shared Images section but not viewable in your My Pictures section due to privacy settings. To share an image, select the image you wish to share. In the bottom right corner of the screen there are three dots with more options. One option will be to Share the image. Click this option and select the users you wish to share the image with.",
+                
+                "Privacy Settings for images"   =>  "Privacy settings for My Pictures can be set under the Privacy Settings   My Pictures options from the Settings tab. From there, you can select which groups have permission to view your pictures. This will be the default settings for all pictures you post. You may also create custom privacy settings for individual pictures. See “Custom Privacy Settings” for instructions.",
+                
+                "Custom Privacy Settings"   =>  "To create custom privacy settings for an individual picture, click on the picture to view it. In the bottom right corner of the screen there are three dots with more options. Click the Privacy Settings option and you can select the groups or individuals you want to give permission to view this specific image. The default settings will not be used when custom settings are declared."
+                
+            );
+            
+            $aboutFriendConnections = array(
+                "How to connect with friends"   =>  "There are two ways to connect to friends. The first is based on your phone number being in your friend’s phone or your friend’s phone number being stored in your phone’s address book. Sociabile can recommend friends based on the phone numbers in your contact list. The second way is by searching for your friend’s specific userID. See “Recommended friends” or “Searching for friends” for more information. Once you add a friend, you will need to designate the group they will belong to once the friend request is accepted.",
+                
+                "My UserID" =>  "Your UserID is a unique value use to search for your profile. You are assigned a random userID when you join Sociabile. You may then change your userID by going to Account Information under the settings tab. The userID you select must be unique (not used by another user) and can only be changed once. You may give this userID to your friends so they can search for you and add you as a friend on Sociabile.",
+                
+                "Recommended friends"   =>  "Friends will be recommended to you based on the phone numbers in your mobile device’s contact list. If a phone number in your contact list is registered to Sociabile, then the user that it is registered to will appear in your recommended friends list. You may add users from the recommended friends list or Hide users so that they do not appear.",
+                
+                "Hide/Unhide Friends"   =>  "If someone appears in your recommended friends list, you may add them, leave the recommendation as pending by doing nothing, or Hide the user so that they no longer appear in the recommended friends list. If you Hide a recommendation and would like to Unhide it later so that you can add that friend, you can do so through the Hidden Friends option in Account Information under the Settings Tab.",
+                
+                "Searching for friends" =>  "You may search for friends to add by clicking on the magnifying glass at the top of the Friends tab. You may only search based on the userID. A single result will be displayed for a successful search based on the userID. If you wish to give your userID to a friend so they can search and add you, you can find your userID in Account Information under the Settings Tab.",
+                
+                "Friend Requests"   =>  "Other Socialites may add you by searching for your userID that you provided them or by having your phone number stored in their mobile device. When another user adds you a request will appear in the Request section under the Friends tab. You may accept or reject the request. If you accept the friend request then you will need to add the new connection to a friend group.",
+                
+                "Friend Groups" =>  "Sociabile is dedicated to providing users a social network focused on privacy. Friend groups are used to control the privacy of your information. Each person you connect to on Sociabile must be placed in one or more groups. These groups are used to give permission to content on Sociabile (i.e. My Mind Messages, About Me, My Pictures).",
+                
+                "Create Custom Groups"  =>  "There are several predefined groups when you join Sociabile (i.e. Friends, Family, Acquaintances, etc.). You may add users to these groups or create your own custom groups. To create a custom group, go to Privacy Settings under the Settings tab. There are three options for setting your default privacy settings: My Mind, About Me, My Pictures. Under any of these three options you will see all the existing groups and a link at the top that says “Add New Group.” Clicking this link will allow you to add a new group. Once the group is created, you may start adding friends to that group.",
+                
+                "Deleting a Custom Group"   =>  "In the Privacy Settings menu option under the Settings Tab, you can click on any of the three options available (My Mind, About Me, My Pictures) to see all the groups you have on Sociabile. You may swipe your finger across any of the custom groups you created and a Delete button will appear allowing you to delete the custom group. Predefined groups cannot be deleted. If a user belongs to the deleted group and another group, then they will remain in the other groups and the delete group will no longer exist. If a user is only associated with the group that is deleted, leaving them without a group, then they will be automatically added to the acquaintance group. All users must be associated with at least one group.",
+                
+                "Deleting a Friend Connection"  =>  "If you wish to remove a friend from your Sociabile account, you may do so by going to the Friends tab and swiping across the friend’s name. This will display a Delete button that will allow you to remove the friend from your list. You will no longer appear on your friend’s list once the connection has been deleted."
+                
+            );
+            
+            $aboutChat  = array(
+                "Create New Chat"   =>  "To create a new chat conversation, select the person’s name you wish to chat with from the Friends Tab. This will open a mini-description containing the user’s name, image, context indicator, two command buttons and a star indicating if you have added this person to the favorite list. Learn more about Context Indicators and Favorites below. Click the “Message” button to begin the chat conversation. You may also use the + sign under the Chat Tab and select and individual to chat with or start a group chat.",
+                
+                "Context Indicator" =>  "Context indicators let you know someone’s availability to chat. They are set on the profile page and viewable from the Chat tab when you click on a person’s name.",
+                 
+                "Favorite List" =>  "The Favorite list helps you connect to those you talk to most by putting their names at the top of your friends list. Favorites is not a group, it’s just a category displaying the names of those in the Friends tab that you have selected to show at the top. It does not affect groups or any privacy settings throughout the app. To add someone to the favorite list, select the person you wish to Favorite from the Friends Tab and click on the star under their mini profile. Click the star again to remove them from the favorites list.",
+                
+                "Create Group Chat" =>  "To create a group chat, click the + in the top right corner of the Chat Tab and select the friends you wish to participate in the group chat.",
+                
+                "Emoticons" =>  "Emoticons are a great way to enhance the chatting experience and express emotions that are typically triggered through non-verbal cues in real life conversations. Let the characters express these emotions for you. To learn more about emoticons, view the Emoticons section.",
+                
+                "Delete Chat Conversation"  =>  "To delete a chat conversation, swipe across the conversation you with to delete. This will display the Delete button that can be used to remove this conversation from you application. Deleting a conversation will make it no longer visible to you, but the other parties involved in the conversation will still be able to see messages sent until they have deleted the conversation from their application.",
+                
+                "What is a Time Capsule?"   =>  "A Time Capsule in Sociabile is a new way to send messages to your friends that can only be viewed as the specific date and time designated by the sender. A time capsule may contain text and images that are viewable by the receiver(s) when it is designated to be opened. The sender and message remain anonymous until the open date of the time capsule. This is a good way to record memories and revisit them at a future date and time that you designate.",
+                
+                "Create New Time Capsule"   =>  "To create a new time capsule, click the Time Capsule link under the Chat Tab. This will display any time capsules that you have received. At the top of the screen, click the + sign to create a new time capsule. You may then enter the message, images, recipients of the time capsule and set the date and time that it will open.",
+                
+                "Open a Time Capsule"   =>  "A time capsule can only be opened at the specific date and time that has been set for the time capsule. Time capsules that are not ready to open will display the icon with the date and time. All capsules that are ready to open will appear at the top. Click on the time capsule you wish to open to read the contents.",
+                
+                "Delete a Time Capsule" =>  "A time capsule can only be deleted after it has been opened. Pending time capsules cannot be deleted. To delete a time capsule that has already been opened, swipe across the time capsule you wish to delete. This will display the Delete button that can be used to remove the time capsule from you application. Deleting a time capsule will make it no longer visible to you, but the other recipients of the time capsule will still be able to view its contents until they have deleted the time capsule from their application."
+                
+            );
+            
+            $emoticons  = array(
+                "What are emoticons?"   =>  "Emoticons are characters that can be used to enhance your chatting experience. These characters express emotions for you that are often lost due to the absence of non-verbal cues you typically have in person. They add life to the chatting experience making it more fun and entertaining. They may be static or animated.",
+                
+                "Static Emoticons"  =>  "Static emoticons are characters that do not have action. They possess a single pose or facial expression used to illustrate the mood desired.",
+                
+                "Animated Emoticons"    =>  "Animated emoticons bring your chat to life with characters performing actions to enhance the chatting experience. They are typically 1-3 second animations representing situations or emotions that can be expressed while chatting rather than described.",
+                
+                "Using Emoticons"   =>  "To use emoticons, click on the smiley face that appears next to the text box and above the keypad while chatting. This will replace your keypad with a list of emoticons to choose from. There is an assortment of static emoticons that are provided to you when you join Sociabile. Animated emoticons may be purchases from the Emoticon store and used during the chat. Purchased emoticons will appear as an emoticon set and grouped by tabs at the bottom of the emoticon window. Select the tab containing emoticons you want to use and scroll through the option. After choosing the emoticon you wish you use, click the Send button to send it to the person you are chatting with.",
+                
+                "Purchase Emoticons"    =>  "To purchase emoticons, visit the Emoticons section under the Settings Tab. This will display all the emoticons currently available in the emoticons store. These will be purchased as an in-app purchase through Sociabile. Click on the Emoticon set you wish to purchase and click the “Purchase Emoticon” button. Once the purchase is made you may download your emoticon set and start using it.",
+                
+                "Recover Purchased Emoticons"   =>  "If you have already purchased an emoticons set and it does not appear, you may download the Emoticon set again through the Emoticons section under the Settings Tab without having to pay again. If you delete Sociabile and download again, or purchase a new phone, you will need to use this option to recover Emoticons you previously purchased. Click the “More Option” button at the top right corner of the screen in the Emoticon store. This will display emoticons you have purchased and let you order the tabs in your chat window. There is an option that says “Purchased” where you can download emoticon sets that have already been paid for. Click this option and select Download to recover your previous purchase."
+            );
+            
+            $aboutSocial =   array(
+                "What is the Social Tab"    =>  "The Social Tab is like the water cooler where you can catch up on happenings from your friends. My Mind messages and images that your friend connections have made will appear here so that you can see what recent activities have taken place. You may filter the results in the Social tab based on groups of friends.",
+                
+                "How to filter Sociable Results"    =>  "To filter the results of the Social Tab based on groups, tap on the Select Audience option at the top of the screen. This will display all the groups you have created. The groups that are checked will have social events appear in the Social Tab. Tap on the group to either check, or uncheck them to manage what information shows up in your Social Events. Only recent posts by members of the selected groups will appear in the Social Tab."
+
+            );
+                    
+            switch ( $type ) {
+                case 1:
+                    $result    = $aboutSociabile;
+                    break;
+                case 2:
+                    $result    = $aboutMyProfile;
+                    break;
+                case 3:
+                    $result    = $aboutMyMindMessages;
+                    break;
+                case 4:
+                    $result    = $aboutPictures;
+                    break;
+                case 5:
+                    $result    = $aboutFriendConnections;
+                    break;
+                case 6:
+                    $result    = $aboutChat;
+                    break;
+                case 7:
+                    $result    = $emoticons;
+                    break;
+                case 8:
+                    $result    = $aboutSocial;
+                    break;
+                default:
+                    Library::logging('error',"API : help, invalid help type : ".$type." ".": user_id : ".$header_data['id']);
+                    Library::output(false, '0', ERROR_REQUEST, null);
+                    break;
+            }
+            
+            Library::output(true, '1', "No Error", $result);
+        } catch(Exception $e) {
+            Library::logging('error',"API : help, error_msg : ".$e." ".": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+    }
+    
+    
     /**
      * Method for change phone number change
      *

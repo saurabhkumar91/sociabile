@@ -726,7 +726,7 @@ class PostsController
                     Library::output(false, '0', ERROR_INPUT, null);
                 }
                 $post   = Posts::findById( $post_data['post_id'] );
-                if( $post && $post->type==2 ){
+                if( $post && ($post->type==1 || $post->type==2) ){
 //                    if( empty($post->shared_with) ){
 //                        $post->shared_with   = array();
 //                    }

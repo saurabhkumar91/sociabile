@@ -351,6 +351,12 @@ $app->get('/aboutChat', function () use ( $app ) {
     $settings->aboutChatAction($header_data);
 });
 
+$app->get('/help/{type}', function ($type) use ( $app ) {
+    $header_data = Library::getallheaders();
+    $settings = new SettingsController();
+    $settings->helpAction($header_data,$type);
+});
+
 
 $app->get('/getCategory', function () use ( $app ) {
     $header_data = Library::getallheaders();
