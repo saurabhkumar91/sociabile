@@ -47,6 +47,15 @@ class FriendsController
                         }
                     }
                 }
+
+                if(isset($user->request_pending)) {
+                    foreach($user->request_pending as $request_pending) {
+                        if($post_data['request_user_id'] == $request_pending['user_id']) {
+                            Library::output(false, '0', "You Already Have Request Pending From This User.", null);
+                        }
+                    }
+                }
+                
                 /******* code for subscribe(add) user on jabber server **************************************/
                 require 'components/JAXL3/jaxl.php';
                 $client = new JAXL(array(
