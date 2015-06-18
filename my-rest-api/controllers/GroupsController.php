@@ -129,7 +129,21 @@ class GroupsController
                     }
                     $userModified   = false;
                     foreach( $user->running_groups As $key=>$friend ){
-                        if( $friend["group_id"] == $post_data['group_id'] ){
+                        // if group is array
+                        if( is_array($friend["group_id"]) ){
+                            foreach( $friend["group_id"] As $grpKey=>$grpID ){
+                                if( $grpID == $post_data['group_id'] ){
+                                    if( count($friend["group_id"]) == 1 ){
+                                        $user->running_groups[$key]["group_id"] = array((string)$res["retval"][0]["_id"]);
+                                    }else{
+                                        unset( $user->running_groups[$key]["group_id"][$grpKey] );
+                                        $user->running_groups[$key]["group_id"] = array_values($user->running_groups[$key]["group_id"]);
+                                    }
+                                    $userModified   = true; 
+                                }
+                            }
+                        // if group is string
+                        }elseif( $friend["group_id"] == $post_data['group_id'] ){
                             $user->running_groups[$key]["group_id"] = (string)$res["retval"][0]["_id"];
                             $userModified   = true;
                         }
