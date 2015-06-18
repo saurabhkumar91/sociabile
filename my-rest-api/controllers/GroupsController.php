@@ -510,14 +510,14 @@ class GroupsController
                 }
                 
                 /*** code if ejabberd is not involved */
-//                if ($chatGroup->save() == false) {
-//                    foreach ($chatGroup->getMessages() as $message) {
-//                        $errors[] = $message->getMessage();
-//                    }
-//                    Library::logging('error',"API : setProfile : ".$errors." : user_id : ".$header_data['id']);
-//                    Library::output(false, '0', $errors, null);
-//                }
-//                Library::output(true, '1', JAXL_MUC_LEAVED, null);
+                if ($chatGroup->save() == false) {
+                    foreach ($chatGroup->getMessages() as $message) {
+                        $errors[] = $message->getMessage();
+                    }
+                    Library::logging('error',"API : setProfile : ".$errors." : user_id : ".$header_data['id']);
+                    Library::output(false, '0', $errors, null);
+                }
+                Library::output(true, '1', JAXL_MUC_LEAVED, null);
                 /*****************************/
                 
                 $user       = Users::findById($header_data['id']);
