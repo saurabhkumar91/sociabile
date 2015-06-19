@@ -1144,7 +1144,13 @@ class SettingsController
                         }
                     }
                 }
-                $post                   = new Posts();
+                $posts = Posts::find(array(array("text" => $post_data['image_name'], "type"=>3)));
+                
+                if( isset($posts[0]) ){
+                    $post   = $posts[0];
+                }else{
+                    $post                   = new Posts();
+                }
                 $post->user_id          = $header_data['id'];
                 $post->text             = $post_data['image_name'];
                 $post->total_comments   = 0;
@@ -1181,13 +1187,13 @@ class SettingsController
     
     public function getPostSharedWithAction($header_data,$post_data)
     {
-        if( empty($post_data['post_id']) ) {
+        if( empty($post_data['image_name']) ) {
             Library::logging('alert',"API : getPostSharedWith : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
-                $post   =   Posts::findById($post_data['post_id']);
-                $result =   isset($post->shared_with) ? $post->shared_with : array(); 
+                $posts = Posts::find(array(array("text" => $post_data['image_name'], "type"=>3)));
+                $result =   isset($posts[0]->shared_with) ? $posts[0]->shared_with : array(); 
                 Library::output(true, '1', "no error", $result);
             } catch(Exception $e) {
                 Library::logging('error',"API : sharePhotos, error_msg : ".$e." ".": user_id : ".$header_data['id']);
