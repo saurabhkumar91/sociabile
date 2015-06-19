@@ -1169,6 +1169,33 @@ class SettingsController
         }
     }
     
+    /**
+     * Method for get shared photos people 
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Saurabh Kumar
+     * @return json
+     */
+    
+    public function getPostSharedWithAction($header_data,$post_data)
+    {
+        if( empty($post_data['post_id']) ) {
+            Library::logging('alert',"API : getPostSharedWith : ".ERROR_INPUT.": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_INPUT, null);
+        } else {
+            try {
+                $post   =   Posts::findById($post_data['post_id']);
+                $result =   isset($post->shared_with) ? $post->shared_with : array(); 
+                Library::output(true, '1', "no error", $result);
+            } catch(Exception $e) {
+                Library::logging('error',"API : sharePhotos, error_msg : ".$e." ".": user_id : ".$header_data['id']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+        }
+    }
+    
     public function viewSharedImageAction( $header_data, $post_data ){
         if( !isset($post_data['post_id'])) {
             Library::logging('alert',"API : viewSharedImage : ".ERROR_INPUT.": user_id : ".$header_data['id']);
