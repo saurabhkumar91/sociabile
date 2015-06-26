@@ -1192,6 +1192,7 @@ class SettingsController
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
             try {
+                $post_data['image_name']    = str_replace( FORM_ACTION, "", $post_data['image_name'] );
                 $posts = Posts::find(array(array("text" => $post_data['image_name'], "type"=>3)));
                 $result =   isset($posts[0]->shared_with) ? $posts[0]->shared_with : array(); 
                 Library::output(true, '1', "no error", $result);
