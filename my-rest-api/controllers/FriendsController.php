@@ -295,6 +295,18 @@ class FriendsController
                         Library::output(false, '0', ERROR_REQUEST, null);
                     }
                     
+                    if( $_SESSION["flagUnhide"] ){
+                        $unhide = 'db.users.update(
+                                    {_id:ObjectId("'.$userId.'") },
+                                    { $pull: { hidden_contacts:  "'.$acceptUserId.'" } }
+                                  )';
+                        $delete_hidden = $db->execute($unhide);
+                        if($delete_hidden['ok'] == 0) {
+                            Library::logging('error',"API : requestAccept (delete hidden_contacts) mongodb error: ".$delete_hidden['errmsg']." ".": user_id : ".$userId);
+                            Library::output(false, '0', ERROR_REQUEST, null);
+                        }
+                    }
+                    
                     $os             = $_SESSION["os"];
                     $deviceToken    = $_SESSION["deviceToken"];
                     if( in_array($os, array("1", "2")) && !empty($deviceToken) ){
@@ -308,6 +320,11 @@ class FriendsController
                     
                     Library::output(true, '1', USER_ACCEPT, null);
                 });                    
+                
+                $flagUnhide = false;
+                if( !empty($user->hidden_contacts) && in_array($post_data['accept_user_id'], $user->hidden_contacts) ){
+                    $flagUnhide = true;
+                }
 
                 $_SESSION["client"]         = $client;
                 $_SESSION["acceptId"]       = $acceptUser->jaxl_id;
@@ -319,6 +336,7 @@ class FriendsController
                 $_SESSION["deviceToken"]    = empty($acceptUser->device_token) ? '' : $acceptUser->device_token;
                 $_SESSION["userMobileNo"]   = $user->username/*." (".$user->mobile_no.")"*/;
                 $_SESSION["userDetails"]    = $userDetails;
+                $_SESSION["flagUnhide"]     = $flagUnhide;
                 
                 $client->start();
                 /******* code for subscribe(add) user end **************************************/

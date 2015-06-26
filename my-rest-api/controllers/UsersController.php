@@ -109,6 +109,7 @@ class UsersController
                         $result["jaxl_id"]          = $record[0]->jaxl_id;
                         $result["jaxl_password"]    = $jaxlPassword;
                     }
+                    $result["recovery_email_id"]  = $record[0]->recovery_email_id;
                     $result["created"]  = 0;
                     Library::output(true, '1', OTP_SENT, $result);
                 } else {

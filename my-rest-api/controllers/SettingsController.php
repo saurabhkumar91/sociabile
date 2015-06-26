@@ -72,7 +72,7 @@ class SettingsController
                                 Library::logging('error',"API : generateOTP, error_msg : ".$errors." : user_id : ".$header_data['id']);
                                 Library::output(false, '0', $errors, null);
                             } else {
-                                $message = "Your OTP is : 1234";
+                                $message = $user->username."(user ID: ".$user->unique_id."), Your OTP is : 1234";
                                 Library::sendMail( $post_data['email_id'], $message, "Forgot Password | Sociabile" );
                                 Library::output(true, '1', "OTP Sent Successfully", null);
                             }
@@ -1359,34 +1359,37 @@ class SettingsController
 
                         $i          = 0;
                         $user_post  = array();
-                        if($my_mind == 1) {
-                            $posts = Posts::find(array(array("user_id" => $user_id, "type"=>1)));
-                            if(is_array($posts)) {
-                                foreach($posts as $post) {
-                                    if( !empty($post->shared_with) ){
-                                        if( !in_array($header_data['id'], $post->shared_with) ){
-                                            continue;
-                                        }
+                        $posts = Posts::find(array(array("user_id" => $user_id, "type"=>1)));
+                        if(is_array($posts)) {
+                            foreach($posts as $post) {
+                                if( !empty($post->shared_with) ){
+                                    if( !in_array($header_data['id'], $post->shared_with) ){
+                                        continue;
                                     }
-                                    $isLiked    = false;
-                                    $isDisliked = false;
-                                    if( !empty($post->liked_by) && in_array( $header_data['id'], $post->liked_by) ){
-                                        $isLiked    = true;
+                                }else{
+                                    if($my_mind != 1) {
+                                        continue;
                                     }
-                                    if( !empty($post->disliked_by) && in_array( $header_data['id'], $post->disliked_by) ){
-                                        $isDisliked = true;
-                                    }
-                                    $user_post[$i]['post_id']               = (string)$post->_id;
-                                    $user_post[$i]['user_name']             = $post->username;
-                                    $user_post[$i]['post_text']             = $post->text;
-                                    $user_post[$i]['post_comment_count']    = $post->total_comments;
-                                    $user_post[$i]['post_like_count']       = $post->likes;
-                                    $user_post[$i]['post_dislike_count']    = $post->dislikes;
-                                    $user_post[$i]['is_liked']              = $isLiked;
-                                    $user_post[$i]['is_disliked']           = $isDisliked;
-                                    $user_post[$i]['post_timestamp']        = $post->date;
-                                    $i++;
+
                                 }
+                                $isLiked    = false;
+                                $isDisliked = false;
+                                if( !empty($post->liked_by) && in_array( $header_data['id'], $post->liked_by) ){
+                                    $isLiked    = true;
+                                }
+                                if( !empty($post->disliked_by) && in_array( $header_data['id'], $post->disliked_by) ){
+                                    $isDisliked = true;
+                                }
+                                $user_post[$i]['post_id']               = (string)$post->_id;
+                                $user_post[$i]['user_name']             = $post->username;
+                                $user_post[$i]['post_text']             = $post->text;
+                                $user_post[$i]['post_comment_count']    = $post->total_comments;
+                                $user_post[$i]['post_like_count']       = $post->likes;
+                                $user_post[$i]['post_dislike_count']    = $post->dislikes;
+                                $user_post[$i]['is_liked']              = $isLiked;
+                                $user_post[$i]['is_disliked']           = $isDisliked;
+                                $user_post[$i]['post_timestamp']        = $post->date;
+                                $i++;
                             }
                         }
                         usort($user_post, function($postA, $postB){
@@ -1407,38 +1410,41 @@ class SettingsController
                         }
 
                         $my_pictures_info   = array();
-                        if($my_pictures == 1) {
-                            $posts = Posts::find(array(array("user_id" => $user_id, "type"=>2)));
-                            if(is_array($posts)) {
-                                foreach($posts as $post) {
-                                    if( !empty($post->shared_with) ){
-                                        if( !in_array($header_data['id'], $post->shared_with) ){
-                                            continue;
-                                        }
-                                    }
-                                    $postId = (string)$post->_id;
-                                    $isLiked    = false;
-                                    $isDisliked = false;
-                                    if( !empty($post->liked_by) && in_array( $header_data['id'], $post->liked_by) ){
-                                        $isLiked    = true;
-                                    }
-                                    if( !empty($post->disliked_by) && in_array( $header_data['id'], $post->disliked_by) ){
-                                        $isDisliked = true;
-                                    }
-                                    if( is_array($post->text) ){
+                        $posts = Posts::find(array(array("user_id" => $user_id, "type"=>2)));
+                        if(is_array($posts)) {
+                            foreach($posts as $post) {
+                                if( !empty($post->shared_with) ){
+                                    if( !in_array($header_data['id'], $post->shared_with) ){
                                         continue;
                                     }
-                                    $my_pictures_info[$postId]['post_id']           = $postId;
-                                    $my_pictures_info[$postId]['text']              = FORM_ACTION.$post->text;
-                                    $my_pictures_info[$postId]['user_name']         = $user->username;
-                                    $my_pictures_info[$postId]['total_comments']    = $post->total_comments;
-                                    $my_pictures_info[$postId]['likes']             = $post->likes;
-                                    $my_pictures_info[$postId]['dislikes']          = $post->dislikes;
-                                    $my_pictures_info[$postId]['date']              = $post->date;
-                                    $my_pictures_info[$postId]['is_liked']          = $isLiked;
-                                    $my_pictures_info[$postId]['is_disliked']       = $isDisliked;
-                                    $my_pictures_info[$postId]['multiple']          = 0;
+                                }else{
+                                    if($my_pictures != 1) {
+                                        continue;
+                                    }
+
                                 }
+                                $postId = (string)$post->_id;
+                                $isLiked    = false;
+                                $isDisliked = false;
+                                if( !empty($post->liked_by) && in_array( $header_data['id'], $post->liked_by) ){
+                                    $isLiked    = true;
+                                }
+                                if( !empty($post->disliked_by) && in_array( $header_data['id'], $post->disliked_by) ){
+                                    $isDisliked = true;
+                                }
+                                if( is_array($post->text) ){
+                                    continue;
+                                }
+                                $my_pictures_info[$postId]['post_id']           = $postId;
+                                $my_pictures_info[$postId]['text']              = FORM_ACTION.$post->text;
+                                $my_pictures_info[$postId]['user_name']         = $user->username;
+                                $my_pictures_info[$postId]['total_comments']    = $post->total_comments;
+                                $my_pictures_info[$postId]['likes']             = $post->likes;
+                                $my_pictures_info[$postId]['dislikes']          = $post->dislikes;
+                                $my_pictures_info[$postId]['date']              = $post->date;
+                                $my_pictures_info[$postId]['is_liked']          = $isLiked;
+                                $my_pictures_info[$postId]['is_disliked']       = $isDisliked;
+                                $my_pictures_info[$postId]['multiple']          = 0;
                             }
                         }
                         usort($my_pictures_info, function($postA, $postB){
