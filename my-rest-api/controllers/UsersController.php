@@ -1206,4 +1206,30 @@ class UsersController
             Library::output(false, '0', ERROR_REQUEST, null);
         }
     }
+    
+    public function viewNotificationsAction( $header_data ){
+        try{
+            $db =   Library::getMongo();
+            $db->execute('return db.notifications.update( {"user_id" :"'.$header_data['id'].'" }, {$set:{is_viewed:1}} )');
+            Library::output( true, '1', "No Error", null );
+        } catch (Exception $e) {
+            Library::logging('error',"API : viewNotifications, error message : ".$e->getMessage(). ": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+    }
+    
+    public function getNotificationsAction( $header_data ){
+        try{
+            $notifications  = Notifications::find(array( array("user_id"=>$header_data['id'], "is_viewed"=>0) ));
+            $result = array();
+            foreach( $notifications AS $notification ){
+                $result[]   = $notification->notification;
+            }
+            Library::output( true, '1', "No Error", $result );
+        } catch (Exception $e) {
+            Library::logging('error',"API : getNotifications, error message : ".$e->getMessage(). ": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+    }
+    
 }

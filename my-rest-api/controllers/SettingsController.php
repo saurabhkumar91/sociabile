@@ -1140,6 +1140,7 @@ class SettingsController
                         foreach ($user->running_groups as $detail ) {
                             if( in_array($detail['user_id'], $friends_id) ) {
                                 $sharedWith[$detail["user_id"]] = $detail["user_id"];
+                                break;
                             }
                         }
                     }
@@ -1167,6 +1168,17 @@ class SettingsController
                     Library::logging('error',"API : sharePhotos : ".$errors." user_id : ".$header_data['id']);
                     Library::output(false, '0', $errors, null);
                 }
+                
+                $settings   = new SettingsController();
+                foreach( $sharedWith as $friendId ){
+                    $friend   = Users::findById( $friendId );
+                    if( !empty($friend->os) && in_array($friend->os, array("1", "2")) && !empty($friend->device_token) ){
+                        $message    = array( "message"=>$user->username." shared a photo with you.", "type"=>NOTIFY_PHOTO_SHARED, "post_id"=>(string)$post->_id );
+                        $sendTo     = ($friend->os == "1") ? "android" : "ios";
+                        $settings->sendNotifications( array($friend->device_token), array("message"=>json_encode($message)), $sendTo );
+                    }
+                }
+                
                 Library::output(true, '1', SHARE_IMAGE, null);
             } catch(Exception $e) {
                 Library::logging('error',"API : sharePhotos, error_msg : ".$e." ".": user_id : ".$header_data['id']);
@@ -1835,9 +1847,40 @@ class SettingsController
     }
 
     function sendNotifications( $deviceToken, $message, $os ){
+        
+        /* format of  $message :
+         * 
+         * array( "message"=>
+         *                      object( 
+         *                          "message"   : $user->username." liked your $postType.", 
+         *                          "type"      : NOTIFY_POST_LIKED, 
+         *                          // then cutom data like :
+         *                          "post_type" : $post->type, 
+         *                          "post_id"   : $post_data['post_id'] 
+         *                          )   
+         *      );
+         * 
+         */
+        
         if( !is_array($deviceToken) ){
             $deviceToken    = array( $deviceToken );
         }
+
+        /*********** code to ssave notifications in db******************
+        foreach( $deviceToken AS $token ){
+            $user   = Users::find(array( array("device_token"=>$token) ));
+            if( !empty($user[0]) ){
+                $userId = (string)$user[0]->_id;
+                $notification               = new Notifications();
+                $notification->user_id      = $userId;
+                $notification->notification = json_decode($message["message"]);
+                $notification->user_id      = $userId;
+                $notification->is_viewed    = 0;
+                $notification->save();
+            }
+        }
+        /************************************************************/
+        
         // prep the bundle
         if($os=='ios'){
             $file_path = dirname(__FILE__).'/certificates/ScblFinal.pem';
