@@ -265,7 +265,7 @@ class SettingsController
 
                 array(
                     "question"=>"Privacy Settings for My Mind Messages" , 
-                    "answer"=>    "Privacy settings for My Mind messages can be set under the Privacy Settings   My Mind options from the Settings tab. From there, you can select which groups have permission to view your My Mind messages. This will be the default settings for all My Mind message you post. You may also create custom privacy settings for individual My Mind messages. See “Custom Privacy Settings” for instructions."
+                    "answer"=>    "Privacy settings for My Mind messages can be set under the Privacy Settings. My Mind options from the Settings tab. From there, you can select which groups have permission to view your My Mind messages. This will be the default settings for all My Mind message you post. You may also create custom privacy settings for individual My Mind messages. See “Custom Privacy Settings” for instructions."
                     ),
 
                                 array(
@@ -311,7 +311,7 @@ class SettingsController
                 
                 array(
                     "question"=>"Privacy Settings for images"   , 
-                    "answer"=>    "Privacy settings for My Pictures can be set under the Privacy Settings   My Pictures options from the Settings tab. From there, you can select which groups have permission to view your pictures. This will be the default settings for all pictures you post. You may also create custom privacy settings for individual pictures. See “Custom Privacy Settings” for instructions."
+                    "answer"=>    "Privacy settings for My Pictures can be set under the Privacy Settings. My Pictures options from the Settings tab. From there, you can select which groups have permission to view your pictures. This will be the default settings for all pictures you post. You may also create custom privacy settings for individual pictures. See “Custom Privacy Settings” for instructions."
                     ),
                 
                 array(
@@ -1852,8 +1852,7 @@ class SettingsController
         }
     }
 
-    function sendNotifications( $deviceToken, $message, $os ){
-        
+    function sendNotifications( $deviceToken, $message, $os, $createLog=true ){
         /* format of  $message :
          * 
          * array( "message"=>
@@ -1939,7 +1938,7 @@ class SettingsController
             $result = curl_exec($ch );
             curl_close( $ch );
             $resultArr  = (array)json_decode($result);
-            if( empty($resultArr["success"]) ){
+            if( empty($resultArr["success"]) && $createLog ){
                     Library::logging('error',"API : sendNotifications : Unable to send push notification : ($result) : message : ".$message["message"]);
            }
         }

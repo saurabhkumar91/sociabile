@@ -7,7 +7,7 @@
             if($result['ok'] == 0) {
                 exit( $result['errmsg'] );
             }
-            $phpName    = str_replace( "login.php", "addEmoticons.php", $_SERVER["PHP_SELF"] );
+            $phpName    = str_replace( "login.php", "index.php", $_SERVER["PHP_SELF"] );
             $url        = "http://".$_SERVER["HTTP_HOST"].$phpName;
             if( count($result["retval"]) > 0 ){
                 session_start();
@@ -21,15 +21,25 @@
 ?>
 <html>
     <body>
-        <form enctype="multipart/form-data" method="post" action="login.php">
-            <label for="username">User Name</label>
-            <input type="text" name="username" id="username" value="">
+        <div style="text-align: center; border: solid;color:grey;border-radius: 10px;width:400px;display: inline-block;">
+            <h2>Admin Login</h2>
+            <form enctype="multipart/form-data" method="post" action="login.php">
+                <label for="username">Username &nbsp;</label>
+                <input type="text" name="username" id="username" value="">
+                <br><br>
+                <label for="password">Password &nbsp;</label>
+                <input type="password" name="password" id="password" value="">
+                <br><br>
+                <input type="submit" name="submit" value="Login">
+            </form>
             <br><br>
-            <label for="password">Password</label>
-            <input type="password" name="password" id="password" value="">
-            <br><br>
-            <input type="submit" name="submit" value="Login">
-        </form>
+        </div>
     </body>
+        <style>
+            body{
+                text-align: center;
+            }
+        </style>
+    
 </html>
 

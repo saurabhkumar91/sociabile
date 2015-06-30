@@ -1,21 +1,22 @@
 <?php
     require_once 'config.php';
     require_once 'loginValidate.php';
-    $url                = "http://".$_SERVER["HTTP_HOST"].$_SERVER["PHP_SELF"];
-    $changePasswordUrl  = str_replace( "addEmoticons.php", "changePassword.php", $url );
-    $logoutUrl          = str_replace( "addEmoticons.php", "logout.php", $url );
+    $url        = "http://".$_SERVER["HTTP_HOST"].$_SERVER["PHP_SELF"];
+    $indexUrl   = str_replace( "addEmoticons.php", "index.php", $url );
+    $logoutUrl  = str_replace( "addEmoticons.php", "logout.php", $url );
 ?>
 <html>
     <body>
         <p>
             <span style="float:left;" class="button">
-                &nbsp;&nbsp;&nbsp;&nbsp;<a  style="color:#ffffff;" href="<?php echo $changePasswordUrl;?>">change password</a>
+                &nbsp;&nbsp;&nbsp;&nbsp;<a  style="color:#ffffff;" href="<?php echo $indexUrl;?>">Back</a>
             </span>
             <span style="float:right" class="button">
                 <a  style="color:#ffffff;" href="<?php echo $logoutUrl;?>">logout</a>&nbsp;&nbsp;&nbsp;&nbsp;
             </span>
         </p>
         <br><br><br><br>
+        <h3>Add Emoticons</h3>
         <form enctype="multipart/form-data" method="post" action="addEmoticons.php">
             <label for="title">Title</label>
             <input type="text" name="title" id="title" value="">
