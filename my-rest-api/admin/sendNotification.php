@@ -28,6 +28,7 @@
                 if( $devices[2] ){
                     $settings->sendNotifications( $devices[2], array("message"=>json_encode($message)), "ios", false );
                 }
+                echo "<p style='color:blue;'>Sent successfully.</p>";
             }
     }
     
