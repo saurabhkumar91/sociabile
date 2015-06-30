@@ -158,6 +158,9 @@ class PostsController
                             
                             $friend         = Users::findById( $user_ids['user_id'] );
                             
+                            if( $friend->is_deleted || !$friend->is_active ){
+                                continue;
+                            }
                             // $friendsGroup will contain the groups in which friend has put the user
                             $friendsGroup   = array();
                             foreach($friend->running_groups as $grps) {

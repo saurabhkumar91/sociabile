@@ -2,7 +2,12 @@
     require_once 'config.php';
     require_once 'loginValidate.php';
     
-    if( isset($_POST['message']) ){
+    if( isset($_POST['message']) && isset($_POST['subject']) ){
+        if( empty($_POST['subject']) ) {
+            echo "<p style='color:red;'>Please enter subject</p>";
+        }elseif( empty($_POST['message']) ) {
+            echo "<p style='color:red;'>Please enter message</p>";
+        }else{
             $request    = 'return db.users.find( { device_token:{$exists:true}, is_active:1, is_deleted:0 }, {device_token:1,os:1} ).toArray();';
             $result     = $db->execute($request);
             if($result['ok'] == 0) {
@@ -21,7 +26,7 @@
                 require_once "$filePath/bootstrap.php";
                 require_once "$filePath/controllers/SettingsController.php";
                 $settings   = new SettingsController();
-                $message    = array("message"=>$_POST['message']);
+                $message    = array( "message"=>$_POST['subject'], "description"=>$_POST['message'], "type"=>NOTIFY_BY_ADMIN );
                 if( $devices[1] ){
                     $settings->sendNotifications( $devices[1], array("message"=>json_encode($message)), "android", false );
                 }
@@ -30,6 +35,7 @@
                 }
                 echo "<p style='color:blue;'>Sent successfully.</p>";
             }
+        }
     }
     
     $url        = "http://".$_SERVER["HTTP_HOST"].$_SERVER["PHP_SELF"];
@@ -51,6 +57,9 @@
         <div style="text-align: center; border: solid;color:grey;border-radius: 10px;width:500px;display: inline-block;">
             <h2>Send Notification</h2>
                 <form enctype="multipart/form-data" method="post" action="sendNotification.php">
+                    <b>Subject :</b> &nbsp;&nbsp;
+                    <textarea  maxlength="50" name="subject" style="width:250px;"></textarea><span style="font-size: 10px;">*maximum 50 characters</span>
+                    <br><br>
                     <b>Message :</b> &nbsp;&nbsp;
                     <textarea  maxlength="100" name="message" style="width:250px; height:80px;"></textarea><span style="font-size: 10px;">*maximum 100 characters</span>
                     <br><br>

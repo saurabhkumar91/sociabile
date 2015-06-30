@@ -1041,7 +1041,8 @@ class UsersController
      public function removeAccountAction( $header_data ){
          try{
              $user  = Users::findById( $header_data["id"] );
-             $user->is_deleted   = 1;
+             $user->is_deleted  = 1;
+             $user->unique_id   = strtolower( uniqid() );
              if( $user->save() ){
                 Library::output(true, '0', USER_REMOVED, null);
              }else{
