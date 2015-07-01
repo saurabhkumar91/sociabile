@@ -148,6 +148,7 @@ define( 'NOTIFY_COMMENT_RECEIVED', '4' );
 define( 'NOTIFY_POST_LIKED', '5' );
 define( 'NOTIFY_POST_DISLIKED', '6' );
 define( 'NOTIFY_PHOTO_SHARED', '7' );
+define( 'NOTIFY_BY_ADMIN', '8' );
 
 
 define( 'CONTACT_US_EMAIL', "scbleHelp@gmail.com" );
