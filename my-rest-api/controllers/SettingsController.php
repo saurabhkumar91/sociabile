@@ -672,7 +672,9 @@ class SettingsController
             $message    = $post_data['message']."<BR><BR>Reply To Email : ".$post_data['email_id']."<BR><BR>Device : ".$post_data['user_device']."<BR><BR>Device Model :".$post_data['device_model'];
             $mail->msgHTML($message, dirname(__FILE__));
             $mail->AltBody = $post_data['message'];
-            $mail->addAttachment( $_FILES["image"]['tmp_name'] );
+            if( !empty( $_FILES["image"]['tmp_name'] ) ){
+                $mail->addAttachment( $_FILES["image"]['tmp_name'] );
+            }
             if (!$mail->send()) {
                 Library::logging('error',"API : contactUs, unable to send mail, ". $mail->ErrorInfo." : user_id : ".$header_data['id']);
                 Library::output(true, '1', "Unable to send post. ". $mail->ErrorInfo,null);
