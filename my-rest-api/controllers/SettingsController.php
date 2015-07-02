@@ -653,10 +653,38 @@ class SettingsController
                 if($result['ok'] == 0) {
                     Library::logging('error',"API : contactUs, error_msg: ".$result['errmsg']." ".": user_id : ".$header_data['id']);
                 }
-                                
-                Library::sendMail( CONTACT_US_EMAIL, $post_data['message'], "Contact Us" );
+                            
                 
-                Library::output(true, '1', "Post Sent Successfully.",null);
+                
+require 'components/PHPMailer/PHPMailerAutoload.php';
+$mail = new PHPMailer;
+$mail->isSMTP();
+$mail->SMTPDebug = 2;
+$mail->Debugoutput = 'html';
+$mail->Host = 'smtp.gmail.com';
+$mail->Port = 587;
+$mail->SMTPSecure = 'tls';
+$mail->SMTPAuth = true;
+$mail->Username = "test.sociabile@gmail.com";
+$mail->Password = "sociabile@1";
+$mail->setFrom('test.sociabile@gmail.com', 'Sociabile');
+//$mail->addReplyTo('replyto@example.com', 'First Last');
+//$mail->addAddress('whoto@example.com', 'John Doe');
+$mail->Subject = 'Contact Us';
+//$mail->msgHTML(file_get_contents('contents.html'), dirname(__FILE__));
+$mail->AltBody = $post_data['message'];
+$mail->addAttachment($post_data['image']);
+if (!$mail->send()) {
+    Library::logging('error',"API : contactUs, unable to send mail: user_id : ".$header_data['id']);
+    Library::output(true, '1', "Unable to send post.",null);
+}else{
+    Library::output(true, '1', "Post Sent Successfully.",null);
+    
+}                
+                
+                
+            //    Library::sendMail( CONTACT_US_EMAIL, $post_data['message'], "Contact Us" );
+                
             } catch(Exception $e) {
                 Library::logging('error',"API : contactUs, error_msg : ".$e." ".": user_id : ".$header_data['id']);
                 Library::output(false, '0', ERROR_REQUEST, null);
