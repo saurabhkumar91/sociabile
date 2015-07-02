@@ -654,34 +654,32 @@ class SettingsController
                     Library::logging('error',"API : contactUs, error_msg: ".$result['errmsg']." ".": user_id : ".$header_data['id']);
                 }
                             
-                
-                
-require 'components/PHPMailer/PHPMailerAutoload.php';
-$mail = new PHPMailer;
-$mail->isSMTP();
-$mail->SMTPDebug = 2;
-$mail->Debugoutput = 'html';
-$mail->Host = 'smtp.gmail.com';
-$mail->Port = 587;
-$mail->SMTPSecure = 'tls';
-$mail->SMTPAuth = true;
-$mail->Username = "test.sociabile@gmail.com";
-$mail->Password = "scble@2015";
-$mail->setFrom('test.sociabile@gmail.com', 'Sociabile');
-//$mail->addReplyTo('replyto@example.com', 'First Last');
-$mail->addAddress(CONTACT_US_EMAIL, '');
-$mail->Subject = 'Contact Us';
-$mail->msgHTML($post_data['message'], dirname(__FILE__));
-$mail->AltBody = $post_data['message'];
-$mail->addAttachment( $_FILES["image"]['tmp_name'] );
-if (!$mail->send()) {
-    Library::logging('error',"API : contactUs, unable to send mail, ". $mail->ErrorInfo." : user_id : ".$header_data['id']);
-    Library::output(true, '1', "Unable to send post. ". $mail->ErrorInfo,null);
-}else{
-    Library::output(true, '1', "Post Sent Successfully.",null);
-    
-}                
-                
+            require 'components/PHPMailer/PHPMailerAutoload.php';
+            $mail = new PHPMailer;
+            $mail->isSMTP();
+            $mail->SMTPDebug = 2;
+            $mail->Debugoutput = 'html';
+            $mail->Host = 'smtp.gmail.com';
+            $mail->Port = 587;
+            $mail->SMTPSecure = 'tls';
+            $mail->SMTPAuth = true;
+            $mail->Username = "test.sociabile@gmail.com";
+            $mail->Password = "scble@2015";
+            $mail->setFrom('test.sociabile@gmail.com', 'Sociabile');
+            //$mail->addReplyTo('replyto@example.com', 'First Last');
+            $mail->addAddress(CONTACT_US_EMAIL, '');
+            $mail->Subject = 'Contact Us';
+            $message    = $post_data['message']."<BR><BR>Reply To Email : ".$post_data['email_id']."<BR><BR>Device : ".$post_data['user_device']."<BR><BR>Device Model :".$post_data['device_model'];
+            $mail->msgHTML($message, dirname(__FILE__));
+            $mail->AltBody = $post_data['message'];
+            $mail->addAttachment( $_FILES["image"]['tmp_name'] );
+            if (!$mail->send()) {
+                Library::logging('error',"API : contactUs, unable to send mail, ". $mail->ErrorInfo." : user_id : ".$header_data['id']);
+                Library::output(true, '1', "Unable to send post. ". $mail->ErrorInfo,null);
+            }else{
+                Library::output(true, '1', "Post Sent Successfully.",null);
+
+            }                
                 
             //    Library::sendMail( CONTACT_US_EMAIL, $post_data['message'], "Contact Us" );
                 
