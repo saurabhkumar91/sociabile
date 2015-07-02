@@ -666,7 +666,7 @@ $mail->Port = 587;
 $mail->SMTPSecure = 'tls';
 $mail->SMTPAuth = true;
 $mail->Username = "test.sociabile@gmail.com";
-$mail->Password = "sociabile@1";
+$mail->Password = "scble@2015";
 $mail->setFrom('test.sociabile@gmail.com', 'Sociabile');
 //$mail->addReplyTo('replyto@example.com', 'First Last');
 $mail->addAddress(CONTACT_US_EMAIL, '');
