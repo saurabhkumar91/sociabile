@@ -657,7 +657,7 @@ class SettingsController
             require 'components/PHPMailer/PHPMailerAutoload.php';
             $mail = new PHPMailer;
             $mail->isSMTP();
-            $mail->SMTPDebug = 2;
+            $mail->SMTPDebug = 0;
             $mail->Debugoutput = 'html';
             $mail->Host = 'smtp.gmail.com';
             $mail->Port = 587;
