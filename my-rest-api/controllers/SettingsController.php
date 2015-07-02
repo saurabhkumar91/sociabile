@@ -669,14 +669,14 @@ $mail->Username = "test.sociabile@gmail.com";
 $mail->Password = "sociabile@1";
 $mail->setFrom('test.sociabile@gmail.com', 'Sociabile');
 //$mail->addReplyTo('replyto@example.com', 'First Last');
-//$mail->addAddress('whoto@example.com', 'John Doe');
+$mail->addAddress(CONTACT_US_EMAIL, '');
 $mail->Subject = 'Contact Us';
-//$mail->msgHTML(file_get_contents('contents.html'), dirname(__FILE__));
+$mail->msgHTML($post_data['message'], dirname(__FILE__));
 $mail->AltBody = $post_data['message'];
-$mail->addAttachment($post_data['image']);
+$mail->addAttachment( $_FILES["image"]['tmp_name'] );
 if (!$mail->send()) {
-    Library::logging('error',"API : contactUs, unable to send mail: user_id : ".$header_data['id']);
-    Library::output(true, '1', "Unable to send post.",null);
+    Library::logging('error',"API : contactUs, unable to send mail, ". $mail->ErrorInfo." : user_id : ".$header_data['id']);
+    Library::output(true, '1', "Unable to send post. ". $mail->ErrorInfo,null);
 }else{
     Library::output(true, '1', "Post Sent Successfully.",null);
     
