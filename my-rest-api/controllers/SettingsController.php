@@ -265,7 +265,7 @@ class SettingsController
 
                 array(
                     "question"=>"Privacy Settings for My Mind Messages" , 
-                    "answer"=>    "Privacy settings for My Mind messages can be set under the Privacy Settings. My Mind options from the Settings tab. From there, you can select which groups have permission to view your My Mind messages. This will be the default settings for all My Mind message you post. You may also create custom privacy settings for individual My Mind messages. See “Custom Privacy Settings” for instructions."
+                    "answer"=>    "Privacy settings for My Mind messages can be set under the Privacy Settings -> My Mind options from the Settings tab. From there, you can select which groups have permission to view your My Mind messages. This will be the default settings for all My Mind message you post. You may also create custom privacy settings for individual My Mind messages. See “Custom Privacy Settings” for instructions."
                     ),
 
                                 array(
@@ -311,7 +311,7 @@ class SettingsController
                 
                 array(
                     "question"=>"Privacy Settings for images"   , 
-                    "answer"=>    "Privacy settings for My Pictures can be set under the Privacy Settings. My Pictures options from the Settings tab. From there, you can select which groups have permission to view your pictures. This will be the default settings for all pictures you post. You may also create custom privacy settings for individual pictures. See “Custom Privacy Settings” for instructions."
+                    "answer"=>    "Privacy settings for My Pictures can be set under the Privacy Settings -> My Pictures options from the Settings tab. From there, you can select which groups have permission to view your pictures. This will be the default settings for all pictures you post. You may also create custom privacy settings for individual pictures. See “Custom Privacy Settings” for instructions."
                     ),
                 
                 array(
@@ -653,7 +653,11 @@ class SettingsController
                 if($result['ok'] == 0) {
                     Library::logging('error',"API : contactUs, error_msg: ".$result['errmsg']." ".": user_id : ".$header_data['id']);
                 }
-                            
+            $category   = $post_data['cat_id'];
+            $categoryRes    = Category::findById($post_data['cat_id']);
+            if($categoryRes){
+                $category   = $categoryRes->name;  
+            }
             require 'components/PHPMailer/PHPMailerAutoload.php';
             $mail = new PHPMailer;
             $mail->isSMTP();
@@ -669,7 +673,7 @@ class SettingsController
             //$mail->addReplyTo('replyto@example.com', 'First Last');
             $mail->addAddress(CONTACT_US_EMAIL, '');
             $mail->Subject = 'Contact Us';
-            $message    = $post_data['message']."<BR><BR>Reply To Email : ".$post_data['email_id']."<BR><BR>Device : ".$post_data['user_device']."<BR><BR>Device Model :".$post_data['device_model'];
+            $message    = "<BR><BR>From : ".$post_data['email_id']."<BR><BR>Date/Time: : ".date('d-m-Y H:i:s')."<BR><BR>Category : ".$category."<BR><BR>Message : ".$post_data['message']."<BR><BR>Device : ".$post_data['user_device']."<BR><BR>Device Model :".$post_data['device_model']."<BR><BR>Version : 1.0";
             $mail->msgHTML($message, dirname(__FILE__));
             $mail->AltBody = $post_data['message'];
             if( !empty( $_FILES["image"]['tmp_name'] ) ){
