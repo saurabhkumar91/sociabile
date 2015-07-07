@@ -1172,7 +1172,6 @@ class SettingsController
                         foreach ($user->running_groups as $detail ) {
                             if( in_array($detail['user_id'], $friends_id) ) {
                                 $sharedWith[$detail["user_id"]] = $detail["user_id"];
-                                break;
                             }
                         }
                     }
