@@ -119,6 +119,7 @@ class EmoticonsController {
                                 "icon"              => FORM_ACTION.$emoticon["icon"],
                                 "price"             => $emoticon["price"],
                                 "large_icon"        => FORM_ACTION.$emoticon["large_icon"],
+                                "thumbnail"         => FORM_ACTION.$emoticon["thumbnail"],
                                 "decsription"       => $emoticon["decsription"],
                                 "emoticons_count"   => count($emoticon["emoticons"]),
                                 "emoticons"         => $emoticon["emoticons"]
