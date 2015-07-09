@@ -5,6 +5,114 @@
     $indexUrl   = str_replace( "addEmoticons.php", "index.php", $url );
     $logoutUrl  = str_replace( "addEmoticons.php", "logout.php", $url );
 ?>
+<?php
+if (isset($_POST['submit'])) {
+    
+        $target_path        = "uploads/";
+        $validextensions    = array("jpeg", "jpg", "png", "gif" );
+        $errorMessage       = "";
+        $maxSize            = 1000000;
+        
+        // upload icon image
+        $iconImageName  = uploadFile( $_FILES['icon']['name'], $target_path, $_FILES["icon"]["size"], $_FILES['icon']['tmp_name'], $validextensions, $maxSize );
+        if( $iconImageName === false ){
+            $errorMessage   .= "Invalid file ".$_FILES['icon']['name']."<BR>";
+        }
+        
+        // upload large_icon image
+        $largeiconImageName = uploadFile( $_FILES['large_icon']['name'], $target_path, $_FILES["large_icon"]["size"], $_FILES['large_icon']['tmp_name'], $validextensions, $maxSize );
+        if( $largeiconImageName === false ){
+            $errorMessage   .= "Invalid file ".$_FILES['large_icon']['name']."<BR>";
+        }
+        
+        // upload thumbnail image
+        $thumbnailImageName = uploadFile( $_FILES['thumbnail']['name'], $target_path, $_FILES["thumbnail"]["size"], $_FILES['thumbnail']['tmp_name'], $validextensions, $maxSize );
+        if( $thumbnailImageName === false ){
+            $errorMessage   .= "Invalid file ".$_FILES['thumbnail']['name']."<BR>";
+        }
+        
+        $emoticons  = array();
+        // Loop to get individual element from the array
+        for ($i = 0; $i < count($_FILES['file']['name']); $i++) {
+            if( $_FILES['file']['name'][$i] ){
+                $imageName  = uploadFile( $_FILES['file']['name'][$i], $target_path, $_FILES["file"]["size"][$i], $_FILES['file']['tmp_name'][$i], $validextensions, $maxSize );
+                if( $imageName === false ){
+                    $errorMessage   .= "Invalid file ".$_FILES['file']['name'][$i]."<BR>";
+                }else{
+                    $emoticons[]    =  $imageName;
+                }
+            }
+            
+        }
+
+        if( $errorMessage ){
+            echo "<p style='color:red;'>".$errorMessage."</p>";
+        }else{
+            $created    = time();
+            $request = 'return db.emoticons.insert({ title: "'.$_POST["title"].'", artist: "'.$_POST["artist"].'", price: "'.$_POST["price"].'", icon: "'.$iconImageName.'", large_icon: "'.$largeiconImageName.'", thumbnail: "'.$thumbnailImageName.'", decsription: "'.$_POST["decsription"].'", emoticons:'.json_encode($emoticons).', created: '.$created.' })';
+            $result = $db->execute($request);
+            if($result['ok'] == 0) {
+                echo "<p style='color:red;'>".$result['errmsg']."</p>";
+            }else{
+                $result = $db->execute( 'return db.emoticons.find( {title: "'.$_POST["title"].'",created: '.$created.'} ).toArray()' );
+                echo "<p style='color:blue;'>Emoticon set uploaded successfully. Emoticon set ID is '".(string)$result['retval'][0]['_id']."' .</p>";
+            }
+        }
+    
+    
+}
+function uploadFile( $fileName, $target_path, $fileSize, $fileTmpName, $validextensions, $maxSize=100000 ){
+        $ext            = explode('.', basename($fileName));
+        $file_extension = end($ext); // Store extensions in the variable.
+        $target_path    = $target_path . basename($fileName);     // Set the target path with a new name of image.
+        if ( ($fileSize < $maxSize )     // Approx. 100kb files can be uploaded.
+                && in_array($file_extension, $validextensions) ) {
+                $imgName    = rand().basename($fileName);
+                $uploadFile = $fileTmpName;
+                include_once "../bootstrap.php";
+                include_once "../controllers/AmazonsController.php";
+                
+                $amazon     = new AmazonsController();
+                
+                $amazonSign = $amazon->createsignatureAction(array("id"=>"admin"),10);
+                $url        = $amazonSign['form_action'];
+                $headers    = array("Content-Type:multipart/form-data"); // cURL headers for file uploading
+                $ext        = explode(".", $imgName);
+                $extension  = trim(end($ext));
+                $postfields = array(
+                    "key"                       =>  "Emoticons/".$imgName,//$amazonSign["key"],
+                    "AWSAccessKeyId"            => $amazonSign["AWSAccessKeyId"],
+                    "acl"                       => $amazonSign["acl"],
+                    "success_action_redirect"   => $amazonSign["success_action_redirect"],
+                    "policy"                    => $amazonSign["policy"],
+                    "signature"                 => $amazonSign["signature"],
+                    "Content-Type"              => "image/$extension",
+                    "file"                      => file_get_contents($uploadFile)
+                );
+                $ch         = curl_init();
+                $options    = array(
+                    CURLOPT_URL         => $url,
+                    //CURLOPT_HEADER      => true,
+                    CURLOPT_POST        => 1,
+                    CURLOPT_HTTPHEADER  => $headers,
+                    CURLOPT_POSTFIELDS  => $postfields,
+                    CURLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_RETURNTRANSFER => true
+                ); // cURL options
+                curl_setopt_array($ch, $options);
+                $imageName              = curl_exec($ch);
+                curl_close($ch);
+                return $imageName;
+            
+//            
+//            if (move_uploaded_file($fileTmpName, $target_path)) {
+//            } else {     //  If File Was Not Moved.
+//                return "Some error occurred while uploading file ".basename($fileName);
+//            }
+        }
+        return false;
+}
+?>
 <html>
     <body>
         <p>
@@ -32,6 +140,9 @@
             <br><br>
             <label for="large_icon">Large Icon</label>
             <input type="file" name="large_icon" id="large_icon" multiple>
+            <br><br>
+            <label for="large_icon">Thumbnail</label>
+            <input type="file" name="thumbnail" id="thumbnail" multiple>
             <br><br>
             <label for="decsription">Description</label>
             <textarea type="file" name="decsription" id="decsription" value=""></textarea>
@@ -186,102 +297,4 @@
 </html>
 <BR>
 <pre>
-<?php
-if (isset($_POST['submit'])) {
-    
-        $target_path        = "uploads/";
-        $validextensions    = array("jpeg", "jpg", "png", "gif" );
-        $errorMessage       = "";
-        $maxSize            = 1000000;
-        
-        // upload icon image
-        $iconImageName  = uploadFile( $_FILES['icon']['name'], $target_path, $_FILES["icon"]["size"], $_FILES['icon']['tmp_name'], $validextensions, $maxSize );
-        if( $iconImageName === false ){
-            $errorMessage   .= "Invalid file ".$_FILES['file']['name']."<BR>";
-        }
-        
-        // upload large_icon image
-        $largeiconImageName = uploadFile( $_FILES['large_icon']['name'], $target_path, $_FILES["large_icon"]["size"], $_FILES['large_icon']['tmp_name'], $validextensions, $maxSize );
-        if( $largeiconImageName === false ){
-            $errorMessage   .= "Invalid file ".$_FILES['file']['name']."<BR>";
-        }
-        
-        $emoticons  = array();
-        // Loop to get individual element from the array
-        for ($i = 0; $i < count($_FILES['file']['name']); $i++) {
-            if( $_FILES['file']['name'][$i] ){
-                $imageName  = uploadFile( $_FILES['file']['name'][$i], $target_path, $_FILES["file"]["size"][$i], $_FILES['file']['tmp_name'][$i], $validextensions, $maxSize );
-                if( $imageName === false ){
-                    $errorMessage   .= "Invalid file ".$_FILES['file']['name'][$i]."<BR>";
-                }else{
-                    $emoticons[]    =  $imageName;
-                }
-            }
-            
-        }
-
-        if( $errorMessage ){
-            echo $errorMessage;
-        }else{
-            $request = 'return db.emoticons.insert({ title: "'.$_POST["title"].'", artist: "'.$_POST["artist"].'", price: "'.$_POST["price"].'", icon: "'.$iconImageName.'", large_icon: "'.$largeiconImageName.'", decsription: "'.$_POST["decsription"].'", emoticons:'.json_encode($emoticons).' })';
-            $result = $db->execute($request);
-            if($result['ok'] == 0) {
-                exit( $result['errmsg'] );
-            }
-        }
-    
-    
-}
-function uploadFile( $fileName, $target_path, $fileSize, $fileTmpName, $validextensions, $maxSize=100000 ){
-        $ext            = explode('.', basename($fileName));
-        $file_extension = end($ext); // Store extensions in the variable.
-        $target_path    = $target_path . basename($fileName);     // Set the target path with a new name of image.
-        if ( ($fileSize < $maxSize )     // Approx. 100kb files can be uploaded.
-                && in_array($file_extension, $validextensions) ) {
-                $imgName    = rand().basename($fileName);
-                $uploadFile = $fileTmpName;
-                include_once "../bootstrap.php";
-                include_once "../controllers/AmazonsController.php";
-                
-                $amazon     = new AmazonsController();
-                
-                $amazonSign = $amazon->createsignatureAction(array("id"=>"admin"),10);
-                $url        = $amazonSign['form_action'];
-                $headers    = array("Content-Type:multipart/form-data"); // cURL headers for file uploading
-                $ext        = explode(".", $imgName);
-                $extension  = trim(end($ext));
-                $postfields = array(
-                    "key"                       =>  "Emoticons/".$imgName,//$amazonSign["key"],
-                    "AWSAccessKeyId"            => $amazonSign["AWSAccessKeyId"],
-                    "acl"                       => $amazonSign["acl"],
-                    "success_action_redirect"   => $amazonSign["success_action_redirect"],
-                    "policy"                    => $amazonSign["policy"],
-                    "signature"                 => $amazonSign["signature"],
-                    "Content-Type"              => "image/$extension",
-                    "file"                      => file_get_contents($uploadFile)
-                );
-                $ch         = curl_init();
-                $options    = array(
-                    CURLOPT_URL         => $url,
-                    //CURLOPT_HEADER      => true,
-                    CURLOPT_POST        => 1,
-                    CURLOPT_HTTPHEADER  => $headers,
-                    CURLOPT_POSTFIELDS  => $postfields,
-                    CURLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_RETURNTRANSFER => true
-                ); // cURL options
-                curl_setopt_array($ch, $options);
-                $imageName              = curl_exec($ch);
-                curl_close($ch);
-                return $imageName;
-            
-//            
-//            if (move_uploaded_file($fileTmpName, $target_path)) {
-//            } else {     //  If File Was Not Moved.
-//                return "Some error occurred while uploading file ".basename($fileName);
-//            }
-        }
-        return false;
-}
-?>
 </pre>

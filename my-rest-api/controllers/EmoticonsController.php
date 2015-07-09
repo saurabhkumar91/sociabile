@@ -21,6 +21,7 @@ class EmoticonsController {
                                 "title"     => $emoticon["title"],
                                 "artist"    => $emoticon["artist"],
                                 "icon"      => FORM_ACTION.$emoticon["icon"],
+                                "thumbnail" => FORM_ACTION.$emoticon["thumbnail"],
                                 "price"     => $emoticon["price"],
                                 "purchased" => $purchased
                 );
@@ -48,6 +49,7 @@ class EmoticonsController {
                     $result["artist"]           = $emoticons->artist;
                     $result["price"]            = $emoticons->price;
                     $result["large_icon"]       = FORM_ACTION.$emoticons->large_icon;
+                    $result["thumbnail"]        = FORM_ACTION.$emoticons->thumbnail;
                     $result["decsription"]      = $emoticons->decsription;
                     $result["emoticons_count"]  = count($emoticons->emoticons);
                     $result["emoticons"]        = $emoticons->emoticons;
