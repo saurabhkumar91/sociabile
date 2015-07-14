@@ -1731,6 +1731,18 @@ class SettingsController
                 $amazon = new AmazonsController();
                 $count  = 0;
                 foreach( $post_data['images'] As $image ){
+                    
+             /****** code for uploading on server *******************************************/      
+                    $tmpName    = $image["tmp_name"];
+                    $uploadFile = rand().$image["name"];
+                    $location   = 'images/chat/';
+                    $filePath   = str_replace("index.php", "images/chat/", $_SERVER['SCRIPT_FILENAME'] );
+                    move_uploaded_file($tmpName, $filePath.$uploadFile);
+             /****** code for uploading on server ends *******************************************/      
+                    
+                    
+                    
+             /****** code for amazon S3 *******************************************      
                     $uploadFile = rand().$image["name"];
                     $amazonSign = $amazon->createsignatureAction($header_data,10);
                     $url        = $amazonSign['form_action'];
@@ -1770,7 +1782,10 @@ class SettingsController
 //                    curl_setopt_array($ch, $options);
 //                    $thumbnailName  = curl_exec($ch);
 //                    curl_close($ch);
-                    $result[]   = array( "image"=>FORM_ACTION.$imageName/*, "thumbnail"=>FORM_ACTION.$thumbnailName*/ );
+             ****** code for amazon S3 ends *******************************************/      
+                    
+                    
+                    $result[]   = array( "image"=>SERVER_NAME.$location.$uploadFile/*, "thumbnail"=>FORM_ACTION.$thumbnailName*/);
                 }
                 Library::output(true, '1', POST_SAVED, $result);
             } catch (Exception $e) {

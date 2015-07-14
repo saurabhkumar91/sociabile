@@ -2,6 +2,8 @@
 
 define("TESTING", true);
 
+define("SERVER_NAME", "http://social-1411310927.us-west-2.elb.amazonaws.com/" );
+
  // user related messages
 define('ERROR_INPUT', 'Please provide all input values.');
 define('ERROR_REQUEST', 'Error in request. Please try again');
