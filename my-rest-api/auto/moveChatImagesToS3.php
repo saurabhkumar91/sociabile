@@ -1,4 +1,5 @@
 <?php
+set_time_limit ( 0 );
 echo "\n\nmoveChatImagesToS3: Process Started At ".date('Y-m-d H:i:s')." \n";
 
 
