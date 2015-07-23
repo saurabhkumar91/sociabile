@@ -61,7 +61,7 @@ define('OTP_WRONG', 'Please enter valid verification code.');
 // authentication
 define('KEY', 'JUTdqn7yMq5BjrQoiDo6kbYHymcoaWmbR5mlbEt');
 define('TOKEN_MSG','Token Generated Successfully.');
-define('TOKEN_WRONG','Token Mismatch.');
+define('TOKEN_WRONG','Account has been recovered on another device.');
 define('WRONG_OS_VERSION','Wrong Os OR Version');
 
 // post & comment related messagess
