@@ -405,7 +405,7 @@ class FriendsController
                         // query for  delete sent request
                         $request_update = $db->execute('db.users.update(
                                                 {"_id" : ObjectId("'.$rejectUserId.'"),"request_sent.user_id": "'.$userId.'"}, 
-                                                {$pull: { request_sent: { user_id: "'.$userId.'" } } }
+                                                {$pull: { request_sent: { user_id: "'.$userId.'" } }, $addToSet:{hidden_contacts:"'.$userId.'"}  }
                                             )');
                          if($request_update['ok'] == 0) {
                             Library::logging('error',"API : rejectRequest (updating request sent array) mongodb error: ".$request_update['errmsg']." ".": user_id : ".$userId);
@@ -569,6 +569,13 @@ class FriendsController
                         }
                     }
                     if( $isModified ){
+                        if( isset($friend->hidden_contacts) ){
+                            if( !in_array($userId,$friend->hidden_contacts) ){
+                                $friend->hidden_contacts[]    = $userId;
+                            }
+                        }else{
+                            $friend->hidden_contacts    = array($userId);
+                        }
                         if( !$friend->save() ){
                             foreach ($friend->getMessages() as $message) {
                                 $errors[] = $message->getMessage();
