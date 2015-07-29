@@ -103,11 +103,13 @@ class UsersController
                     if( empty($record[0]->jaxl_id) ){
                         $jaxlCredentials    = $this->registerOnEjabberd( $mobile_no, $jaxlPassword );
                         $db                 = Library::getMongo();
-                        $db->execute('return db.users.update({"_id" :ObjectId("'.$record[0]->_id.'") },{$set:{jaxl_id : "'.$jaxlCredentials["jaxl_id"].'",jaxl_password:"'.$jaxlCredentials["jaxl_password"].'"}})');
+                        $db->execute('return db.users.update({"_id" :ObjectId("'.$record[0]->_id.'") },{$set:{jaxl_id : "'.$jaxlCredentials["jaxl_id"].'",jaxl_password:"'.$jaxlCredentials["jaxl_password"].'"}, $unset:{password:""} })');
                         $result = array_merge( $result, $jaxlCredentials ); 
                     }else{
                         $result["jaxl_id"]          = $record[0]->jaxl_id;
                         $result["jaxl_password"]    = $jaxlPassword;
+                        $db->execute( 'return db.users.update({"_id" :ObjectId("'.$record[0]->_id.'") },{ $unset:{password:""} })');
+                        $result = array_merge( $result, $jaxlCredentials ); 
                     }
                     $result["recovery_email_id"]  = $record[0]->recovery_email_id;
                     $result["created"]  = 0;
