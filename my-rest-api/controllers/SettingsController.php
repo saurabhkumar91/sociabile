@@ -658,6 +658,7 @@ class SettingsController
             if($categoryRes){
                 $category   = $categoryRes->name;  
             }
+            $user   = Users::findById( $header_data['id'] );
             require 'components/PHPMailer/PHPMailerAutoload.php';
             $mail = new PHPMailer;
             $mail->isSMTP();
@@ -673,7 +674,7 @@ class SettingsController
             //$mail->addReplyTo('replyto@example.com', 'First Last');
             $mail->addAddress(CONTACT_US_EMAIL, '');
             $mail->Subject = 'Contact Us';
-            $message    = "<BR><BR>From : ".$post_data['email_id']."<BR><BR>Date/Time: : ".date('d-m-Y H:i:s')."<BR><BR>Category : ".$category."<BR><BR>Message : ".$post_data['message']."<BR><BR>Device : ".$post_data['user_device']."<BR><BR>Device Model :".$post_data['device_model']."<BR><BR>App Version : ".$header_data["version"]."<BR><BR>User ID : ".$header_data["id"];
+            $message    = "<BR><BR>From : ".$post_data['email_id']."<BR><BR>Date/Time: : ".date('d-m-Y H:i:s')."<BR><BR>Category : ".$category."<BR><BR>Message : ".$post_data['message']."<BR><BR>Device : ".$post_data['user_device']."<BR><BR>Device Model :".$post_data['device_model']."<BR><BR>App Version : ".$header_data["version"]."<BR><BR>User ID : ".$user->unique_id;
             if( isset($post_data['os_version']) ){
                 $message    .= "<BR><BR>Device OS-Version : ".$post_data['os_version'];
             }
