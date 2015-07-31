@@ -109,7 +109,7 @@ class UsersController
                         $result["jaxl_id"]          = $record[0]->jaxl_id;
                         $result["jaxl_password"]    = $jaxlPassword;
                         $db->execute( 'return db.users.update({"_id" :ObjectId("'.$record[0]->_id.'") },{ $unset:{password:""} })');
-                        $result = array_merge( $result, $jaxlCredentials ); 
+                      //  $result = array_merge( $result, $jaxlCredentials ); 
                     }
                     $result["recovery_email_id"]  = $record[0]->recovery_email_id;
                     $result["created"]  = 0;
