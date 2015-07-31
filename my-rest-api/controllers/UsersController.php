@@ -100,9 +100,9 @@ class UsersController
                     $result['user_id']  = $record[0]->_id;
                     $result['token']    = $record[0]->hash;
                    // $result['otp'] = 1234;
+                    $db                 = Library::getMongo();
                     if( empty($record[0]->jaxl_id) ){
                         $jaxlCredentials    = $this->registerOnEjabberd( $mobile_no, $jaxlPassword );
-                        $db                 = Library::getMongo();
                         $db->execute('return db.users.update({"_id" :ObjectId("'.$record[0]->_id.'") },{$set:{jaxl_id : "'.$jaxlCredentials["jaxl_id"].'",jaxl_password:"'.$jaxlCredentials["jaxl_password"].'"}, $unset:{password:""} })');
                         $result = array_merge( $result, $jaxlCredentials ); 
                     }else{
