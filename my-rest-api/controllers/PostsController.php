@@ -65,7 +65,7 @@ class PostsController
             $result["user_name"]            = $user->user_name;
             $result["user_profile_image"]   = FORM_ACTION.$user->profile_image;
             $result["text"]                 = ($post->type=="1") ? $post->text : '';
-            $result["image"]                = array();
+            $result["image"]                = ($post->type=="2") ? $post->text : '';
             $result["date"]                 = $post->date;
             $result["likes"]                = $post->likes;
             $result["dislikes"]             = $post->dislikes;
@@ -77,6 +77,7 @@ class PostsController
             if( is_array($post->text) ){
                 $db                 = Library::getMongo();
                 $result["multiple"] = 1;
+                $result["image"]    = array();
                 foreach ($post->text AS $childPostId ){
                     $childPostRes   = $db->execute('return db.posts.find({ "_id" : ObjectId("'.$childPostId.'") }).toArray()');
                     if($childPostRes['ok'] == 0) {
