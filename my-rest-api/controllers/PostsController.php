@@ -110,7 +110,9 @@ class PostsController
                     $result["image"][]          = $res;
                 }
             }else{
-                $result["image"][]  = $result;
+                $tmp                =   $result;
+                $result["image"]    =   array();
+                $result["image"][]  =   $tmp;
             }
             return $result;
     }
