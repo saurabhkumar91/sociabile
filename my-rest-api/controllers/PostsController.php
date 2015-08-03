@@ -65,7 +65,7 @@ class PostsController
             $result["user_name"]            = $user->user_name;
             $result["user_profile_image"]   = FORM_ACTION.$user->profile_image;
             $result["text"]                 = ($post->type=="1") ? $post->text : '';
-            $result["image"]                = ($post->type=="2") ? $post->text : '';
+            $result["image"]                = ($post->type=="2") ? FORM_ACTION.$post->text : '';
             $result["date"]                 = $post->date;
             $result["likes"]                = $post->likes;
             $result["dislikes"]             = $post->dislikes;
@@ -98,7 +98,7 @@ class PostsController
                     $res["user_name"]           = $user->user_name;
                     $res["user_profile_image"]  = FORM_ACTION.$user->profile_image;
                     $res["text"]                = ($childPost["type"]=="1") ? $childPost["text"] : '';
-                    $res["image"]               = ($childPost["type"]!="1") ? array(FORM_ACTION.$childPost["text"]):'';
+                    $res["image"]               = ($childPost["type"]!="1") ? FORM_ACTION.$childPost["text"]:'';
                     $res["date"]                = $childPost["date"];
                     $res["likes"]               = $childPost["likes"];
                     $res["dislikes"]            = $childPost["dislikes"];
