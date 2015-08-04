@@ -65,7 +65,7 @@ class PostsController
             $result["user_name"]            = $user->user_name;
             $result["user_profile_image"]   = FORM_ACTION.$user->profile_image;
             $result["text"]                 = ($post->type=="1") ? $post->text : '';
-            $result["image"]                = ($post->type=="2") ? FORM_ACTION.$post->text : '';
+            $result["image"]                = ($post->type!="1") ? FORM_ACTION.$post->text : '';
             $result["date"]                 = $post->date;
             $result["likes"]                = $post->likes;
             $result["dislikes"]             = $post->dislikes;
