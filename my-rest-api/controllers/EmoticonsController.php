@@ -153,9 +153,15 @@ class EmoticonsController {
             "Emoticons/858143723soc_ouch.gif",
             "Emoticons/501717861soc_redeyes.gif"
         );
+        
+        $jimmy  = json_decode('{  "title" : "Jimmy (Ghost Boy)", "artist" : "Aaron French", "price" : "0.99", "icon" : "Emoticons/1750747785Jimmy_icon.gif", "large_icon" : "Emoticons/1539600669Jimmy_banner.gif", "decsription" : "Jimmy is a very shy and introverted person who likes to hang out by himself and play pretend. When he wears his sheet he calls himself Ghost Boy and runs around acting silly thinking nobody can see him because he\'s a ghost.", "emoticons" : [ "Emoticons/665961160Angry.gif", "Emoticons/1625407954Crying.gif", "Emoticons/1900127553Dance.gif", "Emoticons/1906481045Dizzy.gif", "Emoticons/1165489977Doh.gif", "Emoticons/768668359Exercise.gif", "Emoticons/1686640744Goodbye.gif", "Emoticons/730070435I-Dont-Know2.gif", "Emoticons/1228184974Jammin.gif", "Emoticons/226580491Late.gif", "Emoticons/73936891Laugh.gif", "Emoticons/1019850594Love.gif", "Emoticons/867279000Mustache.gif", "Emoticons/829550949No.gif", "Emoticons/2060279447Play.gif", "Emoticons/221109452Sleep.gif", "Emoticons/1236081359Smile.gif", "Emoticons/1055473397Wink.gif" ], "purchased_by" : [ "559a3ae0e70e6f9c6a8b456e", "559ccb04e70e6f816a8b456f", "559d08bbe70e6fb66a8b456e", "559bb2dfe70e6f8d6a8b4568", "559a325ee70e6f856a8b456a", "559e5efce70e6fb76a8b456e", "559fa6a7e70e6fa66a8b456e", "5552786ae70e6fa56a8b4568", "55a5320ce70e6fbe6a8b4570", "55af9581e70e6fa26a8b456d", "55afbc28e70e6fb16a8b4572", "55afbcbfe70e6f1a618b456d", "5582388fe70e6f926a8b4567" ], "thumbnail" : "Emoticons/2007166390icon5.png" }');
         $result = array();
         $i  = 0;
         foreach( $staticSmileys AS $emoticon ){
+            $result[$i][]    = FORM_ACTION.$emoticon;
+        }
+        $i++;
+        foreach( $jimmy->emoticons AS $emoticon ){
             $result[$i][]    = FORM_ACTION.$emoticon;
         }
         Library::output(true, '1', "No Error", $result);
