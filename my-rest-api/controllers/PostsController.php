@@ -637,8 +637,10 @@ class PostsController
                 $post   = Posts::findById( $post_data['post_id'] );
                 if($post){
                     if( ! in_array( $header_data['id'], $post->liked_by) ){
+                        //error message logged but response for success send
                         Library::logging('error',"API : removelikePost : ".POST_NOT_LIKED." ".": user_id : ".$header_data['id']);
-                        Library::output(false, '0', POST_NOT_LIKED, null);
+                        Library::output(true, '1', POST_LIKE_REMOVED, null);
+//                        Library::output(false, '0', POST_NOT_LIKED, null);
                     }
                     $post->likes    -= 1;
                     foreach($post->liked_by AS $key=>$likedBy ){
@@ -684,8 +686,9 @@ class PostsController
                 $post   = Posts::findById( $post_data['post_id'] );
                 if($post){
                     if( ! in_array( $header_data['id'], $post->disliked_by) ){
+                        //error message logged but response for success send
                         Library::logging('error',"API : removeDislikePost : ".POST_NOT_DISLIKED." : user_id : ".$header_data['id']);
-                        Library::output(false, '0', POST_NOT_DISLIKED, null);
+                        Library::output(true, '1', POST_DISLIKE_REMOVED, null);
                     }
                     $post->dislikes    -= 1;
                     foreach($post->disliked_by AS $key=>$dislikedBy ){
