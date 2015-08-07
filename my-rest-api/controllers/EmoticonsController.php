@@ -50,7 +50,7 @@ class EmoticonsController {
                     $result["price"]            = $emoticons->price;
                     $result["large_icon"]       = FORM_ACTION.$emoticons->large_icon;
                     $result["thumbnail"]        = FORM_ACTION.$emoticons->thumbnail;
-                    $result["decsription"]      = $emoticons->decsription;
+                    $result["description"]      = $emoticons->decsription;
                     $result["emoticons_count"]  = count($emoticons->emoticons);
                     $result["emoticons"]        = $emoticons->emoticons;
                 }else{
@@ -120,7 +120,7 @@ class EmoticonsController {
                                 "price"             => $emoticon["price"],
                                 "large_icon"        => FORM_ACTION.$emoticon["large_icon"],
                                 "thumbnail"         => FORM_ACTION.$emoticon["thumbnail"],
-                                "decsription"       => $emoticon["decsription"],
+                                "description"       => $emoticon["decsription"],
                                 "emoticons_count"   => count($emoticon["emoticons"]),
                                 "emoticons"         => $emoticon["emoticons"]
                 );
