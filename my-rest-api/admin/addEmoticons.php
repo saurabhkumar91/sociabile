@@ -5,9 +5,10 @@
     $indexUrl   = str_replace( "addEmoticons.php", "index.php", $url );
     $logoutUrl  = str_replace( "addEmoticons.php", "logout.php", $url );
 ?>
+<!--<pre>-->
 <?php
 if (isset($_POST['submit'])) {
-    
+//    print_r($_FILES); exit;
         $target_path        = "uploads/";
         $validextensions    = array("jpeg", "jpg", "png", "gif" );
         $errorMessage       = "";
@@ -177,6 +178,7 @@ function uploadFile( $fileName, $target_path, $fileSize, $fileTmpName, $validext
                         abc += 1; // Incrementing global variable by 1.
                         var z = abc - 1;
                         var x = $(this).parent().find('#previewimg' + z).remove();
+                        $(this).prop("id", $(this).prop("id")+abc );
                         $("#filediv").append("<div id='abcd" + abc + "' class='abcd'><img id='previewimg" + abc + "' src=''/></div>");
                         var reader = new FileReader();
                         reader.onload = imageIsLoaded;
@@ -185,9 +187,11 @@ function uploadFile( $fileName, $target_path, $fileSize, $fileTmpName, $validext
                         $("#abcd" + abc).append($("<img/>", {
                             id: 'img',
                             src: 'x.png',
-                            alt: 'delete'
+                            alt: 'delete',
+                            sno:abc
                         }).click(function() {
                             $(this).parent().remove();
+                            $("#file"+$(this).attr("sno")).remove();
                         }));
                     }
                 });
