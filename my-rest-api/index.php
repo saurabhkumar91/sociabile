@@ -568,6 +568,12 @@ $app->get( "/getFreeEmoticons", function() {
     $emoticons->getFreeEmoticonsAction($header_data);
 } );
 
+$app->post( "/getNotifications", function() use ($app) {
+    $header_data    = Library::getallheaders();
+    $emoticons      = new NotificationsController();
+    $emoticons->getNotificationsAction( $header_data, $app->request->getPost() );
+} );
+
 
 $app->notFound(
 	function () use ( $app ) {

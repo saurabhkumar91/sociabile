@@ -13,13 +13,17 @@
             if($result['ok'] == 0) {
                 echo "<p style='color:red;'>".$result['errmsg']."</p>";
             }else{
-                $devices[1]  = array();
-                $devices[2]  = array();
+                $devices[1] = array();
+                $devices[2] = array();
+                $users      = array();
                 foreach( $result["retval"] AS $user ){
-                    if( $user["os"] == 1 && !empty($user["device_token"]) ){
-                        $devices[1][]  = $user["device_token"];
-                    }elseif( $user["os"] == 2 && !empty($user["device_token"]) ){
-                        $devices[2][]  = $user["device_token"];
+                    if( !empty($user["device_token"]) ){
+                        $users[]    = (string)$user["_id"];
+                        if( $user["os"] == 1 ){
+                            $devices[1][]  = $user["device_token"];
+                        }elseif( $user["os"] == 2 ){
+                            $devices[2][]  = $user["device_token"];
+                        }
                     }
                 }
                 $filePath    =  strstr(__FILE__, "/admin/", true);
@@ -28,10 +32,20 @@
                 $settings   = new SettingsController();
                 $message    = array( "message"=>$_POST['subject'], "description"=>$_POST['message'], "type"=>NOTIFY_BY_ADMIN );
                 if( $devices[1] ){
-                    $settings->sendNotifications( $devices[1], array("message"=>json_encode($message)), "android", false );
+                    $settings->sendNotifications( $devices[1], array("message"=>json_encode($message)), "android", false, false );
                 }
                 if( $devices[2] ){
-                    $settings->sendNotifications( $devices[2], array("message"=>json_encode($message)), "ios", false );
+                    $settings->sendNotifications( $devices[2], array("message"=>json_encode($message)), "ios", false, false );
+                }
+                
+                foreach( $users AS $userId ){
+                    $request    = "return db.notifications.insert( { "
+                                                    . "user_id:'$userId', "
+                                                    . "notification:".json_encode($message).", "
+                                                    . "is_viewed:0, "
+                                                    . "date:".time()
+                                    . "});";
+                    $result     = $db->execute($request);
                 }
                 echo "<p style='color:blue;'>Sent successfully.</p>";
             }
