@@ -37,6 +37,7 @@ class NotificationsController {
             }
             $result = array();
             foreach( $notifications["retval"] AS $notification ){
+                $notification["notification"]["timestamp"]  = $notification["date"];
                 $result[]   = $notification["notification"];
             }
             Library::output(true, '1', "no error", $result);
