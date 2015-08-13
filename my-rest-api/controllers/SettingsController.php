@@ -1879,7 +1879,7 @@ class SettingsController
         /*********** code to save notifications in db******************/
         if($savetoDb){
             $notifications  =   new NotificationsController();
-            $notifications->sendNotifications( $deviceToken, $message );
+            $notifications->saveNotifications( $deviceToken, $message );
         }
         /************************************************************/
         
