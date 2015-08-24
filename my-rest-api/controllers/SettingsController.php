@@ -676,9 +676,15 @@ class SettingsController
                 $mail->addAttachment( $filePath.$uploadFile );
             }
             if (!$mail->send()) {
+                if( !empty( $_FILES["image"]['tmp_name'] ) ){
+                    unlink( $filePath.$uploadFile );
+                }
                 Library::logging('error',"API : contactUs, unable to send mail, ". $mail->ErrorInfo." : user_id : ".$header_data['id']);
                 Library::output(true, '1', "Unable to send post. ". $mail->ErrorInfo,null);
             }else{
+                if( !empty( $_FILES["image"]['tmp_name'] ) ){
+                    unlink( $filePath.$uploadFile );
+                }
                 Library::output(true, '1', "Post Sent Successfully.",null);
 
             }                
