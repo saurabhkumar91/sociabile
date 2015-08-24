@@ -661,7 +661,7 @@ class SettingsController
             $mail->setFrom('test.sociabile@gmail.com', 'Sociabile');
             //$mail->addReplyTo('replyto@example.com', 'First Last');
             $mail->addAddress(CONTACT_US_EMAIL, '');
-            $mail->AddCC('neha.dhawan@kelltontech.com', 'QA');
+            $mail->AddCC('saurabh.kumar@kelltontech.com', 'Saurabh');
             $mail->Subject = 'Contact Us';
             $message    = "<BR><BR>From : ".$post_data['email_id']."<BR><BR>Date/Time: : ".date('d-m-Y H:i:s')."<BR><BR>Category : ".$category."<BR><BR>Message : ".$post_data['message']."<BR><BR>Device : ".$post_data['user_device']."<BR><BR>Device Model :".$post_data['device_model']."<BR><BR>App Version : ".$header_data["version"]."<BR><BR>User ID : ".$user->unique_id;
             if( isset($post_data['os_version']) ){
@@ -670,7 +670,10 @@ class SettingsController
             $mail->msgHTML($message, dirname(__FILE__));
             $mail->AltBody = $post_data['message'];
             if( !empty( $_FILES["image"]['tmp_name'] ) ){
-                $mail->addAttachment( $_FILES["image"]['tmp_name'] );
+                $uploadFile = $_FILES["image"]['name'];
+                $filePath   = str_replace("index.php", "images/tmp/", $_SERVER['SCRIPT_FILENAME'] );
+                move_uploaded_file($_FILES["image"]['tmp_name'], $filePath.$uploadFile);
+                $mail->addAttachment( $filePath.$uploadFile );
             }
             if (!$mail->send()) {
                 Library::logging('error',"API : contactUs, unable to send mail, ". $mail->ErrorInfo." : user_id : ".$header_data['id']);
