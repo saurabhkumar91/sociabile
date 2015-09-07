@@ -259,7 +259,7 @@ class PostsController
                         }
                     }
                     if( empty($result[$postId]["image"]) ){
-                        unset($result[$postId]["image"]);
+                        unset($result[$postId]);
                     }
                 }
                 usort($result, function($postA, $postB){
