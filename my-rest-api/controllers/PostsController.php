@@ -258,6 +258,9 @@ class PostsController
                             unset( $result[$childPost] );
                         }
                     }
+                    if( empty($result[$postId]["image"]) ){
+                        unset($result[$postId]["image"]);
+                    }
                 }
                 usort($result, function($postA, $postB){
                     if ($postA["date"] == $postB["date"]) {
