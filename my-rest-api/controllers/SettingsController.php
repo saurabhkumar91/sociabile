@@ -24,6 +24,8 @@ class SettingsController
                 Library::output(false, '0', ERROR_INPUT, null);
             } else {
                 $user = Users::findById($header_data['id']);
+                $otp    = Library::getOTP();
+                        
                 if($post_data['type'] == 1) { // for change mobile no
                     if( !isset($post_data['mobile_no'])) {
                         Library::logging('alert',"API : generateOTP : ".ERROR_INPUT.": user_id : ".$header_data['id']);
@@ -60,7 +62,7 @@ class SettingsController
                         if($user) {
                             $emails = array();
                             array_push($emails,$post_data['email_id']);
-                            $user->otp = 1234;
+                            $user->otp = $otp;
                             $user->email_id = $emails;
 
                             if ($user->save() == false) {
@@ -70,7 +72,7 @@ class SettingsController
                                 Library::logging('error',"API : generateOTP, error_msg : ".$errors." : user_id : ".$header_data['id']);
                                 Library::output(false, '0', $errors, null);
                             } else {
-                                $message = $user->username."(user ID: ".$user->unique_id."), Your OTP is : 1234";
+                                $message = $user->username."(user ID: ".$user->unique_id."), Your OTP is : $otp";
                                 Library::sendMail( $post_data['email_id'], $message, "Forgot Password | Sociabile" );
                                 Library::output(true, '1', "OTP Sent Successfully", null);
                             }

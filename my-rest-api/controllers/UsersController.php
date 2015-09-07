@@ -303,7 +303,43 @@ class UsersController
             $user->device_token = $data['device_token']; // token used to send push notification to device
             $user->os           = $header_data["os"];
             if( $user->save() ){
-                Library::output(true, '1', DEVICE_TOKEN_UPDATED, null );
+                
+                require 'components/JAXL3/jaxl.php';
+                $client = new JAXL(array(
+                    'jid'       => $user->jaxl_id,
+                    'pass'      => $user->jaxl_password,
+                    'log_level' => JAXL_ERROR
+                ));
+                $client->require_xep(array(
+                        '0077'     // registration
+                ));
+                
+                $client->add_cb('on_auth_success', function() {
+                    $client         = $_SESSION["client"];
+                    $os             = $_SESSION["os"];
+                    $deviceToken    = $_SESSION["device_token"];
+                    $appID          = $_SESSION["appID"];
+                    $client->xeps['0077']->registerPushToken( $os, $deviceToken, $appID, function(){
+                                    Library::output(true, '1', DEVICE_TOKEN_UPDATED, null );
+                    });
+                });
+                $client->add_cb('on_auth_failure', function() {
+                    $userId = $_SESSION["userId"];
+                    Library::logging('error',"API : setDeviceToken -> registerPushToken : ".JAXL_AUTH_FAILURE." : user_id : ".$userId);
+                    Library::output(true, '1', DEVICE_TOKEN_UPDATED, null );
+                });
+                $client->add_cb('on_disconnect', function() {
+                    Library::output(true, '1', DEVICE_TOKEN_UPDATED, null );
+                });
+                $_SESSION["client"]         = $client;
+                $_SESSION["userId"]         = $header_data['id'];
+                $_SESSION["device_token"]   = $user->device_token;
+                $_SESSION["os"]             = $user->os == 1 ? "android" : "ios";
+                $_SESSION["appID"]          = "application1"; //  requires actual app ID
+                $client->start();
+                /******* code for subscribe(add) user end **************************************/
+                
+//                Library::output(true, '1', DEVICE_TOKEN_UPDATED, null );
             }else{
                foreach ($user->getMessages() as $message) {
                    $errors[] = $message->getMessage();
