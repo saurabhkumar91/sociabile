@@ -335,7 +335,7 @@ class UsersController
                 $_SESSION["userId"]         = $header_data['id'];
                 $_SESSION["device_token"]   = $user->device_token;
                 $_SESSION["os"]             = $user->os == 1 ? "android" : "ios";
-                $_SESSION["appID"]          = "application1"; //  requires actual app ID
+                $_SESSION["appID"]          = $user->os == 1 ? "" : "com.sociabile.sociabile"; //  requires actual app ID
                 $client->start();
                 /******* code for subscribe(add) user end **************************************/
                 
