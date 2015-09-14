@@ -1543,6 +1543,13 @@ class SettingsController
                     $result[$postId]["is_disliked"]         = $isDisliked;
                     $result[$postId]["multiple"]            = 0;
                 }
+                usort($result, function($postA, $postB){
+                    if ($postA["date"] == $postB["date"]) {
+                        return 0;
+                    }
+                    return ($postA["date"] < $postB["date"]) ? 1 : -1;
+                });  
+                
             }
             elseif( $type == 2 ) { // type 2 for share images
                 
