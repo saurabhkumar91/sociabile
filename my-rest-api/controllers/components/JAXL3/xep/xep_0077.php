@@ -85,7 +85,7 @@ class XEP_0077 extends XMPPXep {
             $x      = $query->c("body", NULL, array( "send"=>"all", "groupchat"=>"true", "from"=>"jid"), null)->up();  
 //            $x      = $query->c("status", NULL, array("type"=>"xa"), "Text Message when in push mode")->up();  
             $x      = $query->c("offline", NULL, array(), "true")->up();  
-            $x      = $query->c("notification1");  
+            $x      = $query->c("notification");  
             $x      = $query->c("type", NULL, array(), $os=="ios"?"applepush":"gcm")->up();  
             $x      = $query->c("id", NULL, array(), $deviceToken)->up()->up();  
             $x      = $query->c("appid", NULL, array(), $appID);  
