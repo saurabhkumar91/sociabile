@@ -314,6 +314,26 @@ class JAXL extends XMPPStream {
 		$this->send($pkt);
 	}
 	
+        /*
+         * created by : Saurabh kumar
+         */
+        public function setRosterName( $to, $name, $cb=null ){
+                $query  = new JAXLXml('query', 'jabber:iq:roster');
+                $query->c("item", NULL, array('jid'=>$to, 'name'=>$name), NULL);  
+//                $query->c("group", NULL, array(), "Friends");  
+                
+		$pkt = $this->get_iq_pkt(
+			array(
+				'type'=>'set',
+				'from'=>$this->full_jid->to_string()
+			),
+			$query
+		);
+		if($cb) $this->add_cb('on_stanza_id_'.$pkt->id, $cb);
+		$this->send($pkt);
+            
+        }
+        
 	public function subscribe($to) {
 		$this->send($this->get_pres_pkt(
 			array('to'=>$to, 'type'=>'subscribe')
