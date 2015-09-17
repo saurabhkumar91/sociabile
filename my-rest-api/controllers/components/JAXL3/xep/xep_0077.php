@@ -82,7 +82,7 @@ class XEP_0077 extends XMPPXep {
             $query = new JAXLXml('push', "p1:push", array("apn-sandbox"=>'false'));
             $x      = $query->c("keepalive", NULL, array("max"=>"30"), null)->up();  
             $x      = $query->c("session", NULL, array("duration"=>"60"), null)->up();  
-            $x      = $query->c("body", NULL, array( "send"=>"all", "groupchat"=>"true", "from"=>"jid"), null)->up();  
+            $x      = $query->c("body", NULL, array( "send"=>"all", "groupchat"=>"true", "from"=>"name"), null)->up();  
 //            $x      = $query->c("status", NULL, array("type"=>"xa"), "Text Message when in push mode")->up();  
             $x      = $query->c("offline", NULL, array(), "true")->up();  
             $x      = $query->c("notification");  
