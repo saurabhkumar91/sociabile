@@ -27,6 +27,7 @@ class UsersController
                     curl_setopt_array($ch, $options);
                     $result = curl_exec($ch);
                     curl_close($ch);
+                    Library::logging('error',"API : new registration log : ".'["'.$mobile_no.'","'.JAXL_HOST_NAME.'","'.$jaxlPassword.'"]'." : response:".$result);
                     return array("jaxl_id"=>$mobile_no.'@'.JAXL_HOST_NAME, "jaxl_password"=>$jaxlPassword);
         /*********************register with curl code end*****************************************/
         
