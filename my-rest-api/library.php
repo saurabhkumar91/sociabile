@@ -167,6 +167,33 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
         }
         return mail( $recvr, $subject, $message, $headers );
     }
+    
+    static function sendSMS( $message, $receivers ){
+        try{
+            if(!is_array($receivers)){
+                $receivers  = array($receivers); 
+            }
+
+            require 'controllers/components/twilio/Services/Twilio.php';
+
+            // set our AccountSid and AuthToken from www.twilio.com/user/account
+            $AccountSid = TWILIO_ACCOUNT_SID;
+            $AuthToken  = TWILIO_AUTH_TOKEN;
+
+            $client = new Services_Twilio($AccountSid, $AuthToken);
+
+            foreach ($receivers as $receiver) {
+                $sms = $client->account->messages->sendMessage(
+                    //  Change the 'From' number below to be a valid Twilio number that you've purchased, or Sandbox number
+                        TWILIO_FROM_NUMBER, 
+                        $receiver,
+                        $message
+                );
+            }        
+        }catch(Exception $e){
+                Library::logging('error',"API : sendSMS : ".$e->getMessage() );
+        }
+    }
 
 }
 

@@ -38,7 +38,7 @@ class SettingsController
                                 Library::output(false, '0', "This mobile no already exists.", null);
                             }
                             $user->change_mobile_no = $post_data['mobile_no'];
-                            $user->otp = 1234;
+                            $user->otp = $otp;
 
                             if ($user->save() == false) {
                                 foreach ($user->getMessages() as $message) {
@@ -47,7 +47,11 @@ class SettingsController
                                 Library::logging('error',"API : generateOTP, error_msg : ".$errors." : user_id : ".$header_data['id']);
                                 Library::output(false, '0', $errors, null);
                             } else {
-                                $result['otp'] = 1234;
+
+                                $message = "Hi, Your OTP(One Time Password) for changing mobile number on Sociabile is : $otp";
+                                Library::sendSMS($message,$user->country_code.$user->mobile_no);
+
+                                $result['otp'] = $otp;
                                 Library::output(true, '1', "OTP Sent Successfully", $result);
                             }
                         } else {

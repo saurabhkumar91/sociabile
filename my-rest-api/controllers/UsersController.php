@@ -89,7 +89,8 @@ class UsersController
     
     public function registrationAction($data){   
         try {
-            if(!isset($data['mobile_no']) || !isset($data['device_id'])) {
+                    
+            if(!isset($data['mobile_no']) || !isset($data['device_id']) || !isset($data['country_code'])) {
                 Library::logging('alert',"API : registration : ".ERROR_INPUT);
                 Library::output(false, '0', ERROR_INPUT, null);
             } else {
@@ -121,10 +122,11 @@ class UsersController
                     $result["created"]  = 0;
                     Library::output(true, '1', OTP_SENT, $result);
                 } else {
-                    $user   = new Users();
-                    
+                    $user                   = new Users();
+                    $otp                    = Library::getOTP();
                     $user->mobile_no        = $mobile_no;
-                    $user->otp              = 1234;
+                    $user->country_code     = $data['country_code'];
+                    $user->otp              = $otp;
                     $user->device_id        = $device_id;
                     $user->date             = time();
                     $user->is_active        = 0;
@@ -135,6 +137,10 @@ class UsersController
                         foreach ($user->getMessages() as $message) {
                             $errors[] = $message->getMessage();
                         }
+                    
+                        $message = "Hi, Your OTP(One Time Password) for registration on Sociabile is : $otp";
+                        Library::sendSMS($message,$user->country_code.$user->mobile_no);
+                        
                         Library::logging('error',"API : registration : ".$errors." ".$mobile_no);
                         Library::output(false, '0', $errors, null);
                     } else {
@@ -148,7 +154,7 @@ class UsersController
                         /************* register code end ********************************/
                         
                         $result['user_id']  = $user->_id;
-                        $result['otp']      = 1234;
+                        $result['otp']      = $otp;
                         $result["created"]  = 1;
                         Library::output(true, '1', OTP_SENT, $result);
                     }

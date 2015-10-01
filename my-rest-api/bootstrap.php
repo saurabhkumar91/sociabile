@@ -155,3 +155,8 @@ define( 'NOTIFY_BY_ADMIN', '8' );
 
 define( 'CONTACT_US_EMAIL', "scbleHelp@gmail.com" );
 
+
+// SMS constants
+define( 'TWILIO_ACCOUNT_SID', "ACc9cc1ec850a70d4972c8316e6a714b0c" );
+define( 'TWILIO_AUTH_TOKEN', "12c49fa03e84b7681ec5e9da564f3a6d" );
+define( 'TWILIO_FROM_NUMBER', "+1415-599-2671" );
