@@ -90,7 +90,7 @@ class UsersController
     public function registrationAction($data){   
         try {
                     
-            if(!isset($data['mobile_no']) || !isset($data['device_id']) || !isset($data['country_code'])) {
+            if(!isset($data['mobile_no']) || !isset($data['device_id'])) {
                 Library::logging('alert',"API : registration : ".ERROR_INPUT);
                 Library::output(false, '0', ERROR_INPUT, null);
             } else {
@@ -125,7 +125,7 @@ class UsersController
                     $user                   = new Users();
                     $otp                    = Library::getOTP();
                     $user->mobile_no        = $mobile_no;
-                    $user->country_code     = $data['country_code'];
+                    $user->country_code     =  isset($data['country_code'])?$data['country_code']:'';
                     $user->otp              = $otp;
                     $user->device_id        = $device_id;
                     $user->date             = time();
