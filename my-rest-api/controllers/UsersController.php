@@ -106,7 +106,6 @@ class UsersController
                 if(count($record) > 0 && $record[0]->is_active != 0 ) {
                     $result['user_id']  = $record[0]->_id;
                     $result['token']    = $record[0]->hash;
-                   // $result['otp'] = 1234;
                     $db                 = Library::getMongo();
                     if( empty($record[0]->jaxl_id) ){
                         $jaxlCredentials    = $this->registerOnEjabberd( $mobile_no, $jaxlPassword );
