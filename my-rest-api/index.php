@@ -574,6 +574,11 @@ $app->post( "/getNotifications", function() use ($app) {
     $emoticons->getNotificationsAction( $header_data, $app->request->getPost() );
 } );
 
+$app->get( "/getVersion", function() {
+    $header_data    = Library::getallheaders();
+    $user           = new UsersController();
+    $user->getVersionAction( $header_data);
+} );
 
 $app->notFound(
 	function () use ( $app ) {

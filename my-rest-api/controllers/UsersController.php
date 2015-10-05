@@ -137,9 +137,6 @@ class UsersController
                         foreach ($user->getMessages() as $message) {
                             $errors[] = $message->getMessage();
                         }
-                    
-                        $message = "Hi, Your OTP(One Time Password) for registration on Sociabile is : $otp";
-                        Library::sendSMS($message,$user->country_code.$user->mobile_no);
                         
                         Library::logging('error',"API : registration : ".$errors." ".$mobile_no);
                         Library::output(false, '0', $errors, null);
@@ -156,6 +153,10 @@ class UsersController
                         $result['user_id']  = $user->_id;
                         $result['otp']      = $otp;
                         $result["created"]  = 1;
+                    
+                        $message = "Hi, Your OTP(One Time Password) for registration on Sociabile is : $otp";
+                        Library::sendSMS($message,$user->country_code.$user->mobile_no);
+                        
                         Library::output(true, '1', OTP_SENT, $result);
                     }
                 }
@@ -359,6 +360,32 @@ class UsersController
                Library::logging('error',"API : setDeviceToken : ".$errors." : user_id : ".$header_data['id']);
                Library::output(false, '0', ERROR_REQUEST, null);
             }
+        } catch (Exception $e) {
+            Library::logging('error',"API : setDeviceToken : ".$e." ".": user_id : ".$header_data['id']);
+            Library::output(false, '0', ERROR_REQUEST, null);
+        }
+    }
+    
+    /**
+     * Method to set device token (token used to send push notification to device)
+     *
+     * @param object request params
+     * @param object reponse object
+     *
+     * @author Saurabh Kumar
+     * @return json
+     */
+    
+    public function getVersionAction($header_data){
+        try{
+            $db = Library::getMongo();
+            $query  = $db->execute('return db.app_version.find({"os":'.$header_data["os"].' }).toArray();');
+            if($query['ok'] == 0) {
+                Library::logging('error',"API : setDeviceToken (request sent query) mongodb error: ".$query['errmsg']);
+                Library::output(false, '0', ERROR_REQUEST, null);
+            }
+            $result = array("version"=>$query["retval"][0]["version"]);
+            Library::output(true, '1', "No Error", $result);
         } catch (Exception $e) {
             Library::logging('error',"API : setDeviceToken : ".$e." ".": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_REQUEST, null);
