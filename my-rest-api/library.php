@@ -94,7 +94,7 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
     */
     
     static function logging($type,$error){
-        $logger = new FileAdapter("../my-rest-api/error.log");
+        $logger = new FileAdapter("error.log");
         $logger->$type($error);
     }
     

@@ -27,7 +27,7 @@ class UsersController
                     curl_setopt_array($ch, $options);
                     $result = curl_exec($ch);
                     curl_close($ch);
-                    if( strpos($result, "successfully registered") !== false ){
+                    if( strpos($result, "successfully registered") !== false ||  strpos($result, "already registered") !== false ){
                         return array("jaxl_id"=>$mobile_no.'@'.JAXL_HOST_NAME, "jaxl_password"=>$jaxlPassword);
                     }else{
                         Library::logging('error',"API : registration : JAXL registration failed with error ".$result.". ".$mobile_no);
