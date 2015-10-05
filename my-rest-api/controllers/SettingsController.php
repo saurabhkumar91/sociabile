@@ -49,7 +49,7 @@ class SettingsController
                             } else {
 
                                 $message = "Hi, Your OTP(One Time Password) for changing mobile number on Sociabile is : $otp";
-                                Library::sendSMS($message,$user->country_code.$user->mobile_no);
+                                Library::sendSMS($message,$user->country_code.$user->change_mobile_no);
 
                                 $result['otp'] = $otp;
                                 Library::output(true, '1', "OTP Sent Successfully", $result);
