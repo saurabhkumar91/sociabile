@@ -1910,7 +1910,7 @@ class SettingsController
         
         // prep the bundle
         if($os=='ios'){
-            $file_path = dirname(__FILE__).'/certificates/ScblFinal.pem';
+            $file_path = dirname(__FILE__).'/certificates/SociablePushSSL.pem';
             $ctx = stream_context_create();
             stream_context_set_option($ctx, 'ssl', 'local_cert', $file_path);
             stream_context_set_option($ctx, 'ssl', 'passphrase', APN_PASSPHRASE);
@@ -1922,7 +1922,7 @@ class SettingsController
             $body["data"] = $message["message"];
             foreach($deviceToken as $token){
                 $err    = $errstr   = '';
-                $fp = stream_socket_client('ssl://gateway.sandbox.push.apple.com:2195', $err, $errstr, 120, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT, $ctx);
+                $fp = stream_socket_client('ssl://gateway.push.apple.com:2195', $err, $errstr, 120, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT, $ctx);
                 if(!$fp){
                     Library::logging('error',"API : sendNotifications : Unable to send push notification(Failed to connect $err $errstr) : message : ".$message["message"]);
                 } 
