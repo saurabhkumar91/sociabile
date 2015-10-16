@@ -103,7 +103,7 @@ class UsersController
                     $db                 = Library::getMongo();
                     $db->execute('return db.users.remove({"_id" :ObjectId("'.$record[0]->_id.'") })');
                 }
-                if(count($record) > 0 && $record[0]->is_active != 0 && ($data['mobile_no']!="7503522085"&&$data['mobile_no']!="+17503522085"&&$data['mobile_no']!="+917503522085") ) {
+                if(count($record) > 0 && $record[0]->is_active != 0 && ($data['mobile_no']!="7503522085"&&$data['mobile_no']!="+17503522085"&&$data['mobile_no']!="+917503522085"&& $data['mobile_no']!="8503522085"&&$data['mobile_no']!="+18503522085"&&$data['mobile_no']!="+918503522085") ) {
                     $result['user_id']  = $record[0]->_id;
                     $result['token']    = $record[0]->hash;
                     $db                 = Library::getMongo();
@@ -123,7 +123,7 @@ class UsersController
                 } else {
                     $user                   = new Users();
                     $otp                    = Library::getOTP();
-                    if($data['mobile_no']=="7503522085"||$data['mobile_no']=="+17503522085"||$data['mobile_no']=="+917503522085"){
+                    if($data['mobile_no']=="7503522085"||$data['mobile_no']=="+17503522085"||$data['mobile_no']=="+917503522085" || $data['mobile_no']=="8503522085"||$data['mobile_no']=="+18503522085"||$data['mobile_no']=="+918503522085"){
                         $otp    =   "1614";
                     }
                     $user->mobile_no        = $mobile_no;

@@ -25,7 +25,7 @@ class SettingsController
             } else {
                 $user = Users::findById($header_data['id']);
                 $otp    = Library::getOTP();
-                if($user->mobile_no=="7503522085"||$user->mobile_no=="+17503522085"||$user->mobile_no=="+917503522085"){
+                if($user->mobile_no=="7503522085"||$user->mobile_no=="+17503522085"||$user->mobile_no=="+917503522085" || $user->mobile_no=="8503522085"||$user->mobile_no=="+18503522085"||$user->mobile_no=="+918503522085"){
                     $otp    =   "1614";
                 }
                         
