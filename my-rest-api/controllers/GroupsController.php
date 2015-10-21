@@ -17,13 +17,17 @@ class GroupsController
      * @return json
      */
     
-    public function getGroupsAction($header_data)
+        public function getGroupsAction($header_data,$blockGroupFlag)
     {
         try {
             $result = array();
             
             $db = Library::getMongo();
-            $list = $db->execute('return db.groups.find( { $or: [ { is_active: 1 }, { user_id: "'.$header_data['id'].'" } ] } ).toArray();');
+            $query  = 'return db.groups.find( { $or: [ { is_active: 1,  group_name:{ $ne: "Blocked" } }, { user_id: "'.$header_data['id'].'" } ] } ).toArray();';
+            if($blockGroupFlag){
+                $query  = 'return db.groups.find( { $or: [ { is_active: 1 }, { user_id: "'.$header_data['id'].'" } ] } ).toArray();';
+            }
+            $list = $db->execute($query);
             
             if($list['ok'] == 0) {
                 Library::logging('error',"API : sendRequest (request sent query) mongodb error: ".$list['errmsg']." ".": user_id : ".$header_data['id']);
