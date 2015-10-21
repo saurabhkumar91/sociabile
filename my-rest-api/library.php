@@ -18,7 +18,7 @@ use Phalcon\Logger\Adapter\File as FileAdapter;
      static function auth() {
         //ini_set("display_errors",1);
         //error_reporting(E_ALL^ E_NOTICE);
-        $action = array('registration','generateToken','getVersion');
+        $action = array('registration','generateToken','getVersion', 'aboutSociabile');
         $os = array('1','2');
         $version = array('1.0'); 
         $param = self::getallheaders();
