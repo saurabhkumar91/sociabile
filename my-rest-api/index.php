@@ -231,10 +231,10 @@ $app->get('/getRegisteredNumbers', function () use ( $app ) {
     $user->getRegisteredNumbersAction($header_data);
 });
 
-$app->get('/getGroups', function () use ( $app ) {
+$app->get('/getGroups/{blockGroupFlag}', function ($blockGroupFlag) use ( $app ) {
     $header_data = Library::getallheaders();
     $group = new GroupsController();
-    $group->getGroupsAction($header_data);
+    $group->getGroupsAction($header_data,$blockGroupFlag);
 });
 
 $app->post('/addGroup', function () use ( $app ) {
