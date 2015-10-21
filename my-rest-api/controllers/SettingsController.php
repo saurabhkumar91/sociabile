@@ -1062,6 +1062,17 @@ class SettingsController
                         $group_ids = $post_data['group_ids'];
                     }
                 }
+                $blockedGroup   = Users::find( array( array("group_name"=>"Blocked", "is_active"=>1) ) );
+                if( !empty($blockedGroup[0]) ){
+                    foreach($blockedGroup[0] AS $group){
+                        if( in_array($group, $group_ids) ){
+                            Library::logging('error',"API : setPrivacySettings, error_msg : Blocked group could not be used in privacy settings. : user_id : ".$header_data['id']);
+                            Library::output(false, '0', "Blocked group could not be used in privacy settings.", null);
+
+                        }
+                    }
+                }
+                
                 $user = Users::findById($header_data['id']);
                 if($post_data['type'] == 1) {
                     $user->my_mind_groups = $group_ids;
