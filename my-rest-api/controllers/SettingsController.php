@@ -588,7 +588,7 @@ class SettingsController
             Library::logging('alert',"API : contactUs : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
-            Library::logging('error',"API : contactUsLogging, request: ".  var_export($post_data,true).": user_id : ".$header_data['id']);
+//            Library::logging('error',"API : contactUsLogging, request: ".  var_export($post_data,true).": user_id : ".$header_data['id']);
             try {
                 
                 /**** upload image ************************/
@@ -679,7 +679,8 @@ class SettingsController
                 $message    .= "<BR><BR>Device OS-Version : ".$post_data['os_version'];
             }
             if( isset($post_data['reported_image']) &&  isset($post_data['reported_user_id'])  &&  isset($post_data['reported_user_name']) ){
-                $message    .= "<BR><BR>Reported Image : ".$post_data['reported_image']."<BR><BR>Reported User Id : ".$post_data['reported_user_id']."<BR><BR>Reported User Name : ".$post_data['reported_user_name'];
+                $reportedUser   = Users::findById( $header_data['reported_user_id'] );
+                $message    .= "<BR><BR>Reported Image : ".$post_data['reported_image']."<BR><BR>Reported User Id : ".$reportedUser->unique_id."<BR><BR>Reported User Name : ".$reportedUser->username;
             }
             $mail->msgHTML($message, dirname(__FILE__));
             $mail->AltBody = $post_data['message'];
