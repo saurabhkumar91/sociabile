@@ -588,6 +588,7 @@ class SettingsController
             Library::logging('alert',"API : contactUs : ".ERROR_INPUT.": user_id : ".$header_data['id']);
             Library::output(false, '0', ERROR_INPUT, null);
         } else {
+            Library::logging('error',"API : contactUsLogging, request: ".  var_export($post_data,true).": user_id : ".$header_data['id']);
             try {
                 
                 /**** upload image ************************/
@@ -671,10 +672,14 @@ class SettingsController
             //$mail->addReplyTo('replyto@example.com', 'First Last');
             $mail->addAddress(CONTACT_US_EMAIL, '');
             $mail->AddCC('saurabh.kumar@kelltontech.com', 'Saurabh');
+            $mail->AddCC('archit.saxena@kelltontech.com', 'Archit');
             $mail->Subject = 'Contact Us';
-            $message    = "<BR><BR>From : ".$post_data['email_id']."<BR><BR>Date/Time: : ".date('d-m-Y H:i:s')."<BR><BR>Category : ".$category."<BR><BR>Message : ".$post_data['message']."<BR><BR>Device : ".$post_data['user_device']."<BR><BR>Device Model :".$post_data['device_model']."<BR><BR>App Version : ".$header_data["version"]."<BR><BR>User ID : ".$user->unique_id;
+            $message    = "<BR><BR>From : ".$post_data['email_id']."<BR><BR>Date/Time: : ".date('d-m-Y H:i:s')."<BR><BR>Category : ".$category."<BR><BR>Message : ".$post_data['message']."<BR><BR>Device : ".$post_data['user_device']."<BR><BR>Device Model :".$post_data['device_model']."<BR><BR>App Version : ".$header_data["version"]."<BR><BR>User Name : ".$user->username."<BR><BR>User ID : ".$user->unique_id;
             if( isset($post_data['os_version']) ){
                 $message    .= "<BR><BR>Device OS-Version : ".$post_data['os_version'];
+            }
+            if( isset($post_data['reported_image']) &&  isset($post_data['reported_user_id'])  &&  isset($post_data['reported_user_name']) ){
+                $message    .= "<BR><BR>Reported Image : ".$post_data['reported_image']."<BR><BR>Reported User Id : ".$post_data['reported_user_id']."<BR><BR>Reported User Name : ".$post_data['reported_user_name'];
             }
             $mail->msgHTML($message, dirname(__FILE__));
             $mail->AltBody = $post_data['message'];
