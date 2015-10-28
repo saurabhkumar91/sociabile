@@ -636,19 +636,20 @@ class UsersController
                 if( $user->mobile_no == $filter_contacts ){
                     continue;
                 }
-                $record = Users::find(array("conditions" =>array(  "mobile_no"=>'$in:["'.$filter_contacts.'", "+'.$filter_contacts.'"]',"is_active"=>1,"is_deleted"=>0)));
-                if(!empty($record)) {
+//                $record = Users::find(array("conditions" =>array(  "mobile_no"=>'{$in:["'.$filter_contacts.'", "+'.$filter_contacts.'"]}',"is_active"=>1,"is_deleted"=>0)));
+                $record  = $db->execute('return db.users.find({"mobile_no":{$in:["'.$filter_contacts.'", "+'.$filter_contacts.'"]}, "is_active":1, "is_deleted":0}).toArray()');
+                if(!empty($record['retval'][0])) {
                     
-                    if( !empty($user->hidden_contacts) && in_array((string)$record[0]->_id, $user->hidden_contacts) ){
+                    if( !empty($user->hidden_contacts) && in_array((string)$record['retval'][0]['_id'], $user->hidden_contacts) ){
                         continue;
                     }
-                    if(empty($record[0]->is_mobile_searchable)) {
+                    if(empty($record['retval'][0]["is_mobile_searchable"])) {
                         continue;
                     }
                     if(isset($user->running_groups)) {
                         $isFriend   = false;
                         foreach($user->running_groups as $user_ids) {
-                            if($user_ids['user_id'] == (string)$record[0]->_id) {
+                            if($user_ids['user_id'] == (string)$record['retval'][0]['_id']) {
                                 $isFriend   = true; 
                                 break;
                             }
@@ -660,7 +661,7 @@ class UsersController
                     if( isset($user->request_sent) ) {
                         $isFriendRequested  = false;
                         foreach($user->request_sent as $user_ids) {
-                            if($user_ids['user_id'] == (string)$record[0]->_id) {
+                            if($user_ids['user_id'] == (string)$record['retval'][0]['_id']) {
                                 $isFriendRequested   = true; 
                                 break;
                             }
@@ -672,7 +673,7 @@ class UsersController
                     if(isset($user->request_pending)) {
                         $isRequestPending   = false;
                         foreach($user->request_pending as $user_ids) {
-                            if($user_ids['user_id'] == (string)$record[0]->_id) {
+                            if($user_ids['user_id'] == (string)$record['retval'][0]['_id']) {
                                 $isRequestPending   = true; 
                                 break;
                             }
@@ -683,17 +684,17 @@ class UsersController
                     }
                     
                     $register[$i]['mobile_no'] = $contacts;
-                    $register[$i]['user_id'] = (string)$record[0]->_id;
-                    $register[$i]['username'] = $record[0]->username;
-                    $register[$i]['jaxl_id'] = $record[0]->jaxl_id;
-                    $register[$i]['profile_image'] = isset($record[0]->profile_image) ? FORM_ACTION.$record[0]->profile_image : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
+                    $register[$i]['user_id'] = (string)$record['retval'][0]['_id'];
+                    $register[$i]['username'] = $record['retval'][0]['username'];
+                    $register[$i]['jaxl_id'] = $record['retval'][0]['jaxl_id'];
+                    $register[$i]['profile_image'] = isset($record['retval'][0]['profile_image']) ? FORM_ACTION.$record['retval'][0]['profile_image'] : 'http://www.gettyimages.in/CMS/StaticContent/1391099126452_hero1.jpg';
                     $register[$i]['request_sent'] = 0;
                     if(isset($user->request_sent)) {
                         foreach($user->request_sent as $request_sent) {
 //                            if($request_sent['is_active'] == 1) {
 //                                $j = 1;
 //                            }
-                            if($request_sent['user_id'] == (string)$record[0]->_id) {
+                            if($request_sent['user_id'] == (string)$record['retval'][0]['_id']) {
                                 $register[$i]['request_sent'] = 1;
                                 $register[$i]['is_active'] = $request_sent['is_active'];
                                 break;
