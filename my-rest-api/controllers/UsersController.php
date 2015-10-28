@@ -636,7 +636,7 @@ class UsersController
                 if( $user->mobile_no == $filter_contacts ){
                     continue;
                 }
-                $record = Users::find(array("conditions" =>array("mobile_no"=>$filter_contacts,"is_active"=>1,"is_deleted"=>0)));
+                $record = Users::find(array("conditions" =>array(  "mobile_no"=>'$in:["'.$filter_contacts.'", "'.$filter_contacts.'"]',"is_active"=>1,"is_deleted"=>0)));
                 if(!empty($record)) {
                     
                     if( !empty($user->hidden_contacts) && in_array((string)$record[0]->_id, $user->hidden_contacts) ){

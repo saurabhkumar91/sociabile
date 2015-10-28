@@ -678,9 +678,9 @@ class SettingsController
             if( isset($post_data['os_version']) ){
                 $message    .= "<BR><BR>Device OS-Version : ".$post_data['os_version'];
             }
-            if( isset($post_data['reported_image']) &&  isset($post_data['reported_user_id']) ){
+            if( isset($post_data['reported_post_id']) &&  isset($post_data['reported_user_id']) ){
                 $reportedUser   = Users::findById( $post_data['reported_user_id'] );
-                $message    .= "<BR><BR>Reported Image : ".$post_data['reported_image']."<BR><BR>Reported User Id : ".$reportedUser->unique_id."<BR><BR>Reported User Name : ".$reportedUser->username;
+                $message    .= "<BR><BR>Reported Post ID: ".$post_data['reported_post_id']."<BR><BR>Reported User Id : ".$reportedUser->unique_id."<BR><BR>Reported User Name : ".$reportedUser->username;
             }
             $mail->msgHTML($message, dirname(__FILE__));
             $mail->AltBody = $post_data['message'];
