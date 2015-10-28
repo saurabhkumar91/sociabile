@@ -637,6 +637,7 @@ class UsersController
                     continue;
                 }
 //                $record = Users::find(array("conditions" =>array(  "mobile_no"=>'{$in:["'.$filter_contacts.'", "+'.$filter_contacts.'"]}',"is_active"=>1,"is_deleted"=>0)));
+                $db         = Library::getMongo();
                 $record  = $db->execute('return db.users.find({"mobile_no":{$in:["'.$filter_contacts.'", "+'.$filter_contacts.'"]}, "is_active":1, "is_deleted":0}).toArray()');
                 if(!empty($record['retval'][0])) {
                     
